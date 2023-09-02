@@ -4,7 +4,7 @@ public class PlayController : ISceneController
 {
     override protected GameState GetGameState() { return GameState.PLAY; }
 
-    private void Start()
+    protected void Start()
     {
     }
 

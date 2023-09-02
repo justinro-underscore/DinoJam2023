@@ -4,7 +4,7 @@ public class LevelSelectController : ISceneController
 {
     override protected GameState GetGameState() { return GameState.LEVEL_SELECT; }
 
-    private void Start()
+    protected void Start()
     {
     }
 
