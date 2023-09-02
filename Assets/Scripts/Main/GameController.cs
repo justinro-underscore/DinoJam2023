@@ -15,6 +15,8 @@ public class GameController : MonoBehaviour {
 
     public GameState currGameState { get; private set; }
 
+    private GameData gameData;
+
     public void Awake() {
         if ( null == instance ) {
             instance = this;
@@ -22,6 +24,10 @@ public class GameController : MonoBehaviour {
         } else {
             Destroy( this.gameObject );
         }
+
+        // Initialize game data object
+        gameData = new GameData();
+        gameData.Init();
 
         // Initialize the scene controller
         sceneController.Initialize();
@@ -44,7 +50,7 @@ public class GameController : MonoBehaviour {
         }
     }
 
-    public void ChangeState(GameState newGameState)
+    public void ChangeState(GameState newGameState, string levelSceneName="")
     {
         bool handled = true;
         string nextSceneName = null;
@@ -65,7 +71,7 @@ public class GameController : MonoBehaviour {
                 if (newGameState == GameState.PLAY)
                 {
                     sceneController.UnloadScene(Scenes.LevelSelect);
-                    nextSceneName = Scenes.Play;
+                    nextSceneName = levelSceneName;
                 }
                 else if (newGameState == GameState.MAIN_MENU)
                 {
@@ -104,5 +110,10 @@ public class GameController : MonoBehaviour {
         }
         Debug.Log($"Changing game state to {newGameState}");
         currGameState = newGameState;
+    }
+
+    public GameData GetGameData()
+    {
+        return gameData;
     }
 }
