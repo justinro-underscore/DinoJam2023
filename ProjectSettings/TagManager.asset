@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - LeftWing
+  - RightWing
   layers:
   - Default
   - TransparentFX
@@ -40,4 +42,16 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 20298953
+    locked: 0
+  - name: Scene
+    uniqueID: 3472094697
+    locked: 0
+  - name: Player
+    uniqueID: 3053760069
+    locked: 0
+  - name: Foreground
+    uniqueID: 2343518307
     locked: 0
