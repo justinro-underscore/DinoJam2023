@@ -39,6 +39,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] [Range(0.1f, 2.0f)] private float innerWingForce = 0.1f;
     [SerializeField] [Range(0.1f, 2.0f)] private float outerWingForce = 0.1f;
     [SerializeField] [Range(0.1f, 2.0f)] private float lateralWingForce = 0.1f;
+    [SerializeField] [Range(0.01f, 0.125f)] private float innerWingDragForce = 0.01f;
+    [SerializeField] [Range(0.01f, 0.125f)] private float outerWingDragForce = 0.01f;
 
     [Header("Player Settings")]
     [SerializeField] [Range(5.0f, 15.0f)] private float rotationScalar = 5.0f;
@@ -46,6 +48,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb2d;
 
     private List<WingData> wingDatas;
+
+    private float initGrav;
 
     protected void Start()
     {
@@ -66,6 +70,12 @@ public class PlayerController : MonoBehaviour
                 lastRot = wingControllers[i].wingTransform.localEulerAngles.z
             });
         }
+
+        initGrav = rb2d.gravityScale;
+        if ((innerWingDragForce * 2) + (outerWingDragForce * 2) > initGrav)
+        {
+            Debug.LogError("Drag forces too high!!!");
+        }
     }
 
     protected void Update()
@@ -77,6 +87,7 @@ public class PlayerController : MonoBehaviour
             UpdateWingRot(wingData);
             CheckApplyForce(wingData);
         }
+        CheckForWingDrag();
 
         transform.localEulerAngles = new Vector3(0, 0, rb2d.velocity.x * -rotationScalar);
     }
@@ -118,5 +129,18 @@ public class PlayerController : MonoBehaviour
             Vector2 wingForceVec = new Vector2(lateralWingForce * (wingData.leftWing ? 1 : -1), 1) * rotDiff * (wingData.innerWing ? innerWingForce : outerWingForce);
             rb2d.AddForce(wingForceVec);
         }
+    }
+
+    private void CheckForWingDrag()
+    {
+        float gravOffset = 0;
+        foreach (WingData wingData in wingDatas)
+        {
+            if (wingData.currRot < 0)
+            {
+                gravOffset += wingData.innerWing ? innerWingDragForce : outerWingDragForce;
+            }
+        }
+        rb2d.gravityScale = initGrav - gravOffset;
     }
 }
