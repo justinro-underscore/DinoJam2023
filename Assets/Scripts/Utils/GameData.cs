@@ -3,24 +3,23 @@ using System.Collections.Generic;
 
 public class GameData
 {
-    private List<Level> levelData;
-
+    private int lastUnlockedLevelIndex;
     private int lastPlayedLevelIndex;
 
     public void Init()
     {
-        levelData = new List<Level>();
+        lastUnlockedLevelIndex = 0;
         lastPlayedLevelIndex = 0;
     }
 
-    public void SetLevelData(List<Level> levelData)
+    public void SetLastUnlockedLevelIndex(int lastUnlockedLevelIndex)
     {
-        this.levelData = levelData;
+        this.lastUnlockedLevelIndex = lastUnlockedLevelIndex;
     }
 
-    public List<Level> GetLevelData()
+    public int GetLastUnlockedLevelIndex()
     {
-        return levelData;
+        return lastUnlockedLevelIndex;
     }
 
     public void SetLastPlayedLevelIndex(int lastPlayedLevelIndex)

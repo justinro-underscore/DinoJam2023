@@ -672,4 +672,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneName: PlayScene
-  isLocked: 0
+  isLocked: 1

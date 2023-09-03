@@ -28,9 +28,4 @@ public class Level : MonoBehaviour
     {
         return sceneName;
     }
-
-    public int GetInstanceId()
-    {
-        return gameObject.GetInstanceID();
-    }
 }
