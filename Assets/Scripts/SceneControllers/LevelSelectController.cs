@@ -52,16 +52,22 @@ public class LevelSelectController : ISceneController
         selectedLevel = levels[selectedLevelIndex];
         playerTransform.position = selectedLevel.GetLevelIconLocation();
 
+        // Update game data scene name
+        gameData.currentPlaySceneName = selectedLevel.GetSceneName();
+
         // Initialize levels (unlocked etc.)
         LoadLevels();
     }
 
     override protected void SceneUpdate()
     {
+        // Enter level
         if (Input.GetKeyDown(KeyCode.Return))
         {
+            // Store required data and change state to play
             gameData.lastPlayedLevelIndex = selectedLevelIndex;
-            GameController.instance.ChangeState(GameState.PLAY, selectedLevel.GetSceneName());
+            gameData.currentPlaySceneName = selectedLevel.GetSceneName();
+            GameController.instance.ChangeState(GameState.PLAY);
         }
         else if (Input.GetKeyDown(KeyCode.Escape))
         {

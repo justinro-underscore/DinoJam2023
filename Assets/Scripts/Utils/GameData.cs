@@ -6,9 +6,12 @@ public class GameData
     public int lastUnlockedLevelIndex { get; set; }
     public int lastPlayedLevelIndex { get; set; }
 
+    public string currentPlaySceneName { get; set; }
+
     public void Init()
     {
         lastUnlockedLevelIndex = 0;
         lastPlayedLevelIndex = 0;
+        currentPlaySceneName = "";
     }
 }

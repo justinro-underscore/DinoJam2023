@@ -50,7 +50,7 @@ public class GameController : MonoBehaviour {
         }
     }
 
-    public void ChangeState(GameState newGameState, string levelSceneName="")
+    public void ChangeState(GameState newGameState)
     {
         bool handled = true;
         string nextSceneName = null;
@@ -71,7 +71,7 @@ public class GameController : MonoBehaviour {
                 if (newGameState == GameState.PLAY)
                 {
                     sceneController.UnloadScene(Scenes.LevelSelect);
-                    nextSceneName = levelSceneName;
+                    nextSceneName = gameData.currentPlaySceneName;
                 }
                 else if (newGameState == GameState.MAIN_MENU)
                 {
