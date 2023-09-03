@@ -2,18 +2,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// TODO: one day maybe we can have these as the dropdown value for levels
 public static class Scenes {
     public const string Base = "BaseScene";
     public const string MainMenu = "MainMenuScene";
     public const string LevelSelect = "LevelSelectScene";
-    public const string Play = "PlayScene";
+
+    // Levels
+    // TODO: temp level name
+    public const string TestLevel = "PlayScene";
 }
 
 public class SceneController : MonoBehaviour {
     private IDictionary<string, GameState> gameSceneStateMapping = new Dictionary<string, GameState>() {
         {Scenes.MainMenu, GameState.MAIN_MENU},
         {Scenes.LevelSelect, GameState.LEVEL_SELECT},
-        {Scenes.Play, GameState.PLAY}
+        {Scenes.TestLevel, GameState.PLAY}
     };
 
     public static SceneController instance = null;

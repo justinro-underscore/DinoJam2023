@@ -86,7 +86,7 @@ public class GameController : MonoBehaviour {
             case GameState.PLAY:
                 if (newGameState == GameState.LEVEL_SELECT)
                 {
-                    sceneController.UnloadScene(Scenes.Play);
+                    sceneController.UnloadScene(gameData.currentPlaySceneName);
                     nextSceneName = Scenes.LevelSelect;
                 }
                 else

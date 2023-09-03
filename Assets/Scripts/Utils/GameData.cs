@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 public class GameData
 {
-    public int lastUnlockedLevelIndex { get; set; }
-    public int lastPlayedLevelIndex { get; set; }
+    public int lastUnlockedLevelIndex;
+    public int lastPlayedLevelIndex;
 
-    public string currentPlaySceneName { get; set; }
+    public string currentPlaySceneName;
 
     public void Init()
     {
