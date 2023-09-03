@@ -3,24 +3,34 @@ using System.Collections.Generic;
 
 public class GameData
 {
-    private Dictionary<string, bool> m_LevelData;
+    private List<Level> levelData;
 
     private int lastPlayedLevelIndex;
 
     public void Init()
     {
-        m_LevelData = new Dictionary<string, bool>();
+        levelData = new List<Level>();
         lastPlayedLevelIndex = 0;
     }
 
-    public void SetLevelData(string levelId, bool isUnlocked)
+    public void SetLevelData(List<Level> levelData)
     {
-        m_LevelData.Add(levelId, isUnlocked);
+        this.levelData = levelData;
+    }
+
+    public List<Level> GetLevelData()
+    {
+        return levelData;
     }
 
     public void SetLastPlayedLevelIndex(int lastPlayedLevelIndex)
     {
         this.lastPlayedLevelIndex = lastPlayedLevelIndex;
+    }
+
+    public int GetLastPlayedLevelIndex()
+    {
+        return lastPlayedLevelIndex;
     }
 
 }

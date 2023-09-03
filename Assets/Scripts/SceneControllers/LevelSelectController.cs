@@ -32,20 +32,27 @@ public class LevelSelectController : ISceneController
     private Level selectedLevel;
     private int selectedLevelIndex;
 
+    // Game data
+    private GameData gameData;
+
     // We are level select state
     override protected GameState GetGameState() { return GameState.LEVEL_SELECT; }
 
     // Init values
     protected void Start()
     {
-        // Start at initial level
-        // TODO: this should know what level the player just finished move the player to that level (could be helper method)
-        selectedLevelIndex = 0;
+        // Get game data
+        if (gameData == null)
+        {
+            gameData = GameController.instance.GetGameData();
+        }
+
+        // Start at level saved in game data
+        selectedLevelIndex = gameData.GetLastPlayedLevelIndex();
         selectedLevel = levels[selectedLevelIndex];
+        playerTransform.position = selectedLevel.GetLevelIconLocation();
 
-
-        // TOOD: temporary stuff below
-        selectedLevel.UnlockLevel(unlockedIconSprite);
+        // Initialize levels (unlocked etc.)
         LoadLevels();
     }
 
@@ -53,6 +60,7 @@ public class LevelSelectController : ISceneController
     {
         if (Input.GetKeyDown(KeyCode.Return))
         {
+            gameData.SetLastPlayedLevelIndex(selectedLevelIndex);
             GameController.instance.ChangeState(GameState.PLAY, selectedLevel.GetSceneName());
         }
         else if (Input.GetKeyDown(KeyCode.Escape))
@@ -96,16 +104,40 @@ public class LevelSelectController : ISceneController
         playerTransform.DOMove(selectedLevel.GetLevelIconLocation(), playerIconSpeed, false);
     }
 
+    public bool UnlockNextLevel()
+    {
+        bool unlockedLevel = false;
+        if (selectedLevelIndex != levels.Count - 1)
+        {
+            levels[selectedLevelIndex + 1].UnlockLevel(unlockedIconSprite);
+            unlockedLevel = true;
+        }
+
+        return unlockedLevel;
+    }
+
     // TODO: use player prefs to load which levels have been unlocked?
     public void LoadLevels()
     {
-        foreach (Level level in levels)
+        /*
+        Dictionary<string, bool> levelData = gameData.levelData;
+        if (levelData.Count == 0)
+        {
+            // We did not yet load level data into game data so we should load now
+            foreach (Level level in levels)
+            {
+                levelData.Add(level.GetInstanceId(), level.IsLevelLocked())
+            }
+        }
+
+        foreach (KeyValuePair<string, bool> levelDatum in levelData)
         {
             // If level is not locked, unlock it
-            if (!level.IsLevelLocked())
+            if (!levelDatum.Value)
             {
                 level.UnlockLevel(unlockedIconSprite);
             }
         }
+        */
     }
 }

@@ -459,6 +459,7 @@ MonoBehaviour:
   - {fileID: 1930083091}
   - {fileID: 971588067}
   playerTransform: {fileID: 739178013}
+  playerIconSpeed: 1
 --- !u!4 &1348443250
 Transform:
   m_ObjectHideFlags: 0
@@ -572,7 +573,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneName: PlayScene
-  isLocked: 1
+  isLocked: 0
 --- !u!1 &1930083088
 GameObject:
   m_ObjectHideFlags: 0

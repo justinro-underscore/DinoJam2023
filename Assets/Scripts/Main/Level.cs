@@ -9,7 +9,6 @@ public class Level : MonoBehaviour
 
     public Vector3 GetLevelIconLocation()
     {
-        //return gameObject.transform.localPosition;
         return gameObject.GetComponent<SpriteRenderer>().bounds.center;
     }
 
@@ -28,5 +27,10 @@ public class Level : MonoBehaviour
     public string GetSceneName()
     {
         return sceneName;
+    }
+
+    public int GetInstanceId()
+    {
+        return gameObject.GetInstanceID();
     }
 }
