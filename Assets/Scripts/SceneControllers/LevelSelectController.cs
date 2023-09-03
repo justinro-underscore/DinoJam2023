@@ -48,7 +48,7 @@ public class LevelSelectController : ISceneController
         }
 
         // Start at level saved in game data
-        selectedLevelIndex = gameData.GetLastPlayedLevelIndex();
+        selectedLevelIndex = gameData.lastPlayedLevelIndex;
         selectedLevel = levels[selectedLevelIndex];
         playerTransform.position = selectedLevel.GetLevelIconLocation();
 
@@ -60,7 +60,7 @@ public class LevelSelectController : ISceneController
     {
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            gameData.SetLastPlayedLevelIndex(selectedLevelIndex);
+            gameData.lastPlayedLevelIndex = selectedLevelIndex;
             GameController.instance.ChangeState(GameState.PLAY, selectedLevel.GetSceneName());
         }
         else if (Input.GetKeyDown(KeyCode.Escape))
@@ -109,16 +109,17 @@ public class LevelSelectController : ISceneController
         bool unlockedLevel = false;
         if (selectedLevelIndex != levels.Count - 1)
         {
-            gameData.SetLastUnlockedLevelIndex(selectedLevelIndex + 1);
+            gameData.lastUnlockedLevelIndex = selectedLevelIndex + 1;
             unlockedLevel = true;
         }
 
         return unlockedLevel;
     }
 
+    // TOOD: maybe one day we can check if we need to read loaded level objects
     public void LoadLevels()
     {
-        int lastUnlockedLevelIndex = gameData.GetLastUnlockedLevelIndex();
+        int lastUnlockedLevelIndex = gameData.lastUnlockedLevelIndex;
         for (int i = 0; i < levels.Count; i++)
         {
             if (i <= lastUnlockedLevelIndex)
