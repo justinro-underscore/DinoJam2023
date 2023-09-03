@@ -6,6 +6,9 @@ TagManager:
   tags:
   - LeftWing
   - RightWing
+  - Egg
+  - Nest
+  - PlayerTag
   layers:
   - Default
   - TransparentFX
@@ -17,10 +20,10 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Nest
+  - Egg
+  - Walls
   - 
   - 
   - 
@@ -48,9 +51,6 @@ TagManager:
     locked: 0
   - name: Scene
     uniqueID: 3472094697
-    locked: 0
-  - name: Player
-    uniqueID: 3053760069
     locked: 0
   - name: Foreground
     uniqueID: 2343518307

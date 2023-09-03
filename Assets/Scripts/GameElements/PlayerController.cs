@@ -44,10 +44,15 @@ public class PlayerController : MonoBehaviour
 
     [Header("Player Settings")]
     [SerializeField] [Range(5.0f, 15.0f)] private float rotationScalar = 5.0f;
+    [SerializeField] [Range(1.0f, 200.0f)] private float eggGrabForceScalar = 1.0f;
 
     private Rigidbody2D rb2d;
+    private List<PolygonCollider2D> eggColliders;
 
     private List<WingData> wingDatas;
+
+    private EggController eggController;
+    private bool holdingEgg;
 
     private float initGrav;
 
@@ -106,6 +111,22 @@ public class PlayerController : MonoBehaviour
                 wingData.lifting = false;
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (eggController)
+            {
+                holdingEgg = !holdingEgg;
+                if (holdingEgg)
+                {
+                    holdingEgg = GrabEgg();
+                }
+                else
+                {
+                    DropEgg();
+                }
+            }
+        }
     }
 
     private void UpdateWingRot(WingData wingData)
@@ -142,5 +163,59 @@ public class PlayerController : MonoBehaviour
             }
         }
         rb2d.gravityScale = initGrav - gravOffset;
+    }
+
+    private bool GrabEgg()
+    {
+        if (!eggController) return false;
+
+        eggController.GrabEgg(transform);
+        transform.localEulerAngles = new Vector3(0, 0, 0);
+        transform.position = eggController.transform.position;
+        eggController.transform.localPosition = new Vector2(0, -0.5f);
+        rb2d.velocity = Vector2.zero;
+
+        PolygonCollider2D[] colliders = eggController.gameObject.GetComponents<PolygonCollider2D>();
+        eggColliders = new List<PolygonCollider2D>();
+        foreach (PolygonCollider2D eggCollider in colliders)
+        {
+            PolygonCollider2D newCollider = gameObject.AddComponent<PolygonCollider2D>().GetCopyOf(eggCollider);
+            newCollider.isTrigger = eggCollider.isTrigger;
+            newCollider.offset = new Vector2(0, newCollider.offset.y - 0.5f);
+            eggColliders.Add(newCollider);
+        }
+
+        rb2d.AddForce(Vector2.up * eggGrabForceScalar);
+        return true;
+    }
+
+    private void DropEgg()
+    {
+        if (eggController)
+        {
+            eggController.DropEgg();
+            foreach (PolygonCollider2D collider in eggColliders)
+            {
+                Destroy(collider);
+            }
+            eggColliders = null;
+            eggController = null;
+        }
+    }
+
+    protected void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Egg"))
+        {
+            eggController = other.gameObject.GetComponent<EggController>();
+        }
+    }
+
+    protected void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Egg") && !holdingEgg)
+        {
+            eggController = null;
+        }
     }
 }
