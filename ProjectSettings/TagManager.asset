@@ -9,6 +9,7 @@ TagManager:
   - Egg
   - Nest
   - PlayerTag
+  - Waypoint
   layers:
   - Default
   - TransparentFX

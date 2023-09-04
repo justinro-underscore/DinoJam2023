@@ -10,7 +10,7 @@ public static class Scenes {
 
     // Levels
     // TODO: temp level name
-    public const string TestLevel = "PlayScene";
+    public const string TestLevel = "ObstacleLevel";
 }
 
 public class SceneController : MonoBehaviour {
