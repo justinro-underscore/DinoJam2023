@@ -9,6 +9,7 @@ TagManager:
   - Egg
   - Nest
   - PlayerTag
+  - Walls
   layers:
   - Default
   - TransparentFX

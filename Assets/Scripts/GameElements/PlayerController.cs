@@ -47,6 +47,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] [Range(0.0f, 1.0f)] private float initGripVal;
     [SerializeField] [Range(0.1f, 2.0f)] private float gripDrainScalar = 0.1f;
     [SerializeField] [Range(0.01f, 1.0f)] private float gripGainAmount = 0.01f;
+    [SerializeField] [Range(0.01f, 1.0f)] private float gripCollisionDrainAmount = 0.01f;
+    [SerializeField] [Range(0.01f, 1.0f)] private float gripCollisionSaveAmount = 0.01f;
+    [SerializeField] [Range(0.0f, 2.0f)] private float invulnerabilityInitTime;
 
     [Header("Player Settings")]
     [SerializeField] [Range(5.0f, 15.0f)] private float rotationScalar = 5.0f;
@@ -60,6 +63,8 @@ public class PlayerController : MonoBehaviour
     private EggController eggController;
     private bool gripping;
     private float gripVal;
+    private bool invulnerable;
+    private float invulnerabilityTime;
 
     private float initGrav;
 
@@ -119,28 +124,27 @@ public class PlayerController : MonoBehaviour
                 wingData.lifting = false;
             }
         }
-
-        // if (Input.GetKeyDown(KeyCode.Space))
-        // {
-        //     if (eggController)
-        //     {
-        //         holdingEgg = !holdingEgg;
-        //         if (holdingEgg)
-        //         {
-        //             holdingEgg = GrabEgg();
-        //         }
-        //         else
-        //         {
-        //             DropEgg();
-        //         }
-        //     }
-        // }
     }
 
     private void HandleGrip()
     {
+        if (invulnerabilityTime > 0)
+        {
+            invulnerabilityTime -= Time.deltaTime;
+            if (invulnerabilityTime <= 0)
+            {
+                invulnerable = false;
+            }
+        }
+
         if (gripping)
         {
+            if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl))
+            {
+                DropEgg();
+                return;
+            }
+
             gripVal -= Time.deltaTime * gripDrainScalar;
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -152,7 +156,6 @@ public class PlayerController : MonoBehaviour
             if (gripVal <= 0)
             {
                 DropEgg();
-                gripping = false;
             }
         }
         else if (Input.GetKeyDown(KeyCode.Space))
@@ -223,6 +226,7 @@ public class PlayerController : MonoBehaviour
         }
 
         rb2d.AddForce(Vector2.up * eggGrabForceScalar);
+        SetInvulnerable();
 
         gripBarController.Enter();
     }
@@ -240,6 +244,8 @@ public class PlayerController : MonoBehaviour
             eggController.SetEggOutlineVisible(false);
             eggController = null;
             gripBarController.Exit();
+
+            gripping = false;
         }
     }
 
@@ -264,5 +270,27 @@ public class PlayerController : MonoBehaviour
             eggController.SetEggOutlineVisible(false);
             eggController = null;
         }
+    }
+
+    protected void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Walls") && gripping && !invulnerable)
+        {
+            float drainAmount = gripCollisionDrainAmount;
+            if (gripVal > gripCollisionSaveAmount)
+            {
+                drainAmount = Mathf.Min(gripCollisionDrainAmount, gripVal - gripCollisionSaveAmount);
+            }
+            gripVal -= drainAmount;
+            gripBarController.SetGripPercentage(gripVal);
+            gripBarController.OnCollision();
+            SetInvulnerable();
+        }
+    }
+
+    private void SetInvulnerable()
+    {
+        invulnerabilityTime = invulnerabilityInitTime;
+        invulnerable = true;
     }
 }

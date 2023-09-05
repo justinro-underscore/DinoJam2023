@@ -20,6 +20,11 @@ public class GripBarController : MonoBehaviour
     [SerializeField] [Range(0.0f, 2.0f)] private float exitTime;
     [SerializeField] [Range(0.0f, 20.0f)] private float flyOutDistance;
 
+    [Header("Grip Bar Collision Values")]
+    [SerializeField] [Range(0.0f, 2.0f)] private float collisionTime;
+    [SerializeField] [Range(0.0f, 1.0f)] private float collisionShakeStrength;
+    [SerializeField] [Range(0, 40)] private int collisionShakeVibrato;
+
     private float gripBarSizeY;
     private float initPosY;
 
@@ -38,6 +43,12 @@ public class GripBarController : MonoBehaviour
         float fillSizeY = val * (gripBarSizeY - gripBarFillOutlineOffsetY);
         gripBarFillOutline.size = new Vector2(gripBarFillOutline.size.x, fillSizeY);
         gripBarFill.size = new Vector2(gripBarFill.size.x, Mathf.Max(0, fillSizeY - (gripBarFillOffsetY - gripBarFillOutlineOffsetY)));
+    }
+
+    public void OnCollision()
+    {
+        ResetDOTweens();
+        transform.DOShakePosition(collisionTime, new Vector3(collisionShakeStrength, 0, 0), collisionShakeVibrato);
     }
 
     public void Enter()

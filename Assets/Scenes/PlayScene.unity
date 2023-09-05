@@ -379,7 +379,7 @@ GameObject:
   - component: {fileID: 260619262}
   m_Layer: 13
   m_Name: Walls
-  m_TagString: Untagged
+  m_TagString: Walls
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -542,7 +542,7 @@ GameObject:
   - component: {fileID: 694470136}
   - component: {fileID: 694470135}
   m_Layer: 10
-  m_Name: Pterodactyl
+  m_Name: Player
   m_TagString: PlayerTag
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -611,6 +611,9 @@ MonoBehaviour:
   initGripVal: 0.7
   gripDrainScalar: 0.17
   gripGainAmount: 0.197
+  gripCollisionDrainAmount: 0.188
+  gripCollisionSaveAmount: 0.099
+  invulnerabilityInitTime: 0.6
   rotationScalar: 10.33
   eggGrabForceScalar: 98
 --- !u!212 &694470134
@@ -906,6 +909,9 @@ MonoBehaviour:
   bounceInScalar: 1.028
   exitTime: 1.22
   flyOutDistance: 5.4
+  collisionTime: 0.26
+  collisionShakeStrength: 0.12
+  collisionShakeVibrato: 33
 --- !u!1 &818021273
 GameObject:
   m_ObjectHideFlags: 0
@@ -1672,7 +1678,7 @@ GameObject:
   - component: {fileID: 2146448630}
   m_Layer: 13
   m_Name: Tilemap
-  m_TagString: Untagged
+  m_TagString: Walls
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
