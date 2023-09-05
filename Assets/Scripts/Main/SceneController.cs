@@ -11,13 +11,15 @@ public static class Scenes {
     // Levels
     // TODO: temp level name
     public const string TestLevel = "ObstacleLevel";
+    public const string TestLevel2 = "PlayScene";
 }
 
 public class SceneController : MonoBehaviour {
     private IDictionary<string, GameState> gameSceneStateMapping = new Dictionary<string, GameState>() {
         {Scenes.MainMenu, GameState.MAIN_MENU},
         {Scenes.LevelSelect, GameState.LEVEL_SELECT},
-        {Scenes.TestLevel, GameState.PLAY}
+        {Scenes.TestLevel, GameState.PLAY},
+        {Scenes.TestLevel2, GameState.PLAY}
     };
 
     public static SceneController instance = null;

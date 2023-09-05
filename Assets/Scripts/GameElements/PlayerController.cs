@@ -209,26 +209,23 @@ public class PlayerController : MonoBehaviour
         {
             eggController = other.gameObject.GetComponent<EggController>();
         }
-    }
 
-    protected void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.gameObject.CompareTag("Egg") && !holdingEgg)
-        {
-            eggController = null;
-        }
-    }
-
-    // TODO: ideally we handle this better with a script we can attach to any game object separate from main logic
-    // TODO: something like a damage emitter and damage accumulator script or whatever and that can handle checking and storing
-    // TODO: damage on its own
-    protected void OnTriggerEnter2D(Collider2D other)
-    {
+        // TODO: ideally we handle this better with a script we can attach to any game object separate from main logic
+        // TODO: something like a damage emitter and damage accumulator script or whatever and that can handle checking and storing
+        // TODO: damage on its own
         if (other.gameObject.CompareTag(Constants.damageEmitterTag))
         {
             // TODO: temporary code
             Debug.Log("HIT");
             GameController.instance.ChangeState(GameState.LEVEL_SELECT);
+        }
+    }
+    
+    protected void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Egg") && !holdingEgg)
+        {
+            eggController = null;
         }
     }
 }

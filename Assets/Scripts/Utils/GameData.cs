@@ -12,6 +12,8 @@ public class GameData
     {
         lastUnlockedLevelIndex = 0;
         lastPlayedLevelIndex = 0;
-        currentPlaySceneName = "";
+
+        // TODO: temporary until I fix this later lmao
+        currentPlaySceneName = "ObstacleLevel";
     }
 }
