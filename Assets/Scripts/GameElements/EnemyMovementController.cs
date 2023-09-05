@@ -3,7 +3,7 @@ using UnityEngine;
 
 using DG.Tweening;
 
-public class EnemyMovement : MonoBehaviour {
+public class EnemyMovementController : MonoBehaviour {
     [SerializeField] [Range(0.0f, 20.0f)] public float speed = 2.0f;
 
     // -1 will causes path to be run forward and backwards infinite number of times
