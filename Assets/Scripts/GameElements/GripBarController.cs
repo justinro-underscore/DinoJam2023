@@ -1,7 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
-public class GripBarController : MonoBehaviour
+public class GripBarController : IManagedController
 {
     [Header("Grip Bar Elements")]
     [SerializeField] private SpriteRenderer gripBarOutline;
@@ -25,16 +25,29 @@ public class GripBarController : MonoBehaviour
     [SerializeField] [Range(0.0f, 1.0f)] private float collisionShakeStrength;
     [SerializeField] [Range(0, 40)] private int collisionShakeVibrato;
 
+    private SpriteRenderer[] gripBarSpriteRenderers;
+
     private float gripBarSizeY;
     private float initPosY;
 
-    protected void Start()
+    override protected void ManagedStart()
     {
+        gripBarSpriteRenderers = new SpriteRenderer[] {gripBarOutline, gripBarFillOutline, gripBarFill};
         initPosY = transform.position.y;
         gripBarSizeY = gripBarOutline.size.y;
-        gripBarFillOutline.color = new Color(1, 1, 1, 0);
-        gripBarOutline.color = new Color(1, 1, 1, 0);
-        gripBarFill.color = new Color(1, 1, 1, 0);
+        foreach (SpriteRenderer gripBarSR in gripBarSpriteRenderers)
+        {
+            gripBarSR.color = new Color(1, 1, 1, 0);
+        }
+    }
+
+    override public void OnStateChanged(bool active)
+    {
+        foreach (SpriteRenderer gripBarSR in gripBarSpriteRenderers)
+        {
+            gripBarSR.DOTogglePause();
+        }
+        transform.DOTogglePause();
     }
 
     public void SetGripPercentage(float val)
@@ -55,9 +68,10 @@ public class GripBarController : MonoBehaviour
     {
         ResetDOTweens();
         transform.position = new Vector3(transform.position.x, initPosY);
-        gripBarOutline.DOFade(1, fadeInTime);
-        gripBarFillOutline.DOFade(1, fadeInTime);
-        gripBarFill.DOFade(1, fadeInTime);
+        foreach (SpriteRenderer gripBarSR in gripBarSpriteRenderers)
+        {
+            gripBarSR.DOFade(1, fadeInTime);
+        }
 
         gripBarOutline.transform.localScale = Vector3.zero;
         DOTween.Sequence().Append(transform.DOScale(bounceInScalar, bounceInTime))
@@ -67,9 +81,10 @@ public class GripBarController : MonoBehaviour
     public void Exit()
     {
         ResetDOTweens();
-        gripBarOutline.DOFade(0, exitTime / 2);
-        gripBarFillOutline.DOFade(0, exitTime / 2);
-        gripBarFill.DOFade(0, exitTime / 2);
+        foreach (SpriteRenderer gripBarSR in gripBarSpriteRenderers)
+        {
+            gripBarSR.DOFade(0, exitTime / 2);
+        }
 
         transform.DOMoveY(-flyOutDistance, exitTime).SetEase(Ease.OutCubic)
             .OnComplete(() => transform.position = new Vector3(transform.position.x, initPosY));
@@ -77,9 +92,10 @@ public class GripBarController : MonoBehaviour
 
     private void ResetDOTweens()
     {
-        gripBarOutline.DOKill(true);
-        gripBarFillOutline.DOKill(true);
-        gripBarFill.DOKill(true);
+        foreach (SpriteRenderer gripBarSR in gripBarSpriteRenderers)
+        {
+            gripBarSR.DOKill(true);
+        }
         transform.DOKill(true);
     }
 }

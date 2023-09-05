@@ -1,19 +1,25 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EggController : MonoBehaviour
+public class EggController : IManagedController
 {
     [SerializeField] private GameObject eggOutline;
     [SerializeField] private GameObject eggTrigger;
 
     private Rigidbody2D rb2d;
     private Transform initParent;
+    private bool wasRB2DActive;
 
-    protected void Start()
+    override protected void ManagedStart()
     {
         rb2d = GetComponent<Rigidbody2D>();
         initParent = transform.parent;
+    }
+
+    override public void OnStateChanged(bool active)
+    {
+        if (!active) wasRB2DActive = rb2d.simulated;
+        rb2d.simulated = active ? wasRB2DActive : false;
     }
 
     public void SetEggOutlineVisible(bool visible)
@@ -50,6 +56,8 @@ public class EggController : MonoBehaviour
 
     protected void OnTriggerEnter2D(Collider2D other)
     {
+        if (!PlayController.instance.Active) return;
+
         if (other.gameObject.CompareTag("Nest"))
         {
             // TODO: Win

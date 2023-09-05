@@ -1,4 +1,3 @@
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 
 public abstract class ISceneController : MonoBehaviour
@@ -7,7 +6,7 @@ public abstract class ISceneController : MonoBehaviour
 
     protected bool SceneActive() { return GameController.instance.currGameState == GetGameState(); }
 
-    private void Update()
+    protected void Update()
     {
         if (SceneActive())
         {
@@ -15,5 +14,14 @@ public abstract class ISceneController : MonoBehaviour
         }
     }
 
+    protected void FixedUpdate()
+    {
+        if (SceneActive())
+        {
+            SceneFixedUpdate();
+        }
+    }
+
     protected virtual void SceneUpdate() { }
+    protected virtual void SceneFixedUpdate() { }
 }
