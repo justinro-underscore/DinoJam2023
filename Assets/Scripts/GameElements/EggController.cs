@@ -5,6 +5,9 @@ public class EggController : IManagedController
 {
     [SerializeField] private GameObject eggOutline;
     [SerializeField] private GameObject eggTrigger;
+    [SerializeField] private SpriteRenderer eggCracks;
+
+    [SerializeField] private List<Sprite> eggCrackSprites;
 
     private Rigidbody2D rb2d;
     private Transform initParent;
@@ -16,10 +19,10 @@ public class EggController : IManagedController
         initParent = transform.parent;
     }
 
-    override public void OnStateChanged(bool active)
+    override public void OnStateChanged(PlayState newState)
     {
-        if (!active) wasRB2DActive = rb2d.simulated;
-        rb2d.simulated = active ? wasRB2DActive : false;
+        if (newState == PlayState.PAUSE) wasRB2DActive = rb2d.simulated;
+        rb2d.simulated = newState != PlayState.PAUSE ? wasRB2DActive : false;
     }
 
     public void SetEggOutlineVisible(bool visible)
@@ -54,14 +57,21 @@ public class EggController : IManagedController
         transform.localEulerAngles = Vector3.zero;
     }
 
+    public void SetCrack(int crackNum)
+    {
+        if (crackNum < eggCrackSprites.Count)
+        {
+            eggCracks.sprite = eggCrackSprites[crackNum];
+        }
+    }
+
     protected void OnTriggerEnter2D(Collider2D other)
     {
-        if (!PlayController.instance.Active) return;
+        if (PlayController.instance.State != PlayState.RUNNING) return;
 
         if (other.gameObject.CompareTag("Nest"))
         {
-            // TODO: Win
-            Debug.Log("WIN!");
+            PlayController.instance.WinLevel();
         }
     }
 }

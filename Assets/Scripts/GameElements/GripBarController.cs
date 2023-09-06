@@ -41,13 +41,16 @@ public class GripBarController : IManagedController
         }
     }
 
-    override public void OnStateChanged(bool active)
+    override public void OnStateChanged(PlayState newState)
     {
-        foreach (SpriteRenderer gripBarSR in gripBarSpriteRenderers)
+        if (newState == PlayState.RUNNING || newState == PlayState.PAUSE)
         {
-            gripBarSR.DOTogglePause();
+            foreach (SpriteRenderer gripBarSR in gripBarSpriteRenderers)
+            {
+                gripBarSR.DOTogglePause();
+            }
+            transform.DOTogglePause();
         }
-        transform.DOTogglePause();
     }
 
     public void SetGripPercentage(float val)

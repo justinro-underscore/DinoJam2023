@@ -59,6 +59,8 @@ public class PlayerController : IManagedController
     private List<PolygonCollider2D> eggColliders;
 
     private List<WingData> wingDatas;
+    private bool canInput;
+    private bool canGrip;
 
     private EggController eggController;
     private bool gripping;
@@ -93,24 +95,45 @@ public class PlayerController : IManagedController
         {
             Debug.LogError("Drag forces too high!!!");
         }
+
+        canInput = true;
+        canGrip = true;
     }
 
-    override public void OnStateChanged(bool active)
+    override public void OnStateChanged(PlayState newState)
     {
-        rb2d.simulated = active;
+        rb2d.simulated = newState != PlayState.PAUSE;
+        switch (newState)
+        {
+            case PlayState.WIN:
+            {
+                canGrip = false;
+                if (gripping) DropEgg();
+                break;
+            }
+            case PlayState.LOSE:
+            {
+                canInput = false;
+                if (gripping) DropEgg();
+                break;
+            }
+        }
     }
 
     override public void ManagedUpdate()
     {
-        CheckForWingInput();
-        HandleGrip();
-
-        foreach (WingData wingData in wingDatas)
+        if (canInput)
         {
-            UpdateWingRot(wingData);
-            CheckApplyForce(wingData);
+            CheckForWingInput();
+            if (canGrip) HandleGrip();
+
+            foreach (WingData wingData in wingDatas)
+            {
+                UpdateWingRot(wingData);
+                CheckApplyForce(wingData);
+            }
+            CheckForWingDrag();
         }
-        CheckForWingDrag();
 
         transform.localEulerAngles = new Vector3(0, 0, rb2d.velocity.x * -rotationScalar);
     }
@@ -256,7 +279,7 @@ public class PlayerController : IManagedController
 
     protected void OnTriggerEnter2D(Collider2D other)
     {
-        if (!PlayController.instance.Active) return;
+        if (PlayController.instance.State != PlayState.RUNNING) return;
 
         if (other.gameObject.CompareTag("Egg"))
         {
@@ -265,14 +288,13 @@ public class PlayerController : IManagedController
         }
         else if (other.gameObject.CompareTag("Nest") && gripping && eggController)
         {
-            // TODO: Win
-            Debug.Log("WIN!");
+            PlayController.instance.WinLevel();
         }
     }
 
     protected void OnTriggerExit2D(Collider2D other)
     {
-        if (!PlayController.instance.Active) return;
+        if (PlayController.instance.State != PlayState.RUNNING) return;
 
         if (other.gameObject.CompareTag("Egg") && !gripping)
         {
@@ -283,7 +305,7 @@ public class PlayerController : IManagedController
 
     protected void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!PlayController.instance.Active) return;
+        if (PlayController.instance.State != PlayState.RUNNING) return;
 
         if (collision.gameObject.CompareTag("Walls") && gripping && !invulnerable)
         {

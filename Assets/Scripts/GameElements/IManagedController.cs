@@ -13,5 +13,5 @@ public abstract class IManagedController : MonoBehaviour
     public virtual void ManagedUpdate() { }
     public virtual void ManagedFixedUpdate() { }
 
-    public virtual void OnStateChanged(bool active) { }
+    public virtual void OnStateChanged(PlayState newState) { }
 }
