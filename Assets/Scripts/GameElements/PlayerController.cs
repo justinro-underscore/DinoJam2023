@@ -12,7 +12,7 @@ public class WingController
 }
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : IManagedController
 {
     [Header("References")]
     [SerializeField] private GripBarController gripBarController;
@@ -68,7 +68,7 @@ public class PlayerController : MonoBehaviour
 
     private float initGrav;
 
-    protected void Start()
+    override protected void ManagedStart()
     {
         rb2d = GetComponent<Rigidbody2D>();
 
@@ -95,7 +95,12 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    protected void Update()
+    override public void OnStateChanged(bool active)
+    {
+        rb2d.simulated = active;
+    }
+
+    override public void ManagedUpdate()
     {
         CheckForWingInput();
         HandleGrip();
@@ -251,6 +256,8 @@ public class PlayerController : MonoBehaviour
 
     protected void OnTriggerEnter2D(Collider2D other)
     {
+        if (!PlayController.instance.Active) return;
+
         if (other.gameObject.CompareTag("Egg"))
         {
             eggController = other.transform.parent.gameObject.GetComponent<EggController>();
@@ -265,6 +272,8 @@ public class PlayerController : MonoBehaviour
 
     protected void OnTriggerExit2D(Collider2D other)
     {
+        if (!PlayController.instance.Active) return;
+
         if (other.gameObject.CompareTag("Egg") && !gripping)
         {
             eggController.SetEggOutlineVisible(false);
@@ -274,6 +283,8 @@ public class PlayerController : MonoBehaviour
 
     protected void OnCollisionEnter2D(Collision2D collision)
     {
+        if (!PlayController.instance.Active) return;
+
         if (collision.gameObject.CompareTag("Walls") && gripping && !invulnerable)
         {
             float drainAmount = gripCollisionDrainAmount;
