@@ -9,6 +9,7 @@ TagManager:
   - Egg
   - Nest
   - PlayerTag
+  - Walls
   layers:
   - Default
   - TransparentFX
@@ -54,4 +55,7 @@ TagManager:
     locked: 0
   - name: Foreground
     uniqueID: 2343518307
+    locked: 0
+  - name: UI
+    uniqueID: 3225267569
     locked: 0
