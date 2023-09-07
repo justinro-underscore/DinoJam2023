@@ -38,6 +38,10 @@ public class PlayController : ISceneController
         else
             Destroy(gameObject);
 
+        // Debug only: if the developer has the level scene already loaded in, set the scene name as the current play scene
+        GameData gameData = GameController.instance.GetGameData();
+        if (gameData.currentPlaySceneName == "") gameData.currentPlaySceneName = gameObject.scene.name;
+
         State = PlayState.RUNNING;
 
         eggLives = maxEggLives;
