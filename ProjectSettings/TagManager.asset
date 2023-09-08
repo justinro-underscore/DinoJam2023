@@ -10,6 +10,7 @@ TagManager:
   - Nest
   - PlayerTag
   - Waypoint
+  - Walls
   - DamageEmitter
   layers:
   - Default
@@ -56,4 +57,7 @@ TagManager:
     locked: 0
   - name: Foreground
     uniqueID: 2343518307
+    locked: 0
+  - name: UI
+    uniqueID: 3225267569
     locked: 0

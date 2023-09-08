@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,8 +12,11 @@ public class WingController
 }
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : IManagedController
 {
+    [Header("References")]
+    [SerializeField] private GripBarController gripBarController;
+
     private class WingData
     {
         public Transform transform;
@@ -27,7 +29,6 @@ public class PlayerController : MonoBehaviour
         public float lastRot;
         public float currRot;
     }
-
     [Header("Wings")]
     [SerializeField] private List<WingController> wingControllers;
 
@@ -42,6 +43,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] [Range(0.01f, 0.125f)] private float innerWingDragForce = 0.01f;
     [SerializeField] [Range(0.01f, 0.125f)] private float outerWingDragForce = 0.01f;
 
+    [Header("Grip Settings")]
+    [SerializeField] [Range(0.0f, 1.0f)] private float initGripVal;
+    [SerializeField] [Range(0.1f, 2.0f)] private float gripDrainScalar = 0.1f;
+    [SerializeField] [Range(0.01f, 1.0f)] private float gripGainAmount = 0.01f;
+    [SerializeField] [Range(0.01f, 1.0f)] private float gripCollisionDrainAmount = 0.01f;
+    [SerializeField] [Range(0.01f, 1.0f)] private float gripCollisionSaveAmount = 0.01f;
+    [SerializeField] [Range(0.0f, 2.0f)] private float invulnerabilityInitTime;
+
     [Header("Player Settings")]
     [SerializeField] [Range(5.0f, 15.0f)] private float rotationScalar = 5.0f;
     [SerializeField] [Range(1.0f, 200.0f)] private float eggGrabForceScalar = 1.0f;
@@ -52,11 +61,14 @@ public class PlayerController : MonoBehaviour
     private List<WingData> wingDatas;
 
     private EggController eggController;
-    private bool holdingEgg;
+    private bool gripping;
+    private float gripVal;
+    private bool invulnerable;
+    private float invulnerabilityTime;
 
     private float initGrav;
 
-    protected void Start()
+    override protected void ManagedStart()
     {
         rb2d = GetComponent<Rigidbody2D>();
 
@@ -83,9 +95,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    protected void Update()
+    override public void OnStateChanged(bool active)
     {
-        CheckForInput();
+        rb2d.simulated = active;
+    }
+
+    override public void ManagedUpdate()
+    {
+        CheckForWingInput();
+        HandleGrip();
 
         foreach (WingData wingData in wingDatas)
         {
@@ -97,7 +115,7 @@ public class PlayerController : MonoBehaviour
         transform.localEulerAngles = new Vector3(0, 0, rb2d.velocity.x * -rotationScalar);
     }
 
-    private void CheckForInput()
+    private void CheckForWingInput()
     {
         for (int i = 0; i < wingDatas.Count; i++)
         {
@@ -111,20 +129,46 @@ public class PlayerController : MonoBehaviour
                 wingData.lifting = false;
             }
         }
+    }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+    private void HandleGrip()
+    {
+        if (invulnerabilityTime > 0)
         {
-            if (eggController)
+            invulnerabilityTime -= Time.deltaTime;
+            if (invulnerabilityTime <= 0)
             {
-                holdingEgg = !holdingEgg;
-                if (holdingEgg)
-                {
-                    holdingEgg = GrabEgg();
-                }
-                else
-                {
-                    DropEgg();
-                }
+                invulnerable = false;
+            }
+        }
+
+        if (gripping)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl))
+            {
+                DropEgg();
+                return;
+            }
+
+            gripVal -= Time.deltaTime * gripDrainScalar;
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                gripVal += gripGainAmount;
+                if (gripVal > 1) gripVal = 1;
+            }
+            gripBarController.SetGripPercentage(gripVal);
+
+            if (gripVal <= 0)
+            {
+                DropEgg();
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            GrabEgg(); // Sets gripping value in here
+            if (gripping)
+            {
+                gripVal = initGripVal;
             }
         }
     }
@@ -165,9 +209,10 @@ public class PlayerController : MonoBehaviour
         rb2d.gravityScale = initGrav - gravOffset;
     }
 
-    private bool GrabEgg()
+    private void GrabEgg()
     {
-        if (!eggController) return false;
+        if (!eggController) return;
+        gripping = true;
 
         eggController.GrabEgg(transform);
         transform.localEulerAngles = new Vector3(0, 0, 0);
@@ -175,7 +220,7 @@ public class PlayerController : MonoBehaviour
         eggController.transform.localPosition = new Vector2(0, -0.5f);
         rb2d.velocity = Vector2.zero;
 
-        PolygonCollider2D[] colliders = eggController.gameObject.GetComponents<PolygonCollider2D>();
+        List<PolygonCollider2D> colliders = eggController.GetEggColliders();
         eggColliders = new List<PolygonCollider2D>();
         foreach (PolygonCollider2D eggCollider in colliders)
         {
@@ -186,7 +231,9 @@ public class PlayerController : MonoBehaviour
         }
 
         rb2d.AddForce(Vector2.up * eggGrabForceScalar);
-        return true;
+        SetInvulnerable();
+
+        gripBarController.Enter();
     }
 
     private void DropEgg()
@@ -199,15 +246,27 @@ public class PlayerController : MonoBehaviour
                 Destroy(collider);
             }
             eggColliders = null;
+            eggController.SetEggOutlineVisible(false);
             eggController = null;
+            gripBarController.Exit();
+
+            gripping = false;
         }
     }
 
     protected void OnTriggerEnter2D(Collider2D other)
     {
+        if (!PlayController.instance.Active) return;
+
         if (other.gameObject.CompareTag("Egg"))
         {
-            eggController = other.gameObject.GetComponent<EggController>();
+            eggController = other.transform.parent.gameObject.GetComponent<EggController>();
+            eggController.SetEggOutlineVisible(true);
+        }
+        else if (other.gameObject.CompareTag("Nest") && gripping && eggController)
+        {
+            // TODO: Win
+            Debug.Log("WIN!");
         }
 
         // TODO: ideally we handle this better with a script we can attach to any game object separate from main logic
@@ -223,9 +282,36 @@ public class PlayerController : MonoBehaviour
     
     protected void OnTriggerExit2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Egg") && !holdingEgg)
+        if (!PlayController.instance.Active) return;
+
+        if (other.gameObject.CompareTag("Egg") && !gripping)
         {
+            eggController.SetEggOutlineVisible(false);
             eggController = null;
         }
+    }
+
+    protected void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!PlayController.instance.Active) return;
+
+        if (collision.gameObject.CompareTag("Walls") && gripping && !invulnerable)
+        {
+            float drainAmount = gripCollisionDrainAmount;
+            if (gripVal > gripCollisionSaveAmount)
+            {
+                drainAmount = Mathf.Min(gripCollisionDrainAmount, gripVal - gripCollisionSaveAmount);
+            }
+            gripVal -= drainAmount;
+            gripBarController.SetGripPercentage(gripVal);
+            gripBarController.OnCollision();
+            SetInvulnerable();
+        }
+    }
+
+    private void SetInvulnerable()
+    {
+        invulnerabilityTime = invulnerabilityInitTime;
+        invulnerable = true;
     }
 }
