@@ -16,6 +16,7 @@ public class PlayerController : IManagedController
 {
     [Header("References")]
     [SerializeField] private GripBarController gripBarController;
+    [SerializeField] private LayerMask nestLayer;
 
     private class WingData
     {
@@ -260,6 +261,7 @@ public class PlayerController : IManagedController
         transform.position = eggController.transform.position;
         eggController.transform.localPosition = new Vector2(0, -0.5f);
         rb2d.velocity = Vector2.zero;
+        Physics2D.IgnoreLayerCollision(gameObject.layer, Mathf.FloorToInt(Mathf.Log(nestLayer.value, 2)));
 
         List<PolygonCollider2D> colliders = eggController.GetEggColliders();
         eggColliders = new List<PolygonCollider2D>();
@@ -279,7 +281,7 @@ public class PlayerController : IManagedController
 
     private void DropEgg()
     {
-        if (eggController)
+        if (gripping && eggController)
         {
             eggController.DropEgg();
             foreach (PolygonCollider2D collider in eggColliders)
@@ -290,6 +292,7 @@ public class PlayerController : IManagedController
             eggController.SetEggOutlineVisible(false);
             eggController = null;
             gripBarController.Exit();
+            Physics2D.IgnoreLayerCollision(gameObject.layer, Mathf.FloorToInt(Mathf.Log(nestLayer.value, 2)), false);
 
             gripping = false;
         }
