@@ -41,15 +41,6 @@ public class GripBarController : IManagedController
         }
     }
 
-    override public void OnStateChanged(bool active)
-    {
-        foreach (SpriteRenderer gripBarSR in gripBarSpriteRenderers)
-        {
-            gripBarSR.DOTogglePause();
-        }
-        transform.DOTogglePause();
-    }
-
     public void SetGripPercentage(float val)
     {
         val = Mathf.Clamp01(val);

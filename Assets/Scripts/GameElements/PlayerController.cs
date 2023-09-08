@@ -49,6 +49,8 @@ public class PlayerController : IManagedController
     [SerializeField] [Range(0.01f, 1.0f)] private float gripGainAmount = 0.01f;
     [SerializeField] [Range(0.01f, 1.0f)] private float gripCollisionDrainAmount = 0.01f;
     [SerializeField] [Range(0.01f, 1.0f)] private float gripCollisionSaveAmount = 0.01f;
+    [SerializeField] [Range(0.01f, 1.0f)] private float gripCrackThreshold = 0.01f;
+    [SerializeField] [Range(0.01f, 1.0f)] private float gripCrackedWaitThreshold = 0.01f;
     [SerializeField] [Range(0.0f, 2.0f)] private float invulnerabilityInitTime;
 
     [Header("Player Settings")]
@@ -59,12 +61,15 @@ public class PlayerController : IManagedController
     private List<PolygonCollider2D> eggColliders;
 
     private List<WingData> wingDatas;
+    private bool canInput;
+    private bool canGrip;
 
     private EggController eggController;
     private bool gripping;
     private float gripVal;
     private bool invulnerable;
     private float invulnerabilityTime;
+    private bool gripCracked;
 
     private float initGrav;
 
@@ -93,17 +98,35 @@ public class PlayerController : IManagedController
         {
             Debug.LogError("Drag forces too high!!!");
         }
+
+        canInput = true;
+        canGrip = true;
     }
 
-    override public void OnStateChanged(bool active)
+    override public void OnStateChanged(PlayState oldState, PlayState newState)
     {
-        rb2d.simulated = active;
+        rb2d.simulated = newState != PlayState.PAUSE;
+        switch (newState)
+        {
+            case PlayState.WIN:
+            {
+                canGrip = false;
+                if (gripping) DropEgg();
+                break;
+            }
+            case PlayState.LOSE:
+            {
+                canInput = false;
+                if (gripping) DropEgg();
+                break;
+            }
+        }
     }
 
     override public void ManagedUpdate()
     {
         CheckForWingInput();
-        HandleGrip();
+        if (canGrip) HandleGrip();
 
         foreach (WingData wingData in wingDatas)
         {
@@ -115,16 +138,22 @@ public class PlayerController : IManagedController
         transform.localEulerAngles = new Vector3(0, 0, rb2d.velocity.x * -rotationScalar);
     }
 
+    private bool GetPlayerInputKey(KeyCode key, bool keyDown=true)
+    {
+        if (!canInput) return false;
+        return keyDown ? Input.GetKeyDown(key) : Input.GetKey(key);
+    }
+
     private void CheckForWingInput()
     {
         for (int i = 0; i < wingDatas.Count; i++)
         {
             WingData wingData = wingDatas[i];
-            if (!wingData.lifting && Input.GetKey(wingData.key))
+            if (!wingData.lifting && GetPlayerInputKey(wingData.key, false))
             {
                 wingData.lifting = true;
             }
-            else if (wingData.lifting && !Input.GetKey(wingData.key))
+            else if (wingData.lifting && !GetPlayerInputKey(wingData.key, false))
             {
                 wingData.lifting = false;
             }
@@ -144,15 +173,27 @@ public class PlayerController : IManagedController
 
         if (gripping)
         {
-            if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl))
+            if (GetPlayerInputKey(KeyCode.LeftControl) || GetPlayerInputKey(KeyCode.RightControl))
             {
                 DropEgg();
                 return;
             }
 
             gripVal -= Time.deltaTime * gripDrainScalar;
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (gripCracked)
             {
+                if (gripVal < gripCrackedWaitThreshold) gripCracked = false;
+            }
+            else if (GetPlayerInputKey(KeyCode.Space))
+            {
+                // If the player tries gripping harder while they're past the gripCrackThreshold
+                //  and the amount added will hit the top of the grip bar, take egg damage
+                if (gripVal >= gripCrackThreshold && (gripVal + gripGainAmount) >= 1)
+                {
+                    PlayController.Instance.TakeEggDamage();
+                    // Make sure they don't do it again by forcing the player to wait until they grip again
+                    gripCracked = true;
+                }
                 gripVal += gripGainAmount;
                 if (gripVal > 1) gripVal = 1;
             }
@@ -163,7 +204,7 @@ public class PlayerController : IManagedController
                 DropEgg();
             }
         }
-        else if (Input.GetKeyDown(KeyCode.Space))
+        else if (GetPlayerInputKey(KeyCode.Space))
         {
             GrabEgg(); // Sets gripping value in here
             if (gripping)
@@ -256,7 +297,7 @@ public class PlayerController : IManagedController
 
     protected void OnTriggerEnter2D(Collider2D other)
     {
-        if (!PlayController.instance.Active) return;
+        if (PlayController.Instance.State != PlayState.RUNNING) return;
 
         if (other.gameObject.CompareTag("Egg"))
         {
@@ -265,8 +306,7 @@ public class PlayerController : IManagedController
         }
         else if (other.gameObject.CompareTag("Nest") && gripping && eggController)
         {
-            // TODO: Win
-            Debug.Log("WIN!");
+            PlayController.Instance.WinLevel();
         }
 
         // TODO: ideally we handle this better with a script we can attach to any game object separate from main logic
@@ -282,7 +322,7 @@ public class PlayerController : IManagedController
     
     protected void OnTriggerExit2D(Collider2D other)
     {
-        if (!PlayController.instance.Active) return;
+        if (PlayController.Instance.State != PlayState.RUNNING) return;
 
         if (other.gameObject.CompareTag("Egg") && !gripping)
         {
@@ -293,7 +333,7 @@ public class PlayerController : IManagedController
 
     protected void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!PlayController.instance.Active) return;
+        if (PlayController.Instance.State != PlayState.RUNNING) return;
 
         if (collision.gameObject.CompareTag("Walls") && gripping && !invulnerable)
         {
