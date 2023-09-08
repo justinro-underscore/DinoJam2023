@@ -9,7 +9,9 @@ TagManager:
   - Egg
   - Nest
   - PlayerTag
+  - Waypoint
   - Walls
+  - DamageEmitter
   layers:
   - Default
   - TransparentFX
