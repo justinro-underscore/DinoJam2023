@@ -83,6 +83,15 @@ public class PlayerController : IManagedController
 
     private float initGrav;
 
+    private bool isPlayerTrapped;
+    [SerializeField] private int playerMashTotal;
+    private int currentPlayerMashValue;
+    private float lastButtonPressedTime;
+    private float buttonPressedTime;
+    private GameObject trappingBubble;
+    private float originalGripDrainScalar;
+    [SerializeField] [Range(0.1f, 2.0f)] private float trappedGripDrainScalar = 0.25f;
+
     override protected void ManagedStart()
     {
         rb2d = GetComponent<Rigidbody2D>();
@@ -117,6 +126,14 @@ public class PlayerController : IManagedController
 
         canInput = true;
         canGrip = true;
+
+        isPlayerTrapped = false;
+        currentPlayerMashValue = 0;
+
+        lastButtonPressedTime = 0;
+        buttonPressedTime = 0;
+        trappingBubble = null;
+        originalGripDrainScalar = gripDrainScalar;
     }
 
     override public void OnStateChanged(PlayState oldState, PlayState newState)
@@ -160,6 +177,11 @@ public class PlayerController : IManagedController
 
         if (Mathf.Abs(rb2d.velocity.x) > maxVelocityX)
             rb2d.velocity = new Vector2(rb2d.velocity.x > 0 ? maxVelocityX : -maxVelocityX, rb2d.velocity.y);
+
+        if (isPlayerTrapped)
+        {
+            CheckForPlayerMash();
+        }
     }
 
     private bool GetPlayerInputKey(KeyCode key, bool keyDown=true)
@@ -175,12 +197,39 @@ public class PlayerController : IManagedController
             WingData wingData = wingDatas[i];
             if (!wingData.lifting && GetPlayerInputKey(wingData.key, false))
             {
+                lastButtonPressedTime = buttonPressedTime;
+                buttonPressedTime = Time.time;
+
                 wingData.lifting = true;
             }
             else if (wingData.lifting && !GetPlayerInputKey(wingData.key, false))
             {
                 wingData.lifting = false;
             }
+        }
+    }
+
+    private void CheckForPlayerMash()
+    {
+        float delta = (buttonPressedTime - lastButtonPressedTime);
+        if (delta == 0)
+        {
+            delta = 0.1f;
+        }
+
+        // TODO: one day make a better function for this jesus
+        int mashValue = (int) (1.0f / delta);
+
+        currentPlayerMashValue += mashValue;
+
+        if (currentPlayerMashValue > playerMashTotal)
+        {
+            isPlayerTrapped = false;
+            currentPlayerMashValue = 0;
+            gripDrainScalar = originalGripDrainScalar;
+
+            // Destroy bubble
+            trappingBubble.GetComponent<TarBubbleController>().Die();
         }
     }
 
@@ -376,6 +425,16 @@ public class PlayerController : IManagedController
             // we lose if we touch something that can damage the player
             PlayController.Instance.LoseLevel();
         }
+
+        if (other.gameObject.CompareTag(Constants.tarBubbleTag))
+        {
+            if (other.gameObject.GetComponent<TarBubbleController>().IsActive())
+            {
+                isPlayerTrapped = true;
+                trappingBubble = other.gameObject;
+                gripDrainScalar = trappedGripDrainScalar;
+            }
+        }
     }
     
     protected void OnTriggerExit2D(Collider2D other)
@@ -411,5 +470,10 @@ public class PlayerController : IManagedController
     {
         invulnerabilityTime = invulnerabilityInitTime;
         invulnerable = true;
+    }
+
+    public bool IsTrapped()
+    {
+        return isPlayerTrapped;
     }
 }
