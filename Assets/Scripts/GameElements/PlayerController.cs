@@ -7,7 +7,6 @@ public class WingController
     public Transform wingTransform;
     public bool leftWing;
     public bool innerWing;
-    public bool rotateClockwise;
     public KeyCode key;
 }
 
@@ -24,14 +23,10 @@ public class PlayerController : IManagedController
         public KeyCode key;
         public bool leftWing;
         public bool innerWing;
-        public bool rotateClockwise;
-
-        public float wingPosRotBound;
-        public float wingNegRotBound;
 
         public bool lifting;
-        public float lastRot;
-        public float currRot;
+        public float liftVal; // [0,1]
+        public float lastLiftVal;
         public float downTime;
     }
     [Header("Wings")]
@@ -42,8 +37,8 @@ public class PlayerController : IManagedController
     [SerializeField] [Range(0.0f, 40.0f)] private float outerWingUpRotationBound;
     [SerializeField] [Range(0.0f, 50.0f)] private float innerWingDownRotationBound;
     [SerializeField] [Range(0.0f, 40.0f)] private float outerWingDownRotationBound;
-    [SerializeField] [Range(10.0f, 500.0f)] private float wingUpSpeed = 10.0f;
-    [SerializeField] [Range(10.0f, 500.0f)] private float wingDownSpeed = 10.0f;
+    [SerializeField] [Range(0.1f, 4.0f)] private float wingUpSpeed = 0.1f;
+    [SerializeField] [Range(0.1f, 4.0f)] private float wingDownSpeed = 0.1f;
     [SerializeField] [Range(0.1f, 4.0f)] private float innerWingForce = 0.1f;
     [SerializeField] [Range(0.1f, 4.0f)] private float outerWingForce = 0.1f;
     [SerializeField] [Range(0.1f, 3.0f)] private float lateralWingForce = 0.1f;
@@ -90,24 +85,20 @@ public class PlayerController : IManagedController
         wingDatas = new List<WingData>(wingControllers.Count);
         for (int i = 0; i < wingControllers.Count; i++)
         {
-            wingDatas.Add(new WingData
+            WingData wingData = new WingData
             {
                 transform = wingControllers[i].wingTransform,
                 key = wingControllers[i].key,
                 leftWing = wingControllers[i].leftWing,
                 innerWing = wingControllers[i].innerWing,
-                rotateClockwise = wingControllers[i].rotateClockwise,
-
-                wingPosRotBound = wingControllers[i].rotateClockwise ?
-                    (wingControllers[i].innerWing ? innerWingDownRotationBound : outerWingDownRotationBound) :
-                    (wingControllers[i].innerWing ? innerWingUpRotationBound : outerWingUpRotationBound),
-                wingNegRotBound = wingControllers[i].rotateClockwise ?
-                    (wingControllers[i].innerWing ? -innerWingUpRotationBound : -outerWingUpRotationBound) :
-                    (wingControllers[i].innerWing ? -innerWingDownRotationBound : -outerWingDownRotationBound),
 
                 lifting = false,
-                lastRot = wingControllers[i].wingTransform.localEulerAngles.z
-            });
+                liftVal = 0,
+                lastLiftVal = 0,
+                downTime = 0,
+            };
+            UpdateWingRot(wingData);
+            wingDatas.Add(wingData);
         }
 
         initGrav = rb2d.gravityScale;
@@ -145,14 +136,21 @@ public class PlayerController : IManagedController
         CheckForWingInput();
         if (canGrip) HandleGrip();
 
+        transform.localEulerAngles = new Vector3(0, 0, rb2d.velocity.x * -rotationScalar);
+    }
+
+    override public void ManagedFixedUpdate()
+    {
         foreach (WingData wingData in wingDatas)
         {
+            UpdateWingData(wingData);
             UpdateWingRot(wingData);
             CheckApplyForce(wingData);
         }
         CheckForWingDrag();
 
-        transform.localEulerAngles = new Vector3(0, 0, rb2d.velocity.x * -rotationScalar);
+        if (Mathf.Abs(rb2d.velocity.x) > maxVelocityX)
+            rb2d.velocity = new Vector2(rb2d.velocity.x > 0 ? maxVelocityX : -maxVelocityX, rb2d.velocity.y);
     }
 
     private bool GetPlayerInputKey(KeyCode key, bool keyDown=true)
@@ -231,31 +229,36 @@ public class PlayerController : IManagedController
         }
     }
 
-    private void UpdateWingRot(WingData wingData)
+    private void UpdateWingData(WingData wingData)
     {
-        float rot = wingData.transform.localEulerAngles.z;
-        if (rot >= 180) rot -= 360;
-        wingData.lastRot = rot * (wingData.rotateClockwise ? 1 : -1);
-        float newRot = rot + ((wingData.lifting ? -wingUpSpeed : wingDownSpeed) * Time.deltaTime * (wingData.rotateClockwise ? 1 : -1));
-        newRot = Mathf.Clamp(newRot, wingData.wingNegRotBound, wingData.wingPosRotBound);
-        wingData.currRot = newRot * (wingData.rotateClockwise ? 1 : -1);
-        wingData.transform.localEulerAngles = new Vector3(0, 0, newRot);
+        float liftValDelta = (wingData.lifting ? wingUpSpeed : -wingDownSpeed) * 100 * Time.fixedDeltaTime /
+            (wingData.innerWing ? (innerWingDownRotationBound + innerWingUpRotationBound) : (outerWingDownRotationBound + outerWingUpRotationBound));
+        float newLiftVal = Mathf.Clamp01(wingData.liftVal + liftValDelta);
 
-        if (wingData.currRot - wingData.lastRot > 0)
+        wingData.lastLiftVal = wingData.liftVal;
+        wingData.liftVal = newLiftVal;
+
+        if (wingData.liftVal - wingData.lastLiftVal < 0)
             wingData.downTime += Time.deltaTime;
         else if (wingData.downTime > 0)
             wingData.downTime = 0;
     }
 
+    private void UpdateWingRot(WingData wingData)
+    {
+        float upperBound = wingData.innerWing ? innerWingUpRotationBound : outerWingUpRotationBound;
+        float lowerBound = -(wingData.innerWing ? innerWingDownRotationBound : outerWingDownRotationBound);
+        float wingRot = ((wingData.liftVal * (upperBound - lowerBound)) + lowerBound) * (wingData.leftWing ? -1 : 1);
+        wingData.transform.localEulerAngles = new Vector3(0, 0, wingRot);
+    }
+
     private void CheckApplyForce(WingData wingData)
     {
-        float rotDiff = wingData.currRot - wingData.lastRot;
-        if (rotDiff > 0)
+        if (wingData.liftVal - wingData.lastLiftVal < 0)
         {
             float forceScalar = Mathf.Min(Mathf.Pow(wingData.downTime / wingForceScalarTime, wingForceScalarPower), 1);
-            Vector2 wingForceVec = new Vector2(lateralWingForce * (wingData.leftWing ? 1 : -1), 1) * rotDiff * (wingData.innerWing ? innerWingForce : outerWingForce) * forceScalar;
+            Vector2 wingForceVec = new Vector2(lateralWingForce * (wingData.leftWing ? 1 : -1), 1) * (wingData.innerWing ? innerWingForce : outerWingForce) * forceScalar * 10;
             rb2d.AddForce(wingForceVec);
-            if (Mathf.Abs(rb2d.velocity.x) > maxVelocityX) rb2d.velocity = new Vector2(rb2d.velocity.x > 0 ? maxVelocityX : -maxVelocityX, rb2d.velocity.y);
         }
     }
 
@@ -264,7 +267,7 @@ public class PlayerController : IManagedController
         float gravOffset = 0;
         foreach (WingData wingData in wingDatas)
         {
-            if (wingData.currRot < 0)
+            if (wingData.liftVal >= 0.5f && wingData.lifting)
             {
                 gravOffset += wingData.innerWing ? innerWingDragForce : outerWingDragForce;
             }

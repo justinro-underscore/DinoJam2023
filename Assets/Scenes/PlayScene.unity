@@ -6111,31 +6111,27 @@ MonoBehaviour:
   - wingTransform: {fileID: 1153814048}
     leftWing: 1
     innerWing: 0
-    rotateClockwise: 1
     key: 113
   - wingTransform: {fileID: 924459727}
     leftWing: 1
     innerWing: 1
-    rotateClockwise: 1
     key: 119
   - wingTransform: {fileID: 1485754959}
     leftWing: 0
     innerWing: 1
-    rotateClockwise: 0
     key: 111
   - wingTransform: {fileID: 1764686304}
     leftWing: 0
     innerWing: 0
-    rotateClockwise: 0
     key: 112
   innerWingUpRotationBound: 50
   outerWingUpRotationBound: 25
   innerWingDownRotationBound: 45
   outerWingDownRotationBound: 25
-  wingUpSpeed: 415
-  wingDownSpeed: 472
-  innerWingForce: 2.69
-  outerWingForce: 1.82
+  wingUpSpeed: 2.41
+  wingDownSpeed: 3.2
+  innerWingForce: 2.35
+  outerWingForce: 1.46
   lateralWingForce: 0.87
   wingForceScalarTime: 0.151
   wingForceScalarPower: 2
@@ -6149,7 +6145,7 @@ MonoBehaviour:
   gripCrackThreshold: 0.9
   gripCrackedWaitThreshold: 0.702
   invulnerabilityInitTime: 0.6
-  rotationScalar: 10.33
+  rotationScalar: 5.89
   eggGrabForceScalar: 98
   maxVelocityX: 5.66
 --- !u!212 &694470134
