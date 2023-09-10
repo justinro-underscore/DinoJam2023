@@ -26,23 +26,31 @@ public class PlayerController : IManagedController
         public bool innerWing;
         public bool rotateClockwise;
 
+        public float wingPosRotBound;
+        public float wingNegRotBound;
+
         public bool lifting;
         public float lastRot;
         public float currRot;
+        public float downTime;
     }
     [Header("Wings")]
     [SerializeField] private List<WingController> wingControllers;
 
     [Header("Wing Settings")]
-    [SerializeField] [Range(0.0f, 50.0f)] private float wingUpRotationBound;
-    [SerializeField] [Range(0.0f, 50.0f)] private float wingDownRotationBound;
-    [SerializeField] [Range(10.0f, 400.0f)] private float wingUpSpeed = 10.0f;
-    [SerializeField] [Range(10.0f, 400.0f)] private float wingDownSpeed = 10.0f;
-    [SerializeField] [Range(0.1f, 2.0f)] private float innerWingForce = 0.1f;
-    [SerializeField] [Range(0.1f, 2.0f)] private float outerWingForce = 0.1f;
-    [SerializeField] [Range(0.1f, 2.0f)] private float lateralWingForce = 0.1f;
-    [SerializeField] [Range(0.01f, 0.125f)] private float innerWingDragForce = 0.01f;
-    [SerializeField] [Range(0.01f, 0.125f)] private float outerWingDragForce = 0.01f;
+    [SerializeField] [Range(0.0f, 60.0f)] private float innerWingUpRotationBound;
+    [SerializeField] [Range(0.0f, 40.0f)] private float outerWingUpRotationBound;
+    [SerializeField] [Range(0.0f, 50.0f)] private float innerWingDownRotationBound;
+    [SerializeField] [Range(0.0f, 40.0f)] private float outerWingDownRotationBound;
+    [SerializeField] [Range(10.0f, 500.0f)] private float wingUpSpeed = 10.0f;
+    [SerializeField] [Range(10.0f, 500.0f)] private float wingDownSpeed = 10.0f;
+    [SerializeField] [Range(0.1f, 4.0f)] private float innerWingForce = 0.1f;
+    [SerializeField] [Range(0.1f, 4.0f)] private float outerWingForce = 0.1f;
+    [SerializeField] [Range(0.1f, 3.0f)] private float lateralWingForce = 0.1f;
+    [SerializeField] [Range(0.0f, 0.3f)] private float wingForceScalarTime; // Time it takes to get to 100% of wing force
+    [SerializeField] [Range(1, 5)] private int wingForceScalarPower = 1;
+    [SerializeField] [Range(0.01f, 0.33f)] private float innerWingDragForce = 0.01f;
+    [SerializeField] [Range(0.01f, 0.33f)] private float outerWingDragForce = 0.01f;
 
     [Header("Grip Settings")]
     [SerializeField] [Range(0.0f, 1.0f)] private float initGripVal;
@@ -57,6 +65,7 @@ public class PlayerController : IManagedController
     [Header("Player Settings")]
     [SerializeField] [Range(5.0f, 15.0f)] private float rotationScalar = 5.0f;
     [SerializeField] [Range(1.0f, 200.0f)] private float eggGrabForceScalar = 1.0f;
+    [SerializeField] [Range(0.1f, 8.0f)] private float maxVelocityX = 0.1f;
 
     private Rigidbody2D rb2d;
     private List<PolygonCollider2D> eggColliders;
@@ -88,6 +97,13 @@ public class PlayerController : IManagedController
                 leftWing = wingControllers[i].leftWing,
                 innerWing = wingControllers[i].innerWing,
                 rotateClockwise = wingControllers[i].rotateClockwise,
+
+                wingPosRotBound = wingControllers[i].rotateClockwise ?
+                    (wingControllers[i].innerWing ? innerWingDownRotationBound : outerWingDownRotationBound) :
+                    (wingControllers[i].innerWing ? innerWingUpRotationBound : outerWingUpRotationBound),
+                wingNegRotBound = wingControllers[i].rotateClockwise ?
+                    (wingControllers[i].innerWing ? -innerWingUpRotationBound : -outerWingUpRotationBound) :
+                    (wingControllers[i].innerWing ? -innerWingDownRotationBound : -outerWingDownRotationBound),
 
                 lifting = false,
                 lastRot = wingControllers[i].wingTransform.localEulerAngles.z
@@ -221,11 +237,14 @@ public class PlayerController : IManagedController
         if (rot >= 180) rot -= 360;
         wingData.lastRot = rot * (wingData.rotateClockwise ? 1 : -1);
         float newRot = rot + ((wingData.lifting ? -wingUpSpeed : wingDownSpeed) * Time.deltaTime * (wingData.rotateClockwise ? 1 : -1));
-        float wingPosBound = wingData.rotateClockwise ? wingDownRotationBound : wingUpRotationBound;
-        float wingNegBound = wingData.rotateClockwise ? -wingUpRotationBound : -wingDownRotationBound;
-        newRot = Mathf.Clamp(newRot, wingNegBound, wingPosBound);
+        newRot = Mathf.Clamp(newRot, wingData.wingNegRotBound, wingData.wingPosRotBound);
         wingData.currRot = newRot * (wingData.rotateClockwise ? 1 : -1);
         wingData.transform.localEulerAngles = new Vector3(0, 0, newRot);
+
+        if (wingData.currRot - wingData.lastRot > 0)
+            wingData.downTime += Time.deltaTime;
+        else if (wingData.downTime > 0)
+            wingData.downTime = 0;
     }
 
     private void CheckApplyForce(WingData wingData)
@@ -233,8 +252,10 @@ public class PlayerController : IManagedController
         float rotDiff = wingData.currRot - wingData.lastRot;
         if (rotDiff > 0)
         {
-            Vector2 wingForceVec = new Vector2(lateralWingForce * (wingData.leftWing ? 1 : -1), 1) * rotDiff * (wingData.innerWing ? innerWingForce : outerWingForce);
+            float forceScalar = Mathf.Min(Mathf.Pow(wingData.downTime / wingForceScalarTime, wingForceScalarPower), 1);
+            Vector2 wingForceVec = new Vector2(lateralWingForce * (wingData.leftWing ? 1 : -1), 1) * rotDiff * (wingData.innerWing ? innerWingForce : outerWingForce) * forceScalar;
             rb2d.AddForce(wingForceVec);
+            if (Mathf.Abs(rb2d.velocity.x) > maxVelocityX) rb2d.velocity = new Vector2(rb2d.velocity.x > 0 ? maxVelocityX : -maxVelocityX, rb2d.velocity.y);
         }
     }
 
@@ -309,6 +330,7 @@ public class PlayerController : IManagedController
         }
         else if (other.gameObject.CompareTag("Nest") && gripping && eggController)
         {
+            // TODO Maybe when in nestshow sprite mask so wings don't clip out of nest?
             PlayController.Instance.WinLevel();
         }
 
