@@ -46,6 +46,7 @@ public class PlayerController : IManagedController
     [SerializeField] [Range(0.1f, 1.0f)] private float innerWingForce = 0.1f;
     [SerializeField] [Range(0.1f, 1.0f)] private float outerWingForce = 0.1f;
     [SerializeField] [Range(0.1f, 3.0f)] private float lateralWingForce = 0.1f;
+    [SerializeField] [Range(0.0f, 1.0f)] private float lateralMomentumScalar;
     [SerializeField] [Range(0.0f, 0.3f)] private float wingForceScalarTime; // Time it takes to get to 100% of wing force
     [SerializeField] [Range(1, 5)] private int wingForceScalarPower = 1;
     [SerializeField] [Range(0.01f, 0.33f)] private float innerWingDragForce = 0.01f;
@@ -286,7 +287,8 @@ public class PlayerController : IManagedController
         if (wingData.liftValTarget - wingData.liftVal < 0)
         {
             float forceScalar = Mathf.Min(Mathf.Pow((wingData.downTime + wingData.liftValTarget) / wingForceScalarTime, wingForceScalarPower), 1);
-            Vector2 wingForceVec = new Vector2(lateralWingForce * (wingData.leftWing ? 1 : -1), 1) * (wingData.innerWing ? innerWingForce : outerWingForce) * forceScalar;
+            float lateralForce = lateralWingForce * (wingData.leftWing ? 1 : -1) + (rb2d.velocity.x * lateralMomentumScalar);
+            Vector2 wingForceVec = new Vector2(lateralForce, 1) * (wingData.innerWing ? innerWingForce : outerWingForce) * forceScalar;
             rb2d.velocity += wingForceVec;
         }
     }
