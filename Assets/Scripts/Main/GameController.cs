@@ -17,6 +17,8 @@ public class GameController : MonoBehaviour {
 
     private GameData gameData;
 
+    private List<LevelData> levelData;
+
     public void Awake() {
         if ( null == instance ) {
             instance = this;
@@ -28,6 +30,9 @@ public class GameController : MonoBehaviour {
         // Initialize game data object
         gameData = new GameData();
         gameData.Init();
+
+        // Initialize empty list of level data
+        levelData = new List<LevelData>();
 
         // Initialize the scene controller
         sceneController.Initialize();
@@ -115,5 +120,15 @@ public class GameController : MonoBehaviour {
     public GameData GetGameData()
     {
         return gameData;
+    }
+
+    public List<LevelData> GetLevelData()
+    {
+        return levelData;
+    }
+
+    public void SaveLevelData(int starRating)
+    {
+        levelData.Add(new LevelData(starRating));
     }
 }

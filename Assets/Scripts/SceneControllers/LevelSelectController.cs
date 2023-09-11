@@ -17,9 +17,6 @@ using DG.Tweening;
 
 public class LevelSelectController : ISceneController
 {
-    // Unlocked sprite for unlocked levels
-    [SerializeField] private Sprite unlockedIconSprite;
-
     // List of level objects
     [SerializeField] private List<Level> levels;
 
@@ -35,6 +32,9 @@ public class LevelSelectController : ISceneController
     // Game data
     private GameData gameData;
 
+    // Level data
+    private List<LevelData> levelData;
+
     // We are level select state
     override protected GameState GetGameState() { return GameState.LEVEL_SELECT; }
 
@@ -42,10 +42,8 @@ public class LevelSelectController : ISceneController
     protected void Start()
     {
         // Get game data
-        if (gameData == null)
-        {
-            gameData = GameController.instance.GetGameData();
-        }
+        gameData = GameController.instance.GetGameData();
+        levelData = GameController.instance.GetLevelData();
 
         // Start at level saved in game data
         selectedLevelIndex = gameData.lastPlayedLevelIndex;
@@ -125,13 +123,20 @@ public class LevelSelectController : ISceneController
     // TOOD: maybe one day we can check if we need to read loaded level objects
     public void LoadLevels()
     {
+        // TODO: there is a better way to load and unlock only first level...
         int lastUnlockedLevelIndex = gameData.lastUnlockedLevelIndex;
         for (int i = 0; i < levels.Count; i++)
         {
             if (i <= lastUnlockedLevelIndex)
             {
-                levels[i].UnlockLevel(unlockedIconSprite);
+                levels[i].UnlockLevel();
             }
+        }
+
+        for (int i = 0; i < levelData.Count; i++)
+        {
+            Debug.Log(levelData[i].starRating);
+            levels[i].LoadLevel(levelData[i]);
         }
     }
 }

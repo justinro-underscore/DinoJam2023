@@ -12,6 +12,7 @@ TagManager:
   - Waypoint
   - Walls
   - DamageEmitter
+  - Star
   layers:
   - Default
   - TransparentFX
