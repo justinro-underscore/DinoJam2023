@@ -16,9 +16,13 @@ public class PlayerController : IManagedController
     [Header("References")]
     [SerializeField] private GripBarController gripBarController;
     [SerializeField] private LayerMask nestLayer;
+    [SerializeField] private LayerMask wallsLayer;
 
     private class WingData
     {
+        public static float InnerWingGroundTarget;
+        public static float OuterWingGroundTarget;
+
         public Transform transform;
         public KeyCode key;
         public bool leftWing;
@@ -26,7 +30,7 @@ public class PlayerController : IManagedController
 
         public bool lifting;
         public float liftVal; // [0,1]
-        public float lastLiftVal;
+        public float liftValTarget;
         public float downTime;
     }
     [Header("Wings")]
@@ -39,8 +43,8 @@ public class PlayerController : IManagedController
     [SerializeField] [Range(0.0f, 40.0f)] private float outerWingDownRotationBound;
     [SerializeField] [Range(0.1f, 4.0f)] private float wingUpSpeed = 0.1f;
     [SerializeField] [Range(0.1f, 4.0f)] private float wingDownSpeed = 0.1f;
-    [SerializeField] [Range(0.1f, 4.0f)] private float innerWingForce = 0.1f;
-    [SerializeField] [Range(0.1f, 4.0f)] private float outerWingForce = 0.1f;
+    [SerializeField] [Range(0.1f, 1.0f)] private float innerWingForce = 0.1f;
+    [SerializeField] [Range(0.1f, 1.0f)] private float outerWingForce = 0.1f;
     [SerializeField] [Range(0.1f, 3.0f)] private float lateralWingForce = 0.1f;
     [SerializeField] [Range(0.0f, 0.3f)] private float wingForceScalarTime; // Time it takes to get to 100% of wing force
     [SerializeField] [Range(1, 5)] private int wingForceScalarPower = 1;
@@ -94,12 +98,15 @@ public class PlayerController : IManagedController
 
                 lifting = false,
                 liftVal = 0,
-                lastLiftVal = 0,
                 downTime = 0,
             };
+            UpdateWingLiftValTarget(wingData);
+            wingData.liftVal = wingData.liftValTarget;
             UpdateWingRot(wingData);
             wingDatas.Add(wingData);
         }
+        WingData.InnerWingGroundTarget = innerWingDownRotationBound / (innerWingDownRotationBound + innerWingUpRotationBound);
+        WingData.OuterWingGroundTarget = outerWingDownRotationBound / (outerWingDownRotationBound + outerWingUpRotationBound);
 
         initGrav = rb2d.gravityScale;
         if ((innerWingDragForce * 2) + (outerWingDragForce * 2) > initGrav)
@@ -143,6 +150,7 @@ public class PlayerController : IManagedController
     {
         foreach (WingData wingData in wingDatas)
         {
+            UpdateWingLiftValTarget(wingData);
             UpdateWingData(wingData);
             UpdateWingRot(wingData);
             CheckApplyForce(wingData);
@@ -229,16 +237,37 @@ public class PlayerController : IManagedController
         }
     }
 
+    private void UpdateWingLiftValTarget(WingData wingData)
+    {
+        if (wingData.lifting)
+        {
+            wingData.liftValTarget = 1;
+        }
+        else
+        {
+            if (IsOnGround())
+                wingData.liftValTarget = wingData.innerWing ? WingData.InnerWingGroundTarget : WingData.OuterWingGroundTarget;
+            else
+                wingData.liftValTarget = 0;
+        }
+    }
+
+    private bool IsOnGround()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 0.9f, wallsLayer);
+        return hit.collider != null;
+    }
+
     private void UpdateWingData(WingData wingData)
     {
-        float liftValDelta = (wingData.lifting ? wingUpSpeed : -wingDownSpeed) * 100 * Time.fixedDeltaTime /
+        float liftValDiff = wingData.liftValTarget - wingData.liftVal;
+        float liftValDelta = (liftValDiff > 0 ? wingUpSpeed : -wingDownSpeed) * 100 * Time.fixedDeltaTime /
             (wingData.innerWing ? (innerWingDownRotationBound + innerWingUpRotationBound) : (outerWingDownRotationBound + outerWingUpRotationBound));
-        float newLiftVal = Mathf.Clamp01(wingData.liftVal + liftValDelta);
+        if (Mathf.Abs(liftValDelta) > Mathf.Abs(liftValDiff))
+            liftValDelta = liftValDiff;
+        wingData.liftVal = Mathf.Clamp01(wingData.liftVal + liftValDelta);
 
-        wingData.lastLiftVal = wingData.liftVal;
-        wingData.liftVal = newLiftVal;
-
-        if (wingData.liftVal - wingData.lastLiftVal < 0)
+        if (wingData.liftValTarget - wingData.liftVal < 0)
             wingData.downTime += Time.deltaTime;
         else if (wingData.downTime > 0)
             wingData.downTime = 0;
@@ -254,11 +283,11 @@ public class PlayerController : IManagedController
 
     private void CheckApplyForce(WingData wingData)
     {
-        if (wingData.liftVal - wingData.lastLiftVal < 0)
+        if (wingData.liftValTarget - wingData.liftVal < 0)
         {
-            float forceScalar = Mathf.Min(Mathf.Pow(wingData.downTime / wingForceScalarTime, wingForceScalarPower), 1);
-            Vector2 wingForceVec = new Vector2(lateralWingForce * (wingData.leftWing ? 1 : -1), 1) * (wingData.innerWing ? innerWingForce : outerWingForce) * forceScalar * 10;
-            rb2d.AddForce(wingForceVec);
+            float forceScalar = Mathf.Min(Mathf.Pow((wingData.downTime + wingData.liftValTarget) / wingForceScalarTime, wingForceScalarPower), 1);
+            Vector2 wingForceVec = new Vector2(lateralWingForce * (wingData.leftWing ? 1 : -1), 1) * (wingData.innerWing ? innerWingForce : outerWingForce) * forceScalar;
+            rb2d.velocity += wingForceVec;
         }
     }
 

@@ -6082,7 +6082,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 694470131}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.27, y: -8.41, z: 0}
+  m_LocalPosition: {x: 1.88, y: -11.16, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6107,6 +6107,9 @@ MonoBehaviour:
   nestLayer:
     serializedVersion: 2
     m_Bits: 2048
+  wallsLayer:
+    serializedVersion: 2
+    m_Bits: 8192
   wingControllers:
   - wingTransform: {fileID: 1153814048}
     leftWing: 1
@@ -6130,8 +6133,8 @@ MonoBehaviour:
   outerWingDownRotationBound: 25
   wingUpSpeed: 2.41
   wingDownSpeed: 3.2
-  innerWingForce: 2.35
-  outerWingForce: 1.46
+  innerWingForce: 0.501
+  outerWingForce: 0.297
   lateralWingForce: 0.87
   wingForceScalarTime: 0.151
   wingForceScalarPower: 2
