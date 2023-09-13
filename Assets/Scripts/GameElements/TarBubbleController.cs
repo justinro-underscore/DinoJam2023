@@ -4,7 +4,7 @@ using UnityEngine;
 
 using DG.Tweening;
 
-public class TarBubbleController : MonoBehaviour
+public class TarBubbleController : IManagedController
 {
     [SerializeField] private int timeToLive;
 
@@ -26,13 +26,11 @@ public class TarBubbleController : MonoBehaviour
 
     private float degrees;
 
-    [SerializeField] private GameObject sourceTarTile;
+    [SerializeField] private TarBubbleSourceController sourceTarTile;
 
     [SerializeField] private bool isActive = true;
 
-    private bool hasCollided;
-
-    void Start()
+    override protected void ManagedStart()
     {
         // Init values
         currentPosition = transform.position;
@@ -41,16 +39,14 @@ public class TarBubbleController : MonoBehaviour
         scaleDuration = Random.Range(scaleDurationMin, scaleDurationMax);
 
         // DoTween scale to (1, 1) in scaleDuration seconds
-        gameObject.transform.DOScale(Vector3.one, scaleDuration);
+        transform.DOScale(Vector3.one, scaleDuration);
 
         // Call die function after ttl has expirded
         Invoke("Die", timeToLive);
-
-        hasCollided = false;
     }
 
     // Ty to https://forum.unity.com/threads/moving-along-a-sine-curve.178281/
-    void Update()
+    override public void ManagedUpdate()
     {
         if (!isActive)
         {
@@ -59,52 +55,32 @@ public class TarBubbleController : MonoBehaviour
         
         float deltaTime = Time.deltaTime;
 
-        if (!hasCollided)
-        { 
-            // Move along y axis
-            currentPosition.y += deltaTime * speed;
-            
-            float degreesPerSecond = 360.0f / pathPeriod;
-            degrees = Mathf.Repeat(degrees + (deltaTime * degreesPerSecond), 360.0f);
-            float radians = degrees * Mathf.Deg2Rad;
-            
-            // Offset by cos wave
-            Vector3 offset = new Vector3(pathAmplitude * Mathf.Cos(radians), 0.0f, 0.0f);
-            transform.position = currentPosition + offset;
-        }
-        else
-        {
-            // currentPosition.y -= deltaTime * speed;
-            // transform.position = currentPosition;
-        }
+        // Move along y axis
+        currentPosition.y += deltaTime * speed;
+        
+        float degreesPerSecond = 360.0f / pathPeriod;
+        degrees = Mathf.Repeat(degrees + (deltaTime * degreesPerSecond), 360.0f);
+        float radians = degrees * Mathf.Deg2Rad;
+        
+        // Offset by cos wave
+        Vector3 offset = new Vector3(pathAmplitude * Mathf.Cos(radians), 0.0f, 0.0f);
+        transform.position = currentPosition + offset;
     }
 
     protected void OnTriggerEnter2D(Collider2D collider)
     {
         if (collider.gameObject.CompareTag(Constants.playerTag) && isActive)
         {
-            // Abort if player is already trapped
-            if (collider.gameObject.GetComponent<PlayerController>().IsTrapped())
-            {
-                return;
-            }
+            PlayerController playerController = collider.gameObject.GetComponent<PlayerController>();
+            // Trap player
+            playerController.TrapPlayer();
 
             // We have collided with the player
             // Cancel the invoke death
             CancelInvoke("Die");
 
-            // Set the source tar tile to stop generating bubbles while player is trapped
-            sourceTarTile.GetComponent<TarTileController>().SetActive(false);
-
-            // Set player as parent
-            transform.parent = collider.gameObject.transform;
-
-            // TODO: Resize bubble to size of player
-
-            // Stop movement
-            hasCollided = true;
-            currentPosition = collider.gameObject.transform.position;
-            transform.position = currentPosition;
+            // Then die
+            Die();
         }
     }
 
@@ -116,7 +92,7 @@ public class TarBubbleController : MonoBehaviour
         }
 
         // Reenable tar tile if we set to inactive
-        sourceTarTile.GetComponent<TarTileController>().SetActive(true);
+        sourceTarTile.SetActive(true);
 
         // Destroy bubble
         Destroy(gameObject);

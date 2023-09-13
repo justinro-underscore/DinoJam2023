@@ -2,15 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TarTileController : MonoBehaviour
+public class TarBubbleSourceController : IManagedController
 {
     [SerializeField] private int spawnInterval;
     [SerializeField] private bool isActive;
 
     [SerializeField] private GameObject tarBubblePrefab;
 
-    // Start is called before the first frame update
-    void Start()
+    override protected void ManagedStart()
     {
         // Invoke spawn function every spawnInterval seconds
         InvokeRepeating("SpawnBubble", spawnInterval, spawnInterval);

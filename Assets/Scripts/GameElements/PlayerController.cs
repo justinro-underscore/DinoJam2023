@@ -83,14 +83,15 @@ public class PlayerController : IManagedController
 
     private float initGrav;
 
+    // Trapped settings
     private bool isPlayerTrapped;
-    [SerializeField] private int playerMashTotal;
     private int currentPlayerMashValue;
-    private float lastButtonPressedTime;
-    private float buttonPressedTime;
-    private GameObject trappingBubble;
-    private float originalGripDrainScalar;
-    [SerializeField] [Range(0.1f, 2.0f)] private float trappedGripDrainScalar = 0.25f;
+    private bool buttonPressed;
+    
+    [Header("Player Trapped Settings")]
+    [SerializeField] private int playerMashTotal;
+    [SerializeField] [Range(1.0f, 2.0f)] private float gripAmplifyingFactor = 0.75f;
+    [SerializeField] [Range(0.0f, 1.0f)] private float wingDampeningFactor = 0.5f;
 
     override protected void ManagedStart()
     {
@@ -129,11 +130,7 @@ public class PlayerController : IManagedController
 
         isPlayerTrapped = false;
         currentPlayerMashValue = 0;
-
-        lastButtonPressedTime = 0;
-        buttonPressedTime = 0;
-        trappingBubble = null;
-        originalGripDrainScalar = gripDrainScalar;
+        buttonPressed = false;
     }
 
     override public void OnStateChanged(PlayState oldState, PlayState newState)
@@ -197,9 +194,6 @@ public class PlayerController : IManagedController
             WingData wingData = wingDatas[i];
             if (!wingData.lifting && GetPlayerInputKey(wingData.key, false))
             {
-                lastButtonPressedTime = buttonPressedTime;
-                buttonPressedTime = Time.time;
-
                 wingData.lifting = true;
             }
             else if (wingData.lifting && !GetPlayerInputKey(wingData.key, false))
@@ -211,25 +205,22 @@ public class PlayerController : IManagedController
 
     private void CheckForPlayerMash()
     {
-        float delta = (buttonPressedTime - lastButtonPressedTime);
-        if (delta == 0)
+        // Check if any key has been pressed and then any key released
+        // TODO: not great as if, improvement will be to do wing keys
+        // TODO: further improvement would be to detect flaps
+        // TODO: further further improvment is to rely on time - faster flaps = shorter trap time
+        if (buttonPressed != Input.anyKey)
         {
-            delta = 0.1f;
+            if (buttonPressed == true)
+            {
+                currentPlayerMashValue += 1;
+            }
+            buttonPressed = Input.anyKey;
         }
-
-        // TODO: one day make a better function for this jesus
-        int mashValue = (int) (1.0f / delta);
-
-        currentPlayerMashValue += mashValue;
 
         if (currentPlayerMashValue > playerMashTotal)
         {
-            isPlayerTrapped = false;
-            currentPlayerMashValue = 0;
-            gripDrainScalar = originalGripDrainScalar;
-
-            // Destroy bubble
-            trappingBubble.GetComponent<TarBubbleController>().Die();
+            UntrapPlayer();
         }
     }
 
@@ -425,16 +416,6 @@ public class PlayerController : IManagedController
             // we lose if we touch something that can damage the player
             PlayController.Instance.LoseLevel();
         }
-
-        if (other.gameObject.CompareTag(Constants.tarBubbleTag))
-        {
-            if (other.gameObject.GetComponent<TarBubbleController>().IsActive())
-            {
-                isPlayerTrapped = true;
-                trappingBubble = other.gameObject;
-                gripDrainScalar = trappedGripDrainScalar;
-            }
-        }
     }
     
     protected void OnTriggerExit2D(Collider2D other)
@@ -475,5 +456,27 @@ public class PlayerController : IManagedController
     public bool IsTrapped()
     {
         return isPlayerTrapped;
+    }
+
+    public void TrapPlayer()
+    {
+        isPlayerTrapped = true;
+        
+        gripDrainScalar = gripDrainScalar * gripAmplifyingFactor;
+        innerWingForce = innerWingForce * wingDampeningFactor;
+        outerWingForce = outerWingForce * wingDampeningFactor;
+        lateralWingForce = lateralWingForce * wingDampeningFactor;
+
+        currentPlayerMashValue = 0;
+    }
+
+    public void UntrapPlayer()
+    {
+        isPlayerTrapped = false;
+        
+        gripDrainScalar = gripDrainScalar / gripAmplifyingFactor;
+        innerWingForce = innerWingForce / wingDampeningFactor;
+        outerWingForce = outerWingForce / wingDampeningFactor;
+        lateralWingForce = lateralWingForce / wingDampeningFactor;
     }
 }

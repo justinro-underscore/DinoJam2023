@@ -67,7 +67,13 @@ public class PlayController : ISceneController
         }
         if (Input.GetKeyDown(KeyCode.Backspace) && (State == PlayState.PAUSE || State == PlayState.RUNNING))
         {
+            // Toggle dotweens!
             DOTween.TogglePauseAll();
+
+            // Set time scale to zero to pause invokes etc. if we are pausing game from running state
+            Time.timeScale = State == PlayState.PAUSE ? 1 : 0;
+
+            // Set play state to pause or running
             SetPlayState(State == PlayState.PAUSE ? PlayState.RUNNING : PlayState.PAUSE);
         }
     }
