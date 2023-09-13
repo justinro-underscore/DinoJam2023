@@ -393,7 +393,7 @@ public class PlayerController : IManagedController
     {
         if (PlayController.Instance.State != PlayState.RUNNING) return;
 
-        if (collision.gameObject.CompareTag("Walls") && gripping && !invulnerable)
+        if ((collision.gameObject.CompareTag("Walls") || collision.gameObject.CompareTag(Constants.hazardSourceTag)) && gripping && !invulnerable)
         {
             float drainAmount = gripCollisionDrainAmount;
             if (gripVal > gripCollisionSaveAmount)
