@@ -14,7 +14,7 @@ public class WingController
 public class PlayerController : IManagedController
 {
     [Header("References")]
-    [SerializeField] private GripBarController gripBarController;
+    [SerializeField] private StaminaMeterController staminaMeterController;
     [SerializeField] private LayerMask nestLayer;
     [SerializeField] private LayerMask wallsLayer;
 
@@ -186,6 +186,8 @@ public class PlayerController : IManagedController
 
     private void HandleGrip()
     {
+        if (staminaMeterController) staminaMeterController.UpdatePosition(transform.position);
+
         if (invulnerabilityTime > 0)
         {
             invulnerabilityTime -= Time.deltaTime;
@@ -221,7 +223,7 @@ public class PlayerController : IManagedController
                 gripVal += gripGainAmount;
                 if (gripVal > 1) gripVal = 1;
             }
-            gripBarController.SetGripPercentage(gripVal);
+            staminaMeterController.SetStaminaPercentage(gripVal);
 
             if (gripVal <= 0)
             {
@@ -331,7 +333,7 @@ public class PlayerController : IManagedController
         rb2d.AddForce(Vector2.up * eggGrabForceScalar);
         SetInvulnerable();
 
-        gripBarController.Enter();
+        staminaMeterController.Enter();
     }
 
     private void DropEgg()
@@ -346,7 +348,7 @@ public class PlayerController : IManagedController
             eggColliders = null;
             eggController.SetEggOutlineVisible(false);
             eggController = null;
-            gripBarController.Exit();
+            staminaMeterController.Exit();
             Physics2D.IgnoreLayerCollision(gameObject.layer, Mathf.FloorToInt(Mathf.Log(nestLayer.value, 2)), false);
 
             gripping = false;
@@ -402,8 +404,8 @@ public class PlayerController : IManagedController
                 drainAmount = Mathf.Min(gripCollisionDrainAmount, gripVal - gripCollisionSaveAmount);
             }
             gripVal -= drainAmount;
-            gripBarController.SetGripPercentage(gripVal);
-            gripBarController.OnCollision();
+            staminaMeterController.SetStaminaPercentage(gripVal);
+            staminaMeterController.OnCollision();
             SetInvulnerable();
         }
     }
