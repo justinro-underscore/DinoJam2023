@@ -373,9 +373,8 @@ public class PlayerController : IManagedController
         // TODO: damage on its own
         if (other.gameObject.CompareTag(Constants.damageEmitterTag))
         {
-            // TODO: temporary code
-            Debug.Log("HIT");
-            GameController.instance.ChangeState(GameState.LEVEL_SELECT);
+            // we lose if we touch something that can damage the player
+            PlayController.Instance.LoseLevel();
         }
     }
     
