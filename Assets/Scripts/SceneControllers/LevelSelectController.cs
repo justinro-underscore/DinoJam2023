@@ -78,7 +78,7 @@ public class LevelSelectController : ISceneController
             // TODO: temporary code - remove later
             GameController.instance.ChangeState(GameState.MAIN_MENU);
         }
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        else if (Input.GetKeyDown(KeyCode.RightArrow) && !isMovingIcon)
         {
             // If not at end of list, move to next index
             if (selectedLevelIndex != levels.Count - 1)
@@ -90,7 +90,7 @@ public class LevelSelectController : ISceneController
                 }
             }
         }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+        else if (Input.GetKeyDown(KeyCode.LeftArrow) && !isMovingIcon)
         {
             // If not at end of list, move to previous index
             if (selectedLevelIndex != 0)
