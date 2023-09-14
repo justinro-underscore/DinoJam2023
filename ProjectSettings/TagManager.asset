@@ -12,6 +12,7 @@ TagManager:
   - Waypoint
   - Walls
   - DamageEmitter
+  - HazardSource
   layers:
   - Default
   - TransparentFX

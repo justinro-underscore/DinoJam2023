@@ -38,6 +38,8 @@ public class LevelSelectController : ISceneController
     // We are level select state
     override protected GameState GetGameState() { return GameState.LEVEL_SELECT; }
 
+    private bool isMovingIcon;
+
     // Init values
     protected void Start()
     {
@@ -57,12 +59,14 @@ public class LevelSelectController : ISceneController
 
         // Initialize levels (unlocked etc.)
         LoadLevels();
+
+        isMovingIcon = false;
     }
 
     override protected void SceneUpdate()
     {
         // Enter level
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return) && !isMovingIcon)
         {
             // Store required data and change state to play
             gameData.lastPlayedLevelIndex = selectedLevelIndex;
@@ -74,7 +78,7 @@ public class LevelSelectController : ISceneController
             // TODO: temporary code - remove later
             GameController.instance.ChangeState(GameState.MAIN_MENU);
         }
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        else if (Input.GetKeyDown(KeyCode.RightArrow) && !isMovingIcon)
         {
             // If not at end of list, move to next index
             if (selectedLevelIndex != levels.Count - 1)
@@ -86,7 +90,7 @@ public class LevelSelectController : ISceneController
                 }
             }
         }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+        else if (Input.GetKeyDown(KeyCode.LeftArrow) && !isMovingIcon)
         {
             // If not at end of list, move to previous index
             if (selectedLevelIndex != 0)
@@ -105,8 +109,12 @@ public class LevelSelectController : ISceneController
         // Update selected level
         selectedLevel = levels[selectedLevelIndex];
 
+        // We are moving icon
+        isMovingIcon = true;
+
         // Move player icon to new selected level icon
-        playerTransform.DOMove(selectedLevel.GetLevelIconLocation(), playerIconSpeed, false);
+        playerTransform.DOMove(selectedLevel.GetLevelIconLocation(), playerIconSpeed, false)
+            .OnComplete(() => isMovingIcon = false);
     }
 
     // TODO: will need to see how this will work/be called if it can be once player wins a level
