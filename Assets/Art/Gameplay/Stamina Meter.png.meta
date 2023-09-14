@@ -122,16 +122,16 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 27
-        height: 21
+        width: 58
+        height: 37
       alignment: 9
-      pivot: {x: 0.5, y: 0.21428572}
+      pivot: {x: 0.5, y: 0.24324325}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5986abef550896d49bcc7c0061dd0352
+      spriteID: 1d8162ac354b28045a78dda3f82d5cbd
       internalID: -640360193
       vertices: []
       indices: 
@@ -141,18 +141,18 @@ TextureImporter:
       name: StaminaMeterTicker
       rect:
         serializedVersion: 2
-        x: 32
-        y: 8
-        width: 4
-        height: 8
+        x: 64
+        y: 0
+        width: 10
+        height: 20
       alignment: 9
-      pivot: {x: 0.625, y: 0.4375}
+      pivot: {x: 0.5, y: 0.3}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 29e4981623f3cd1498f8ef9ae47469cf
+      spriteID: 502b2cf6c2346d047a8a2938394c1fd8
       internalID: -1380247821
       vertices: []
       indices: 
