@@ -17,7 +17,6 @@ public class GameData
 
         levelData = new List<LevelData>();
 
-        // TODO: temporary until I fix this later lmao
-        currentPlaySceneName = "ObstacleLevel";
+        currentPlaySceneName = "";
     }
 }
