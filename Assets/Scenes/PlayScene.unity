@@ -6133,16 +6133,16 @@ MonoBehaviour:
   outerWingDownRotationBound: 25
   wingUpSpeed: 2.85
   wingDownSpeed: 3.37
-  innerWingForce: 0.501
-  outerWingForce: 0.321
-  lateralWingForce: 0.87
+  initInnerWingForce: 0.501
+  initOuterWingForce: 0.321
+  initLateralWingForce: 0.87
   lateralMomentumScalar: 0.095
   wingForceScalarTime: 0.151
   wingForceScalarPower: 2
   innerWingDragForce: 0.137
   outerWingDragForce: 0.215
   initGripVal: 0.7
-  gripDrainScalar: 0.17
+  initGripDrainScalar: 0.17
   gripGainAmount: 0.197
   gripCollisionDrainAmount: 0.188
   gripCollisionSaveAmount: 0.099
@@ -6152,6 +6152,9 @@ MonoBehaviour:
   rotationScalar: 5.89
   eggGrabForceScalar: 98
   maxVelocityX: 5.66
+  playerMashTotal: 0
+  gripAmplifyingFactor: 0.75
+  wingDampeningFactor: 0.5
 --- !u!212 &694470134
 SpriteRenderer:
   m_ObjectHideFlags: 0
