@@ -19,7 +19,7 @@ public class Level : MonoBehaviour
         
         foreach (Transform child in transform)
         {
-            if (child.tag == Constants.starTag)
+            if (child.CompareTag(Constants.starTag))
             {
                 stars.Add(child.gameObject);
             }
