@@ -4,6 +4,7 @@ using UnityEngine;
 
 public enum PlayState
 {
+    INTRO,
     RUNNING,
     PAUSE,
     WIN,
@@ -20,16 +21,37 @@ public class PlayController : ISceneController
     private List<IManagedController> managedControllers = new List<IManagedController>();
 
     [Header("References")]
+    [SerializeField] private Camera playCamera;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private EggController eggController;
+
+    [SerializeField] private RectTransform canvasRect;
+    [SerializeField] private IrisController irisController;
+    [SerializeField] private Transform startText;
     [SerializeField] private GameObject overlay;
     [SerializeField] private GameObject winnerText;
     [SerializeField] private GameObject loserText;
 
     [Header("Variables")]
     [SerializeField] [Range(1, 5)] private int maxEggLives = 1;
+    [SerializeField] private float introCameraSize;
+
+    [Header("Intro Variables")]
+    [SerializeField] private bool showFullIntro;
+    [SerializeField] private Vector3 introCameraStartOffset;
+    [SerializeField] [Range(0.1f, 1.0f)] private float introIrisStartTime = 0.1f;
+    [SerializeField] private int introIrisStartSize;
+    [SerializeField] [Range(0.0f, 1.0f)] private float introPlayerStartPauseTime;
+    [SerializeField] [Range(0.0f, 1.0f)] private float introPlayerEndPauseTime;
+    [SerializeField] [Range(0.1f, 2.0f)] private float introCameraTime = 0.1f;
+    [SerializeField] private int introIrisEndSize;
+    [SerializeField] [Range(0.0f, 1.0f)] private float introEndTime;
+    [SerializeField] [Range(0.1f, 1.0f)] private float introTextMoveTime = 0.1f;
+    [SerializeField] [Range(0.0f, 2.0f)] private float introTextWaitTime;
 
     private int eggLives;
+
+    private float initCameraSize;
 
     protected void Awake()
     {
@@ -42,7 +64,11 @@ public class PlayController : ISceneController
         GameData gameData = GameController.instance.GetGameData();
         if (gameData.currentPlaySceneName == "") gameData.currentPlaySceneName = gameObject.scene.name;
 
-        State = PlayState.RUNNING;
+        State = PlayState.INTRO;
+        if (showFullIntro)
+            StartIntroSequence();
+        else
+            StartGame();
 
         eggLives = maxEggLives;
     }
@@ -136,5 +162,43 @@ public class PlayController : ISceneController
         {
             managedController.OnStateChanged(oldState, State);
         }
+    }
+
+    private void StartIntroSequence()
+    {
+        irisController.SetActive(true, 0);
+        initCameraSize = playCamera.orthographicSize;
+        playCamera.orthographicSize = introCameraSize;
+        Vector3 cameraPos = playerController.transform.position + introCameraStartOffset;
+        playCamera.transform.position = new Vector3(cameraPos.x, cameraPos.y, playCamera.transform.position.z);
+
+        DOTween.Sequence().AppendInterval(0.2f)
+            .Append(irisController.AnimateIris(0, introIrisStartSize, introIrisStartTime).SetEase(Ease.OutBack))
+            .AppendInterval(introPlayerStartPauseTime)
+            .AppendCallback(() => playerController.RunIntroSequence());
+    }
+
+    public void FinishIntroSequence()
+    {
+        DOTween.Sequence().AppendInterval(introPlayerEndPauseTime)
+            .Append(playCamera.DOOrthoSize(initCameraSize, introCameraTime).SetEase(Ease.InOutQuad))
+            .Join(playCamera.transform.DOMove(new Vector3(0, 0, playCamera.transform.position.z), introCameraTime).SetEase(Ease.InOutQuad))
+            .Join(irisController.AnimateIris(introIrisStartSize, irisController.IrisMaxSize, introCameraTime * 0.5f).SetEase(Ease.OutSine))
+            .AppendInterval(introEndTime)
+            .AppendCallback(() => StartGame());
+    }
+
+    public void StartGame()
+    {
+        float textOffscreenY = (canvasRect.sizeDelta.y * 0.5f) + (startText.transform as RectTransform).sizeDelta.y;
+        startText.localPosition = new Vector2(0, textOffscreenY);
+        startText.gameObject.SetActive(true);
+        SetPlayState(PlayState.RUNNING);
+
+        DOTween.Sequence().Append(startText.DOLocalMoveY(0, introTextMoveTime).SetEase(Ease.OutQuad))
+            .AppendCallback(() => SetPlayState(PlayState.RUNNING))
+            .AppendInterval(introTextWaitTime)
+            .Append(startText.DOLocalMoveY(-textOffscreenY, introTextMoveTime).SetEase(Ease.InQuad))
+            .AppendCallback(() => startText.gameObject.SetActive(false));
     }
 }

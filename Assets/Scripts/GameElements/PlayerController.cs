@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 [System.Serializable]
@@ -66,6 +67,8 @@ public class PlayerController : IManagedController
     [SerializeField] [Range(5.0f, 15.0f)] private float rotationScalar = 5.0f;
     [SerializeField] [Range(1.0f, 200.0f)] private float eggGrabForceScalar = 1.0f;
     [SerializeField] [Range(0.1f, 8.0f)] private float maxVelocityX = 0.1f;
+    [SerializeField] [Range(0.01f, 1.0f)] private float introWingUpTime = 0.01f;
+    [SerializeField] [Range(0.01f, 1.0f)] private float introWingDownTime = 0.01f;
 
     private Rigidbody2D rb2d;
     private List<PolygonCollider2D> eggColliders;
@@ -166,6 +169,8 @@ public class PlayerController : IManagedController
 
     override public void ManagedUpdate()
     {
+        if (PlayController.Instance.State == PlayState.INTRO) return;
+
         CheckForWingInput();
         if (canGrip) HandleGrip();
 
@@ -174,6 +179,8 @@ public class PlayerController : IManagedController
 
     override public void ManagedFixedUpdate()
     {
+        if (PlayController.Instance.State == PlayState.INTRO) return;
+
         foreach (WingData wingData in wingDatas)
         {
             UpdateWingLiftValTarget(wingData);
@@ -487,5 +494,27 @@ public class PlayerController : IManagedController
         innerWingForce = initInnerWingForce;
         outerWingForce = initOuterWingForce;
         lateralWingForce = initLateralWingForce;
+    }
+
+    public void RunIntroSequence()
+    {
+        Sequence seq = DOTween.Sequence();
+        int wingCount = wingDatas.Count;
+        for (int i = 0; i < (wingCount * 2); i++)
+        {
+            WingData wingData = wingDatas[i % wingCount];
+            bool wingUp = i < wingCount;
+            float wingFlapTo = wingUp ?
+                wingData.innerWing ? innerWingUpRotationBound : outerWingUpRotationBound + innerWingUpRotationBound :
+                wingData.innerWing ? -innerWingDownRotationBound : -outerWingDownRotationBound - innerWingDownRotationBound;
+            wingFlapTo *= wingData.leftWing ? -1 : 1;
+            var wingAnim = wingData.transform.DORotate(new Vector3(0, 0, wingFlapTo), wingUp ? introWingUpTime : introWingDownTime);
+            wingAnim.SetEase(wingData.innerWing ? Ease.InOutQuad : Ease.InOutSine);
+            if (i == 0 || i == wingCount)
+                seq.Append(wingAnim);
+            else
+                seq.Join(wingAnim);
+        }
+        seq.AppendCallback(() => PlayController.Instance.FinishIntroSequence());
     }
 }
