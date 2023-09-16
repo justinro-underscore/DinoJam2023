@@ -42,13 +42,11 @@ public class Level : MonoBehaviour
         {
             stars[i].GetComponent<SpriteRenderer>().sprite = fullStarSprite;
         }
-    }
 
-    public void UnlockLevel()
-    {
-        this.isLocked = false;
-        gameObject.GetComponent<SpriteRenderer>().sprite = unlockedIconSprite;
-
+        if (!levelData.isLocked)
+        {
+            gameObject.GetComponent<SpriteRenderer>().sprite = unlockedIconSprite;
+        }
     }
 
     public string GetSceneName()

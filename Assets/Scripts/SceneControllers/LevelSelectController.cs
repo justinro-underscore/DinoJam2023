@@ -14,10 +14,13 @@ using DG.Tweening;
 *   5. When player presses enter, active level will be loaded by scene contoller
 */
 
-
+// todo: add initialize levels
 public class LevelSelectController : ISceneController
 {
     // List of level objects
+    // TODO: had we more time and could start over this design of where
+    // levels get loaded is NOT my favourite. Terrible design.
+    // Would rather move this elsewhere and reference level data but oh well
     [SerializeField] private List<Level> levels;
 
     // Player icon transform on map
@@ -43,7 +46,17 @@ public class LevelSelectController : ISceneController
     {
         // Get game data
         gameData = GameController.instance.GetGameData();
-        levelData = GameController.instance.GetLevelData();
+        levelData = gameData.levelData;
+
+        // Initialize level data objects if they haven't been created yet
+        if (levelData.Count == 0)
+        {
+            foreach (Level level in levels)
+            {
+                // ew
+                levelData.Add(new LevelData(0, level.IsLevelLocked()));
+            }
+        }
 
         // Start at level saved in game data
         selectedLevelIndex = gameData.lastPlayedLevelIndex;
@@ -120,19 +133,8 @@ public class LevelSelectController : ISceneController
         return unlockedLevel;
     }
 
-    // TOOD: maybe one day we can check if we need to read loaded level objects
     public void LoadLevels()
     {
-        // TODO: there is a better way to load and unlock only first level...
-        int lastUnlockedLevelIndex = gameData.lastUnlockedLevelIndex;
-        for (int i = 0; i < levels.Count; i++)
-        {
-            if (i <= lastUnlockedLevelIndex)
-            {
-                levels[i].UnlockLevel();
-            }
-        }
-
         for (int i = 0; i < levelData.Count; i++)
         {
             Debug.Log(levelData[i].starRating);
