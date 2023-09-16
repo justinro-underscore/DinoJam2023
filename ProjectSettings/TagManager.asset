@@ -10,6 +10,7 @@ TagManager:
   - Nest
   - PlayerTag
   - Waypoint
+  - Path
   - Walls
   - DamageEmitter
   - HazardSource
