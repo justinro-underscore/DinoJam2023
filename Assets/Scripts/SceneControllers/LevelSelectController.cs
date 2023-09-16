@@ -137,7 +137,6 @@ public class LevelSelectController : ISceneController
     {
         for (int i = 0; i < levelData.Count; i++)
         {
-            Debug.Log(levelData[i].starRating);
             levels[i].LoadLevel(levelData[i]);
         }
     }
