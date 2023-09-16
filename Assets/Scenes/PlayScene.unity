@@ -370,6 +370,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eggOutline: {fileID: 818021273}
   eggTrigger: {fileID: 1717597279}
+  crackThreshold: 6.6
   eggCrackSprites:
   - {fileID: -1804352824, guid: c57a1fffdf9bad34f9c04cea2c7bcee7, type: 3}
   - {fileID: -1631986839, guid: c57a1fffdf9bad34f9c04cea2c7bcee7, type: 3}
@@ -2256,7 +2257,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 7
+  m_AdditionalShaderChannelsFlag: 31
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -3432,7 +3433,7 @@ MonoBehaviour:
   overlay: {fileID: 931566124}
   winnerText: {fileID: 1530601672}
   loserText: {fileID: 1258120565}
-  maxEggLives: 4
+  maxEggLives: 1
   introCameraSize: 5
   showFullIntro: 0
   introCameraStartOffset: {x: -0.3, y: 0.2, z: 0}
