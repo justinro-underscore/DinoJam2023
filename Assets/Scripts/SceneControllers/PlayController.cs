@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 
 public enum PlayState
 {
@@ -27,7 +26,7 @@ public class PlayController : ISceneController
     [SerializeField] private EggController eggController;
 
     [SerializeField] private RectTransform canvasRect;
-    [SerializeField] private Image irisImage;
+    [SerializeField] private IrisController irisController;
     [SerializeField] private Transform startText;
     [SerializeField] private GameObject overlay;
     [SerializeField] private GameObject winnerText;
@@ -167,14 +166,14 @@ public class PlayController : ISceneController
 
     private void StartIntroSequence()
     {
-        irisImage.gameObject.SetActive(true);
+        irisController.SetActive(true, 0);
         initCameraSize = playCamera.orthographicSize;
         playCamera.orthographicSize = introCameraSize;
         Vector3 cameraPos = playerController.transform.position + introCameraStartOffset;
         playCamera.transform.position = new Vector3(cameraPos.x, cameraPos.y, playCamera.transform.position.z);
 
         DOTween.Sequence().AppendInterval(0.2f)
-            .Append(DOTween.To(x => irisImage.rectTransform.sizeDelta = new Vector2(x, x), 0, introIrisStartSize, introIrisStartTime).SetEase(Ease.OutBack))
+            .Append(irisController.AnimateIris(0, introIrisStartSize, introIrisStartTime).SetEase(Ease.OutBack))
             .AppendInterval(introPlayerStartPauseTime)
             .AppendCallback(() => playerController.RunIntroSequence());
     }
@@ -184,14 +183,13 @@ public class PlayController : ISceneController
         DOTween.Sequence().AppendInterval(introPlayerEndPauseTime)
             .Append(playCamera.DOOrthoSize(initCameraSize, introCameraTime).SetEase(Ease.InOutQuad))
             .Join(playCamera.transform.DOMove(new Vector3(0, 0, playCamera.transform.position.z), introCameraTime).SetEase(Ease.InOutQuad))
-            .Join(DOTween.To(x => irisImage.rectTransform.sizeDelta = new Vector2(x, x), introIrisStartSize, introIrisEndSize, introCameraTime * 0.5f).SetEase(Ease.OutSine))
+            .Join(irisController.AnimateIris(introIrisStartSize, irisController.IrisMaxSize, introCameraTime * 0.5f).SetEase(Ease.OutSine))
             .AppendInterval(introEndTime)
             .AppendCallback(() => StartGame());
     }
 
     public void StartGame()
     {
-        irisImage.gameObject.SetActive(false);
         float textOffscreenY = (canvasRect.sizeDelta.y * 0.5f) + (startText.transform as RectTransform).sizeDelta.y;
         startText.localPosition = new Vector2(0, textOffscreenY);
         startText.gameObject.SetActive(true);
