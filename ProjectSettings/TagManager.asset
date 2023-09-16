@@ -13,6 +13,7 @@ TagManager:
   - Walls
   - DamageEmitter
   - HazardSource
+  - TarBubble
   layers:
   - Default
   - TransparentFX

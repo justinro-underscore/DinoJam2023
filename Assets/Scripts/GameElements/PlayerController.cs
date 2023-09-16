@@ -43,9 +43,9 @@ public class PlayerController : IManagedController
     [SerializeField] [Range(0.0f, 40.0f)] private float outerWingDownRotationBound;
     [SerializeField] [Range(0.1f, 4.0f)] private float wingUpSpeed = 0.1f;
     [SerializeField] [Range(0.1f, 4.0f)] private float wingDownSpeed = 0.1f;
-    [SerializeField] [Range(0.1f, 1.0f)] private float innerWingForce = 0.1f;
-    [SerializeField] [Range(0.1f, 1.0f)] private float outerWingForce = 0.1f;
-    [SerializeField] [Range(0.1f, 3.0f)] private float lateralWingForce = 0.1f;
+    [SerializeField] [Range(0.1f, 1.0f)] private float initInnerWingForce = 0.1f;
+    [SerializeField] [Range(0.1f, 1.0f)] private float initOuterWingForce = 0.1f;
+    [SerializeField] [Range(0.1f, 3.0f)] private float initLateralWingForce = 0.1f;
     [SerializeField] [Range(0.0f, 1.0f)] private float lateralMomentumScalar;
     [SerializeField] [Range(0.0f, 0.3f)] private float wingForceScalarTime; // Time it takes to get to 100% of wing force
     [SerializeField] [Range(1, 5)] private int wingForceScalarPower = 1;
@@ -54,7 +54,7 @@ public class PlayerController : IManagedController
 
     [Header("Grip Settings")]
     [SerializeField] [Range(0.0f, 1.0f)] private float initGripVal;
-    [SerializeField] [Range(0.1f, 2.0f)] private float gripDrainScalar = 0.1f;
+    [SerializeField] [Range(0.1f, 2.0f)] private float initGripDrainScalar = 0.1f;
     [SerializeField] [Range(0.01f, 1.0f)] private float gripGainAmount = 0.01f;
     [SerializeField] [Range(0.01f, 1.0f)] private float gripCollisionDrainAmount = 0.01f;
     [SerializeField] [Range(0.01f, 1.0f)] private float gripCollisionSaveAmount = 0.01f;
@@ -71,21 +71,43 @@ public class PlayerController : IManagedController
     private List<PolygonCollider2D> eggColliders;
 
     private List<WingData> wingDatas;
+
+    // Wing forces
+    private float innerWingForce;
+    private float outerWingForce;
+    private float lateralWingForce;
+
     private bool canInput;
     private bool canGrip;
 
     private EggController eggController;
     private bool gripping;
     private float gripVal;
+    private float gripDrainScalar;
     private bool invulnerable;
     private float invulnerabilityTime;
     private bool gripCracked;
 
     private float initGrav;
 
+    // Trapped settings
+    private bool isPlayerTrapped;
+    private int currentPlayerMashValue;
+    
+    [Header("Player Trapped Settings")]
+    [SerializeField] private int playerMashTotal;
+    [SerializeField] [Range(1.0f, 2.0f)] private float gripAmplifyingFactor = 0.75f;
+    [SerializeField] [Range(0.0f, 1.0f)] private float wingDampeningFactor = 0.5f;
+
     override protected void ManagedStart()
     {
         rb2d = GetComponent<Rigidbody2D>();
+
+        // Init wing forces and grip drain
+        innerWingForce = initInnerWingForce;
+        outerWingForce = initOuterWingForce;
+        lateralWingForce = initLateralWingForce;
+        gripDrainScalar = initGripDrainScalar;
 
         wingDatas = new List<WingData>(wingControllers.Count);
         for (int i = 0; i < wingControllers.Count; i++)
@@ -117,6 +139,9 @@ public class PlayerController : IManagedController
 
         canInput = true;
         canGrip = true;
+
+        isPlayerTrapped = false;
+        currentPlayerMashValue = 0;
     }
 
     override public void OnStateChanged(PlayState oldState, PlayState newState)
@@ -160,6 +185,11 @@ public class PlayerController : IManagedController
 
         if (Mathf.Abs(rb2d.velocity.x) > maxVelocityX)
             rb2d.velocity = new Vector2(rb2d.velocity.x > 0 ? maxVelocityX : -maxVelocityX, rb2d.velocity.y);
+
+        if (isPlayerTrapped)
+        {
+            CheckForPlayerMash();
+        }
     }
 
     private bool GetPlayerInputKey(KeyCode key, bool keyDown=true)
@@ -181,6 +211,23 @@ public class PlayerController : IManagedController
             {
                 wingData.lifting = false;
             }
+        }
+    }
+
+    private void CheckForPlayerMash()
+    {
+        // Check if any key has been pressed and then any key released
+        // TODO: not great as if, improvement will be to do wing keys
+        // TODO: further improvement would be to detect flaps
+        // TODO: further further improvment is to rely on time - faster flaps = shorter trap time
+        if (Input.anyKeyDown)
+        {
+            currentPlayerMashValue += 1;
+        }
+
+        if (currentPlayerMashValue > playerMashTotal)
+        {
+            UntrapPlayer();
         }
     }
 
@@ -413,5 +460,32 @@ public class PlayerController : IManagedController
     {
         invulnerabilityTime = invulnerabilityInitTime;
         invulnerable = true;
+    }
+
+    public bool IsTrapped()
+    {
+        return isPlayerTrapped;
+    }
+
+    public void TrapPlayer()
+    {
+        isPlayerTrapped = true;
+        
+        gripDrainScalar = initGripDrainScalar * gripAmplifyingFactor;
+        innerWingForce = initInnerWingForce * wingDampeningFactor;
+        outerWingForce = initOuterWingForce * wingDampeningFactor;
+        lateralWingForce = initLateralWingForce * wingDampeningFactor;
+
+        currentPlayerMashValue = 0;
+    }
+
+    public void UntrapPlayer()
+    {
+        isPlayerTrapped = false;
+        
+        gripDrainScalar = initGripDrainScalar;
+        innerWingForce = initInnerWingForce;
+        outerWingForce = initOuterWingForce;
+        lateralWingForce = initLateralWingForce;
     }
 }
