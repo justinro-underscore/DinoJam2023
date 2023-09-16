@@ -7,7 +7,6 @@ public class WingController
     public Transform wingTransform;
     public bool leftWing;
     public bool innerWing;
-    public bool rotateClockwise;
     public KeyCode key;
 }
 
@@ -15,37 +14,47 @@ public class WingController
 public class PlayerController : IManagedController
 {
     [Header("References")]
-    [SerializeField] private GripBarController gripBarController;
+    [SerializeField] private StaminaMeterController staminaMeterController;
+    [SerializeField] private LayerMask nestLayer;
+    [SerializeField] private LayerMask wallsLayer;
 
     private class WingData
     {
+        public static float InnerWingGroundTarget;
+        public static float OuterWingGroundTarget;
+
         public Transform transform;
         public KeyCode key;
         public bool leftWing;
         public bool innerWing;
-        public bool rotateClockwise;
 
         public bool lifting;
-        public float lastRot;
-        public float currRot;
+        public float liftVal; // [0,1]
+        public float liftValTarget;
+        public float downTime;
     }
     [Header("Wings")]
     [SerializeField] private List<WingController> wingControllers;
 
     [Header("Wing Settings")]
-    [SerializeField] [Range(0.0f, 50.0f)] private float wingUpRotationBound;
-    [SerializeField] [Range(0.0f, 50.0f)] private float wingDownRotationBound;
-    [SerializeField] [Range(10.0f, 400.0f)] private float wingUpSpeed = 10.0f;
-    [SerializeField] [Range(10.0f, 400.0f)] private float wingDownSpeed = 10.0f;
-    [SerializeField] [Range(0.1f, 2.0f)] private float innerWingForce = 0.1f;
-    [SerializeField] [Range(0.1f, 2.0f)] private float outerWingForce = 0.1f;
-    [SerializeField] [Range(0.1f, 2.0f)] private float lateralWingForce = 0.1f;
-    [SerializeField] [Range(0.01f, 0.125f)] private float innerWingDragForce = 0.01f;
-    [SerializeField] [Range(0.01f, 0.125f)] private float outerWingDragForce = 0.01f;
+    [SerializeField] [Range(0.0f, 60.0f)] private float innerWingUpRotationBound;
+    [SerializeField] [Range(0.0f, 40.0f)] private float outerWingUpRotationBound;
+    [SerializeField] [Range(0.0f, 50.0f)] private float innerWingDownRotationBound;
+    [SerializeField] [Range(0.0f, 40.0f)] private float outerWingDownRotationBound;
+    [SerializeField] [Range(0.1f, 4.0f)] private float wingUpSpeed = 0.1f;
+    [SerializeField] [Range(0.1f, 4.0f)] private float wingDownSpeed = 0.1f;
+    [SerializeField] [Range(0.1f, 1.0f)] private float initInnerWingForce = 0.1f;
+    [SerializeField] [Range(0.1f, 1.0f)] private float initOuterWingForce = 0.1f;
+    [SerializeField] [Range(0.1f, 3.0f)] private float initLateralWingForce = 0.1f;
+    [SerializeField] [Range(0.0f, 1.0f)] private float lateralMomentumScalar;
+    [SerializeField] [Range(0.0f, 0.3f)] private float wingForceScalarTime; // Time it takes to get to 100% of wing force
+    [SerializeField] [Range(1, 5)] private int wingForceScalarPower = 1;
+    [SerializeField] [Range(0.01f, 0.33f)] private float innerWingDragForce = 0.01f;
+    [SerializeField] [Range(0.01f, 0.33f)] private float outerWingDragForce = 0.01f;
 
     [Header("Grip Settings")]
     [SerializeField] [Range(0.0f, 1.0f)] private float initGripVal;
-    [SerializeField] [Range(0.1f, 2.0f)] private float gripDrainScalar = 0.1f;
+    [SerializeField] [Range(0.1f, 2.0f)] private float initGripDrainScalar = 0.1f;
     [SerializeField] [Range(0.01f, 1.0f)] private float gripGainAmount = 0.01f;
     [SerializeField] [Range(0.01f, 1.0f)] private float gripCollisionDrainAmount = 0.01f;
     [SerializeField] [Range(0.01f, 1.0f)] private float gripCollisionSaveAmount = 0.01f;
@@ -56,42 +65,71 @@ public class PlayerController : IManagedController
     [Header("Player Settings")]
     [SerializeField] [Range(5.0f, 15.0f)] private float rotationScalar = 5.0f;
     [SerializeField] [Range(1.0f, 200.0f)] private float eggGrabForceScalar = 1.0f;
+    [SerializeField] [Range(0.1f, 8.0f)] private float maxVelocityX = 0.1f;
 
     private Rigidbody2D rb2d;
     private List<PolygonCollider2D> eggColliders;
 
     private List<WingData> wingDatas;
+
+    // Wing forces
+    private float innerWingForce;
+    private float outerWingForce;
+    private float lateralWingForce;
+
     private bool canInput;
     private bool canGrip;
 
     private EggController eggController;
     private bool gripping;
     private float gripVal;
+    private float gripDrainScalar;
     private bool invulnerable;
     private float invulnerabilityTime;
     private bool gripCracked;
 
     private float initGrav;
 
+    // Trapped settings
+    private bool isPlayerTrapped;
+    private int currentPlayerMashValue;
+    
+    [Header("Player Trapped Settings")]
+    [SerializeField] private int playerMashTotal;
+    [SerializeField] [Range(1.0f, 2.0f)] private float gripAmplifyingFactor = 0.75f;
+    [SerializeField] [Range(0.0f, 1.0f)] private float wingDampeningFactor = 0.5f;
+
     override protected void ManagedStart()
     {
         rb2d = GetComponent<Rigidbody2D>();
 
+        // Init wing forces and grip drain
+        innerWingForce = initInnerWingForce;
+        outerWingForce = initOuterWingForce;
+        lateralWingForce = initLateralWingForce;
+        gripDrainScalar = initGripDrainScalar;
+
         wingDatas = new List<WingData>(wingControllers.Count);
         for (int i = 0; i < wingControllers.Count; i++)
         {
-            wingDatas.Add(new WingData
+            WingData wingData = new WingData
             {
                 transform = wingControllers[i].wingTransform,
                 key = wingControllers[i].key,
                 leftWing = wingControllers[i].leftWing,
                 innerWing = wingControllers[i].innerWing,
-                rotateClockwise = wingControllers[i].rotateClockwise,
 
                 lifting = false,
-                lastRot = wingControllers[i].wingTransform.localEulerAngles.z
-            });
+                liftVal = 0,
+                downTime = 0,
+            };
+            UpdateWingLiftValTarget(wingData);
+            wingData.liftVal = wingData.liftValTarget;
+            UpdateWingRot(wingData);
+            wingDatas.Add(wingData);
         }
+        WingData.InnerWingGroundTarget = innerWingDownRotationBound / (innerWingDownRotationBound + innerWingUpRotationBound);
+        WingData.OuterWingGroundTarget = outerWingDownRotationBound / (outerWingDownRotationBound + outerWingUpRotationBound);
 
         initGrav = rb2d.gravityScale;
         if ((innerWingDragForce * 2) + (outerWingDragForce * 2) > initGrav)
@@ -101,6 +139,9 @@ public class PlayerController : IManagedController
 
         canInput = true;
         canGrip = true;
+
+        isPlayerTrapped = false;
+        currentPlayerMashValue = 0;
     }
 
     override public void OnStateChanged(PlayState oldState, PlayState newState)
@@ -128,14 +169,27 @@ public class PlayerController : IManagedController
         CheckForWingInput();
         if (canGrip) HandleGrip();
 
+        transform.localEulerAngles = new Vector3(0, 0, rb2d.velocity.x * -rotationScalar);
+    }
+
+    override public void ManagedFixedUpdate()
+    {
         foreach (WingData wingData in wingDatas)
         {
+            UpdateWingLiftValTarget(wingData);
+            UpdateWingData(wingData);
             UpdateWingRot(wingData);
             CheckApplyForce(wingData);
         }
         CheckForWingDrag();
 
-        transform.localEulerAngles = new Vector3(0, 0, rb2d.velocity.x * -rotationScalar);
+        if (Mathf.Abs(rb2d.velocity.x) > maxVelocityX)
+            rb2d.velocity = new Vector2(rb2d.velocity.x > 0 ? maxVelocityX : -maxVelocityX, rb2d.velocity.y);
+
+        if (isPlayerTrapped)
+        {
+            CheckForPlayerMash();
+        }
     }
 
     private bool GetPlayerInputKey(KeyCode key, bool keyDown=true)
@@ -160,8 +214,27 @@ public class PlayerController : IManagedController
         }
     }
 
+    private void CheckForPlayerMash()
+    {
+        // Check if any key has been pressed and then any key released
+        // TODO: not great as if, improvement will be to do wing keys
+        // TODO: further improvement would be to detect flaps
+        // TODO: further further improvment is to rely on time - faster flaps = shorter trap time
+        if (Input.anyKeyDown)
+        {
+            currentPlayerMashValue += 1;
+        }
+
+        if (currentPlayerMashValue > playerMashTotal)
+        {
+            UntrapPlayer();
+        }
+    }
+
     private void HandleGrip()
     {
+        if (staminaMeterController) staminaMeterController.UpdatePosition(transform.position);
+
         if (invulnerabilityTime > 0)
         {
             invulnerabilityTime -= Time.deltaTime;
@@ -197,7 +270,7 @@ public class PlayerController : IManagedController
                 gripVal += gripGainAmount;
                 if (gripVal > 1) gripVal = 1;
             }
-            gripBarController.SetGripPercentage(gripVal);
+            staminaMeterController.SetStaminaPercentage(gripVal);
 
             if (gripVal <= 0)
             {
@@ -214,26 +287,58 @@ public class PlayerController : IManagedController
         }
     }
 
+    private void UpdateWingLiftValTarget(WingData wingData)
+    {
+        if (wingData.lifting)
+        {
+            wingData.liftValTarget = 1;
+        }
+        else
+        {
+            if (IsOnGround())
+                wingData.liftValTarget = wingData.innerWing ? WingData.InnerWingGroundTarget : WingData.OuterWingGroundTarget;
+            else
+                wingData.liftValTarget = 0;
+        }
+    }
+
+    private bool IsOnGround()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 0.9f, wallsLayer);
+        return hit.collider != null;
+    }
+
+    private void UpdateWingData(WingData wingData)
+    {
+        float liftValDiff = wingData.liftValTarget - wingData.liftVal;
+        float liftValDelta = (liftValDiff > 0 ? wingUpSpeed : -wingDownSpeed) * 100 * Time.fixedDeltaTime /
+            (wingData.innerWing ? (innerWingDownRotationBound + innerWingUpRotationBound) : (outerWingDownRotationBound + outerWingUpRotationBound));
+        if (Mathf.Abs(liftValDelta) > Mathf.Abs(liftValDiff))
+            liftValDelta = liftValDiff;
+        wingData.liftVal = Mathf.Clamp01(wingData.liftVal + liftValDelta);
+
+        if (wingData.liftValTarget - wingData.liftVal < 0)
+            wingData.downTime += Time.deltaTime;
+        else if (wingData.downTime > 0)
+            wingData.downTime = 0;
+    }
+
     private void UpdateWingRot(WingData wingData)
     {
-        float rot = wingData.transform.localEulerAngles.z;
-        if (rot >= 180) rot -= 360;
-        wingData.lastRot = rot * (wingData.rotateClockwise ? 1 : -1);
-        float newRot = rot + ((wingData.lifting ? -wingUpSpeed : wingDownSpeed) * Time.deltaTime * (wingData.rotateClockwise ? 1 : -1));
-        float wingPosBound = wingData.rotateClockwise ? wingDownRotationBound : wingUpRotationBound;
-        float wingNegBound = wingData.rotateClockwise ? -wingUpRotationBound : -wingDownRotationBound;
-        newRot = Mathf.Clamp(newRot, wingNegBound, wingPosBound);
-        wingData.currRot = newRot * (wingData.rotateClockwise ? 1 : -1);
-        wingData.transform.localEulerAngles = new Vector3(0, 0, newRot);
+        float upperBound = wingData.innerWing ? innerWingUpRotationBound : outerWingUpRotationBound;
+        float lowerBound = -(wingData.innerWing ? innerWingDownRotationBound : outerWingDownRotationBound);
+        float wingRot = ((wingData.liftVal * (upperBound - lowerBound)) + lowerBound) * (wingData.leftWing ? -1 : 1);
+        wingData.transform.localEulerAngles = new Vector3(0, 0, wingRot);
     }
 
     private void CheckApplyForce(WingData wingData)
     {
-        float rotDiff = wingData.currRot - wingData.lastRot;
-        if (rotDiff > 0)
+        if (wingData.liftValTarget - wingData.liftVal < 0)
         {
-            Vector2 wingForceVec = new Vector2(lateralWingForce * (wingData.leftWing ? 1 : -1), 1) * rotDiff * (wingData.innerWing ? innerWingForce : outerWingForce);
-            rb2d.AddForce(wingForceVec);
+            float forceScalar = Mathf.Min(Mathf.Pow((wingData.downTime + wingData.liftValTarget) / wingForceScalarTime, wingForceScalarPower), 1);
+            float lateralForce = lateralWingForce * (wingData.leftWing ? 1 : -1) + (rb2d.velocity.x * lateralMomentumScalar);
+            Vector2 wingForceVec = new Vector2(lateralForce, 1) * (wingData.innerWing ? innerWingForce : outerWingForce) * forceScalar;
+            rb2d.velocity += wingForceVec;
         }
     }
 
@@ -242,7 +347,7 @@ public class PlayerController : IManagedController
         float gravOffset = 0;
         foreach (WingData wingData in wingDatas)
         {
-            if (wingData.currRot < 0)
+            if (wingData.liftVal >= 0.5f && wingData.lifting)
             {
                 gravOffset += wingData.innerWing ? innerWingDragForce : outerWingDragForce;
             }
@@ -260,6 +365,7 @@ public class PlayerController : IManagedController
         transform.position = eggController.transform.position;
         eggController.transform.localPosition = new Vector2(0, -0.5f);
         rb2d.velocity = Vector2.zero;
+        Physics2D.IgnoreLayerCollision(gameObject.layer, Mathf.FloorToInt(Mathf.Log(nestLayer.value, 2)));
 
         List<PolygonCollider2D> colliders = eggController.GetEggColliders();
         eggColliders = new List<PolygonCollider2D>();
@@ -274,12 +380,12 @@ public class PlayerController : IManagedController
         rb2d.AddForce(Vector2.up * eggGrabForceScalar);
         SetInvulnerable();
 
-        gripBarController.Enter();
+        staminaMeterController.Enter();
     }
 
     private void DropEgg()
     {
-        if (eggController)
+        if (gripping && eggController)
         {
             eggController.DropEgg();
             foreach (PolygonCollider2D collider in eggColliders)
@@ -289,7 +395,8 @@ public class PlayerController : IManagedController
             eggColliders = null;
             eggController.SetEggOutlineVisible(false);
             eggController = null;
-            gripBarController.Exit();
+            staminaMeterController.Exit();
+            Physics2D.IgnoreLayerCollision(gameObject.layer, Mathf.FloorToInt(Mathf.Log(nestLayer.value, 2)), false);
 
             gripping = false;
         }
@@ -306,6 +413,7 @@ public class PlayerController : IManagedController
         }
         else if (other.gameObject.CompareTag("Nest") && gripping && eggController)
         {
+            // TODO Maybe when in nestshow sprite mask so wings don't clip out of nest?
             PlayController.Instance.WinLevel();
         }
 
@@ -314,9 +422,8 @@ public class PlayerController : IManagedController
         // TODO: damage on its own
         if (other.gameObject.CompareTag(Constants.damageEmitterTag))
         {
-            // TODO: temporary code
-            Debug.Log("HIT");
-            GameController.instance.ChangeState(GameState.LEVEL_SELECT);
+            // we lose if we touch something that can damage the player
+            PlayController.Instance.LoseLevel();
         }
     }
     
@@ -335,7 +442,7 @@ public class PlayerController : IManagedController
     {
         if (PlayController.Instance.State != PlayState.RUNNING) return;
 
-        if (collision.gameObject.CompareTag("Walls") && gripping && !invulnerable)
+        if ((collision.gameObject.CompareTag("Walls") || collision.gameObject.CompareTag(Constants.hazardSourceTag)) && gripping && !invulnerable)
         {
             float drainAmount = gripCollisionDrainAmount;
             if (gripVal > gripCollisionSaveAmount)
@@ -343,8 +450,8 @@ public class PlayerController : IManagedController
                 drainAmount = Mathf.Min(gripCollisionDrainAmount, gripVal - gripCollisionSaveAmount);
             }
             gripVal -= drainAmount;
-            gripBarController.SetGripPercentage(gripVal);
-            gripBarController.OnCollision();
+            staminaMeterController.SetStaminaPercentage(gripVal);
+            staminaMeterController.OnCollision();
             SetInvulnerable();
         }
     }
@@ -353,5 +460,32 @@ public class PlayerController : IManagedController
     {
         invulnerabilityTime = invulnerabilityInitTime;
         invulnerable = true;
+    }
+
+    public bool IsTrapped()
+    {
+        return isPlayerTrapped;
+    }
+
+    public void TrapPlayer()
+    {
+        isPlayerTrapped = true;
+        
+        gripDrainScalar = initGripDrainScalar * gripAmplifyingFactor;
+        innerWingForce = initInnerWingForce * wingDampeningFactor;
+        outerWingForce = initOuterWingForce * wingDampeningFactor;
+        lateralWingForce = initLateralWingForce * wingDampeningFactor;
+
+        currentPlayerMashValue = 0;
+    }
+
+    public void UntrapPlayer()
+    {
+        isPlayerTrapped = false;
+        
+        gripDrainScalar = initGripDrainScalar;
+        innerWingForce = initInnerWingForce;
+        outerWingForce = initOuterWingForce;
+        lateralWingForce = initLateralWingForce;
     }
 }

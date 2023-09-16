@@ -7,7 +7,6 @@ public class EggController : IManagedController
     [Header("References")]
     [SerializeField] private GameObject eggOutline;
     [SerializeField] private GameObject eggTrigger;
-    [SerializeField] private SpriteRenderer eggCracks;
 
     [Header("Crack Values")]
     [SerializeField] private List<Sprite> eggCrackSprites;
@@ -17,14 +16,17 @@ public class EggController : IManagedController
     [SerializeField] [Range(0, 40)] private int crackShakeVibrato;
 
     private Rigidbody2D rb2d;
+    private SpriteRenderer sr;
     private Transform initParent;
     private bool wasRB2DActive;
     private bool invulnerable;
     private float invulnerabilityTime;
+    private bool broken;
 
     override protected void ManagedStart()
     {
         rb2d = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
         initParent = transform.parent;
         // We don't want it to take damage if the player hasn't interacted with it yet
         invulnerable = true;
@@ -32,6 +34,8 @@ public class EggController : IManagedController
 
     override public void ManagedUpdate()
     {
+        if (!broken) return;
+
         if (invulnerabilityTime > 0)
         {
             invulnerabilityTime -= Time.deltaTime;
@@ -87,26 +91,23 @@ public class EggController : IManagedController
 
     public void SetCrack(int crackNum)
     {
-        if (crackNum > eggCrackSprites.Count) crackNum = eggCrackSprites.Count;
-        if (crackNum <= 0)
-            eggCracks.sprite = null;
-        else
-        {
+        if (crackNum >= eggCrackSprites.Count) crackNum = eggCrackSprites.Count - 1;
+        if (crackNum > 0)
             transform.DOShakePosition(crackShakeTime, crackShakeStrength, crackShakeVibrato);
-            eggCracks.sprite = eggCrackSprites[crackNum - 1];
-        }
+        sr.sprite = eggCrackSprites[crackNum];
     }
 
     public void BreakEgg()
     {
+        broken = true;
         transform.DOShakePosition(crackShakeTime * 2, crackShakeStrength * 2, crackShakeVibrato);
-        GetComponent<SpriteRenderer>().DOFade(0, crackShakeTime * 2);
-        eggCracks.DOFade(0, crackShakeTime * 2);
+        sr.DOFade(0, crackShakeTime * 2);
+        SetEggOutlineVisible(false);
     }
 
     protected void OnTriggerEnter2D(Collider2D other)
     {
-        if (PlayController.Instance.State != PlayState.RUNNING) return;
+        if (PlayController.Instance.State != PlayState.RUNNING && !broken) return;
 
         if (other.gameObject.CompareTag("Nest"))
         {
@@ -116,7 +117,7 @@ public class EggController : IManagedController
 
     protected void OnCollisionEnter2D(Collision2D collision)
     {
-        if (PlayController.Instance.State != PlayState.RUNNING) return;
+        if (PlayController.Instance.State != PlayState.RUNNING && !broken) return;
 
         if (collision.gameObject.CompareTag("Walls") && !invulnerable)
         {
