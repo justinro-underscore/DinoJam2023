@@ -6,7 +6,7 @@ using DG.Tweening;
 public class EnemyMovementController : IManagedController
 {
     // Struct for paths
-    private struct Path
+    private class Path
     {
         public List<Vector3> waypoints;
         
@@ -50,14 +50,14 @@ public class EnemyMovementController : IManagedController
         // Find child objects with path tag
         foreach (Transform child in transform)
         {
-            if (child.tag == Constants.pathTag)
+            if (child.CompareTag(Constants.pathTag))
             {
                 // Find sub children with waypoint tag
                 // ie. paths have waypoints
                 List<Vector3> vectorWaypoints = new List<Vector3>();
                 foreach (Transform subChild in child)
                 {
-                    if (subChild.tag == Constants.waypointTag)
+                    if (subChild.CompareTag(Constants.waypointTag))
                     {
                         vectorWaypoints.Add(subChild.position);
                     }
