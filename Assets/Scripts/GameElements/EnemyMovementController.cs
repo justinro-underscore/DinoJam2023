@@ -3,7 +3,19 @@ using UnityEngine;
 
 using DG.Tweening;
 
-public class EnemyMovementController : IManagedController {
+public class EnemyMovementController : IManagedController
+{
+    // Struct for paths
+    private struct Path
+    {
+        public List<Vector3> waypoints;
+        
+        public Path(List<Vector3> waypoints)
+        {
+            this.waypoints = waypoints;
+        }
+    }
+
     [SerializeField] [Range(0.0f, 20.0f)] public float speed = 2.0f;
 
     // -1 will causes path to be run forward and backwards infinite number of times
@@ -18,7 +30,7 @@ public class EnemyMovementController : IManagedController {
 
     [SerializeField] LoopType loopType;
 
-    private List<List<Vector3>> paths;
+    private List<Path> paths;
 
     // Using this variable instead of callback functions to avoid
     // stack depth overflow
@@ -33,7 +45,7 @@ public class EnemyMovementController : IManagedController {
     protected override void ManagedStart()
     {
         // Init list of paths
-        paths = new List<List<Vector3>>();
+        paths = new List<Path>();
 
         // Find child objects with path tag
         foreach (Transform child in transform)
@@ -51,7 +63,7 @@ public class EnemyMovementController : IManagedController {
                     }
                 }
 
-                paths.Add(vectorWaypoints);
+                paths.Add(new Path(vectorWaypoints));
             }
         }
 
@@ -61,12 +73,10 @@ public class EnemyMovementController : IManagedController {
 
         // Adding initial position as first "waypoint" in path
         // This is so we handle reverse traversals gracefull with dotween
-        foreach (List<Vector3> path in paths)
+        foreach (Path path in paths)
         {
-            path.Insert(0, initialPosition);
+            path.waypoints.Insert(0, initialPosition);
         }
-
-        Debug.Log(paths.Count);
     }
 
     public override void ManagedUpdate()
@@ -92,8 +102,10 @@ public class EnemyMovementController : IManagedController {
 
     private void MoveAlongPath(int pathIndex)
     {
+        Path currentPath = paths[pathIndex];
+
         transform
-            .DOPath(paths[pathIndex].ToArray(), speed, PathType.Linear, PathMode.TopDown2D)
+            .DOPath(currentPath.waypoints.ToArray(), speed, PathType.Linear, PathMode.TopDown2D)
             .SetSpeedBased(true)
             .OnStepComplete( () =>
                 {
@@ -119,9 +131,9 @@ public class EnemyMovementController : IManagedController {
                             // Reverse paths and each individual path to traverse backwards
                             // TODO: a lower cost version would precompute the reverse in start and just toggle between them
                             paths.Reverse();
-                            foreach (List<Vector3> path in paths)
+                            foreach (Path path in paths)
                             {
-                                path.Reverse();
+                                path.waypoints.Reverse();
                             }
                         }
                         else if (loopType == LoopType.Restart)
