@@ -12,6 +12,8 @@ TagManager:
   - Waypoint
   - Walls
   - DamageEmitter
+  - HazardSource
+  - TarBubble
   - Star
   layers:
   - Default
