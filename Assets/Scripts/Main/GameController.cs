@@ -48,9 +48,6 @@ public class GameController : MonoBehaviour {
         {
             currGameState = sceneController.GetCurrSceneGameState();
         }
-
-        // Store current scene in game data
-        gameData.currentPlaySceneName = sceneController.GetActiveScenes()[^1];
     }
 
     public void ChangeState(GameState newGameState)
