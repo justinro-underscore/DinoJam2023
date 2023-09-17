@@ -790,6 +790,8 @@ MonoBehaviour:
   playerTransform: {fileID: 739178013}
   playerIconSpeed: 1
   irisController: {fileID: 1042167715}
+  irisInSpeed: 0.721
+  irisOutSpeed: 0.51
 --- !u!4 &1348443250
 Transform:
   m_ObjectHideFlags: 0

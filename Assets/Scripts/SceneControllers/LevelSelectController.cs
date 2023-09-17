@@ -29,6 +29,8 @@ public class LevelSelectController : ISceneController
     [SerializeField] [Range(0.5f, 10.0f)] private float playerIconSpeed = 1.0f;
 
     [SerializeField] private IrisController irisController;
+    [SerializeField] [Range(0.1f, 1.0f)] private float irisInSpeed = 0.1f;
+    [SerializeField] [Range(0.1f, 1.0f)] private float irisOutSpeed = 0.1f;
 
     // Current level player icon is on
     private Level selectedLevel;
@@ -63,6 +65,12 @@ public class LevelSelectController : ISceneController
         LoadLevels();
 
         isMovingIcon = false;
+
+        if (gameData.shouldIrisInLevelSelect)
+        {
+            gameData.shouldIrisInLevelSelect = false;
+            irisController.AnimateIrisIn(irisInSpeed).SetEase(Ease.OutSine);
+        }
     }
 
     override protected void SceneUpdate()
@@ -73,8 +81,9 @@ public class LevelSelectController : ISceneController
             // Store required data and change state to play
             gameData.lastPlayedLevelIndex = selectedLevelIndex;
             gameData.currentPlaySceneName = selectedLevel.GetSceneName();
+            gameData.shouldShowFullLevelIntro = true;
 
-            DOTween.Sequence().Append(irisController.AnimateIris(irisController.IrisMaxSize, 0, 0.5f).SetEase(Ease.Linear))
+            DOTween.Sequence().Append(irisController.AnimateIrisOut(irisOutSpeed).SetEase(Ease.Linear))
                 .AppendInterval(0.75f)
                 .OnComplete(() => GameController.instance.ChangeState(GameState.PLAY));
         }

@@ -8,12 +8,18 @@ public class GameData
 
     public string currentPlaySceneName;
 
+    public bool shouldIrisInLevelSelect;
+    public bool shouldShowFullLevelIntro;
+
     public void Init()
     {
         lastUnlockedLevelIndex = 0;
         lastPlayedLevelIndex = 0;
 
         // TODO: temporary until I fix this later lmao
-        currentPlaySceneName = "ObstacleLevel";
+        currentPlaySceneName = "";
+
+        shouldIrisInLevelSelect = false;
+        shouldShowFullLevelIntro = false;
     }
 }

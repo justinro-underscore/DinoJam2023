@@ -20,6 +20,16 @@ public class IrisController : MonoBehaviour
         irisImage.rectTransform.sizeDelta = new Vector2(size, size);
     }
 
+    public Tweener AnimateIrisIn(float time)
+    {
+        return AnimateIris(0, IrisMaxSize, time);
+    }
+
+    public Tweener AnimateIrisOut(float time)
+    {
+        return AnimateIris(IrisMaxSize, 0, time);
+    }
+
     public Tweener AnimateIris(int startSize, int endSize, float time)
     {
         gameObject.SetActive(true);
