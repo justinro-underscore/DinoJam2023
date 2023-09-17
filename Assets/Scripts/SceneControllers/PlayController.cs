@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum PlayState
 {
@@ -27,27 +28,40 @@ public class PlayController : ISceneController
 
     [SerializeField] private RectTransform canvasRect;
     [SerializeField] private IrisController irisController;
+
     [SerializeField] private Transform startText;
-    [SerializeField] private GameObject overlay;
+
+    [SerializeField] private Image overlay;
+    [SerializeField] private GameObject levelFailedUIParent;
+    [SerializeField] private RectTransform levelFailedText;
+    [SerializeField] private SelectableMenuController levelFailedMenu;
     [SerializeField] private GameObject winnerText;
-    [SerializeField] private GameObject loserText;
 
     [Header("Variables")]
     [SerializeField] [Range(1, 5)] private int maxEggLives = 1;
     [SerializeField] private float introCameraSize;
+    [SerializeField] [Range(0.1f, 1.0f)] private float exitIrisTime = 0.1f;
+    [SerializeField] [Range(0.1f, 2.0f)] private float exitWaitTime = 0.1f;
 
     [Header("Intro Variables")]
-    [SerializeField] private bool showFullIntro;
+    [SerializeField] private bool debugShowFullIntroOverride;
     [SerializeField] private Vector3 introCameraStartOffset;
     [SerializeField] [Range(0.1f, 1.0f)] private float introIrisStartTime = 0.1f;
+    [SerializeField] [Range(0.1f, 2.0f)] private float shortIntroIrisTime = 0.1f;
     [SerializeField] private int introIrisStartSize;
     [SerializeField] [Range(0.0f, 1.0f)] private float introPlayerStartPauseTime;
     [SerializeField] [Range(0.0f, 1.0f)] private float introPlayerEndPauseTime;
     [SerializeField] [Range(0.1f, 2.0f)] private float introCameraTime = 0.1f;
-    [SerializeField] private int introIrisEndSize;
     [SerializeField] [Range(0.0f, 1.0f)] private float introEndTime;
     [SerializeField] [Range(0.1f, 1.0f)] private float introTextMoveTime = 0.1f;
     [SerializeField] [Range(0.0f, 2.0f)] private float introTextWaitTime;
+
+    [Header("Win/Lose Variables")]
+    [SerializeField] [Range(0.0f, 1.0f)] private float overlayOpacity;
+    [SerializeField] [Range(0.01f, 0.5f)] private float overlayFadeInTime = 0.01f;
+    [SerializeField] [Range(0.1f, 2.0f)] private float failedMoveTime = 0.1f;
+
+    private bool showFullIntro;
 
     private int eggLives;
 
@@ -62,13 +76,18 @@ public class PlayController : ISceneController
 
         // Debug only: if the developer has the level scene already loaded in, set the scene name as the current play scene
         GameData gameData = GameController.instance.GetGameData();
-        if (gameData.currentPlaySceneName == "") gameData.currentPlaySceneName = gameObject.scene.name;
+        if (gameData.currentPlaySceneName == "")
+        {
+            showFullIntro = debugShowFullIntroOverride;
+            gameData.currentPlaySceneName = gameObject.scene.name;
+        }
+        else
+        {
+            showFullIntro = gameData.shouldShowFullLevelIntro;
+        }
 
         State = PlayState.INTRO;
-        if (showFullIntro)
-            StartIntroSequence();
-        else
-            StartGame();
+        StartIntroSequence();
 
         eggLives = maxEggLives;
     }
@@ -140,7 +159,7 @@ public class PlayController : ISceneController
         // You can't win the level if you've already lost or if you've already won
         if (State == PlayState.LOSE || State == PlayState.WIN) return;
         SetPlayState(PlayState.WIN);
-        overlay.SetActive(true);
+        overlay.gameObject.SetActive(true);
         winnerText.SetActive(true);
     }
 
@@ -149,8 +168,21 @@ public class PlayController : ISceneController
         // You can't lose the level if you've already won it or if you've already lost
         if (State == PlayState.WIN || State == PlayState.LOSE) return;
         SetPlayState(PlayState.LOSE);
-        overlay.SetActive(true);
-        loserText.SetActive(true);
+
+        overlay.color = Color.clear;
+        overlay.gameObject.SetActive(true);
+        float initTextY = levelFailedText.localPosition.y;
+        float textOffscreenY = (canvasRect.sizeDelta.y * 0.5f) + (startText.transform as RectTransform).sizeDelta.y;
+        levelFailedText.localPosition = new Vector2(0, textOffscreenY);
+        float initMenuY = levelFailedMenu.transform.localPosition.y;
+        float menuOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - (levelFailedMenu.transform as RectTransform).sizeDelta.y;
+        levelFailedMenu.transform.localPosition = new Vector2(0, menuOffscreenY);
+        levelFailedMenu.SetActive(false);
+        levelFailedUIParent.SetActive(true);
+        DOTween.Sequence().Append(overlay.DOFade(overlayOpacity, overlayFadeInTime))
+            .Join(levelFailedText.DOLocalMoveY(initTextY, failedMoveTime).SetEase(Ease.OutBounce))
+            .Join(levelFailedMenu.transform.DOLocalMoveY(initMenuY, failedMoveTime))
+            .AppendCallback(() => levelFailedMenu.SetActive(true));
     }
 
     private void SetPlayState(PlayState newState)
@@ -168,14 +200,25 @@ public class PlayController : ISceneController
     {
         irisController.SetActive(true, 0);
         initCameraSize = playCamera.orthographicSize;
-        playCamera.orthographicSize = introCameraSize;
-        Vector3 cameraPos = playerController.transform.position + introCameraStartOffset;
-        playCamera.transform.position = new Vector3(cameraPos.x, cameraPos.y, playCamera.transform.position.z);
+        if (showFullIntro)
+        {
+            playCamera.orthographicSize = introCameraSize;
+            Vector3 cameraPos = playerController.transform.position + introCameraStartOffset;
+            playCamera.transform.position = new Vector3(cameraPos.x, cameraPos.y, playCamera.transform.position.z);
+        }
 
-        DOTween.Sequence().AppendInterval(0.2f)
-            .Append(irisController.AnimateIris(0, introIrisStartSize, introIrisStartTime).SetEase(Ease.OutBack))
-            .AppendInterval(introPlayerStartPauseTime)
-            .AppendCallback(() => playerController.RunIntroSequence());
+        Sequence seq = DOTween.Sequence().AppendInterval(0.2f);
+        if (showFullIntro)
+        {
+            seq.Append(irisController.AnimateIris(0, introIrisStartSize, introIrisStartTime).SetEase(Ease.OutBack))
+                .AppendInterval(introPlayerStartPauseTime)
+                .AppendCallback(() => playerController.RunIntroSequence());
+        }
+        else
+        {
+            seq.Append(irisController.AnimateIrisIn(shortIntroIrisTime).SetEase(Ease.OutSine))
+                .AppendCallback(() => StartGame());
+        }
     }
 
     public void FinishIntroSequence()
@@ -200,5 +243,21 @@ public class PlayController : ISceneController
             .AppendInterval(introTextWaitTime)
             .Append(startText.DOLocalMoveY(-textOffscreenY, introTextMoveTime).SetEase(Ease.InQuad))
             .AppendCallback(() => startText.gameObject.SetActive(false));
+    }
+
+    public void RestartLevel()
+    {
+        GameController.instance.GetGameData().shouldShowFullLevelIntro = false;
+        DOTween.Sequence().Append(irisController.AnimateIrisOut(exitIrisTime).SetEase(Ease.OutSine))
+            .AppendInterval(exitWaitTime)
+            .OnComplete(() => GameController.instance.ChangeState(GameState.PLAY));
+    }
+
+    public void QuitLevel()
+    {
+        GameController.instance.GetGameData().shouldIrisInLevelSelect = true;
+        DOTween.Sequence().Append(irisController.AnimateIrisOut(exitIrisTime).SetEase(Ease.OutSine))
+            .AppendInterval(exitWaitTime)
+            .OnComplete(() => GameController.instance.ChangeState(GameState.LEVEL_SELECT));
     }
 }

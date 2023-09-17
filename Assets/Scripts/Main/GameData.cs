@@ -10,6 +10,9 @@ public class GameData
 
     public List<LevelData> levelData;
 
+    public bool shouldIrisInLevelSelect;
+    public bool shouldShowFullLevelIntro;
+
     public void Init()
     {
         lastUnlockedLevelIndex = 0;
@@ -18,5 +21,8 @@ public class GameData
         levelData = new List<LevelData>();
 
         currentPlaySceneName = "";
+
+        shouldIrisInLevelSelect = false;
+        shouldShowFullLevelIntro = false;
     }
 }

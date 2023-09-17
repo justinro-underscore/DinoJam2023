@@ -9,6 +9,7 @@ public class EggController : IManagedController
     [SerializeField] private GameObject eggTrigger;
 
     [Header("Crack Values")]
+    [SerializeField] [Range(0.0f, 20.0f)] private float crackThreshold;
     [SerializeField] private List<Sprite> eggCrackSprites;
     [SerializeField] [Range(0.0f, 4.0f)] private float invulnerabilityInitTime;
     [SerializeField] [Range(0.0f, 1.0f)] private float crackShakeTime;
@@ -22,6 +23,7 @@ public class EggController : IManagedController
     private bool invulnerable;
     private float invulnerabilityTime;
     private bool broken;
+    private float lastVelMagnitude;
 
     override protected void ManagedStart()
     {
@@ -34,7 +36,7 @@ public class EggController : IManagedController
 
     override public void ManagedUpdate()
     {
-        if (!broken) return;
+        if (broken) return;
 
         if (invulnerabilityTime > 0)
         {
@@ -44,6 +46,12 @@ public class EggController : IManagedController
                 invulnerable = false;
             }
         }
+
+        // for (int i = 1; i < lastVelMagnitudes.Length; i++)
+        // {
+        //     lastVelMagnitudes[i - 1] = lastVelMagnitudes[i];
+        // }
+        lastVelMagnitude = rb2d.velocity.magnitude;
     }
 
     override public void OnStateChanged(PlayState oldState, PlayState newState)
@@ -121,9 +129,13 @@ public class EggController : IManagedController
 
         if (collision.gameObject.CompareTag("Walls") && !invulnerable)
         {
-            PlayController.Instance.TakeEggDamage();
-            invulnerable = true;
-            invulnerabilityTime = invulnerabilityInitTime;
+            // Only crack the egg if the velocity is past the crack threshold
+            if (lastVelMagnitude > crackThreshold)
+            {
+                PlayController.Instance.TakeEggDamage();
+                invulnerable = true;
+                invulnerabilityTime = invulnerabilityInitTime;
+            }
         }
     }
 }
