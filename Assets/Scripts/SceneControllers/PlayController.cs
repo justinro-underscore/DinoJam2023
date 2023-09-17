@@ -42,6 +42,8 @@ public class PlayController : ISceneController
     [SerializeField] private float introCameraSize;
     [SerializeField] [Range(0.1f, 1.0f)] private float exitIrisTime = 0.1f;
     [SerializeField] [Range(0.1f, 2.0f)] private float exitWaitTime = 0.1f;
+    [SerializeField] [Range(0.0f, 1.0f)] private float overlayOpacity; // .3
+    [SerializeField] [Range(0.01f, 0.5f)] private float overlayFadeTime = 0.01f; // 0.2
 
     [Header("Intro Variables")]
     [SerializeField] private bool debugShowFullIntroOverride;
@@ -57,8 +59,6 @@ public class PlayController : ISceneController
     [SerializeField] [Range(0.0f, 2.0f)] private float introTextWaitTime;
 
     [Header("Win/Lose Variables")]
-    [SerializeField] [Range(0.0f, 1.0f)] private float overlayOpacity;
-    [SerializeField] [Range(0.01f, 0.5f)] private float overlayFadeInTime = 0.01f;
     [SerializeField] [Range(0.1f, 2.0f)] private float failedMoveTime = 0.1f;
 
     private bool showFullIntro;
@@ -106,20 +106,9 @@ public class PlayController : ISceneController
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape) && State != PlayState.RUNNING)
+        if (Input.GetKeyDown(KeyCode.Escape) && State == PlayState.RUNNING && !GameController.instance.IsSceneLoaded(Scenes.Pause))
         {
-            GameController.instance.ChangeState(GameState.LEVEL_SELECT);
-        }
-        if (Input.GetKeyDown(KeyCode.Backspace) && (State == PlayState.PAUSE || State == PlayState.RUNNING))
-        {
-            // Toggle dotweens!
-            DOTween.TogglePauseAll();
-
-            // Set time scale to zero to pause invokes etc. if we are pausing game from running state
-            Time.timeScale = State == PlayState.PAUSE ? 1 : 0;
-
-            // Set play state to pause or running
-            SetPlayState(State == PlayState.PAUSE ? PlayState.RUNNING : PlayState.PAUSE);
+            Pause();
         }
     }
 
@@ -141,6 +130,21 @@ public class PlayController : ISceneController
     public void RegisterManagedController(IManagedController controller)
     {
         managedControllers.Add(controller);
+    }
+
+    public void Pause()
+    {
+        // Toggle dotweens!
+        DOTween.PauseAll();
+        SetPlayState(PlayState.PAUSE);
+        GameController.instance.ChangeState(GameState.PAUSE);
+    }
+
+    public void Resume()
+    {
+        DOTween.PlayAll();
+        SetPlayState(PlayState.RUNNING);
+        overlay.DOFade(0, overlayFadeTime).OnComplete(() => overlay.gameObject.SetActive(false));
     }
 
     public void TakeEggDamage()
@@ -179,7 +183,7 @@ public class PlayController : ISceneController
         levelFailedMenu.transform.localPosition = new Vector2(0, menuOffscreenY);
         levelFailedMenu.SetActive(false);
         levelFailedUIParent.SetActive(true);
-        DOTween.Sequence().Append(overlay.DOFade(overlayOpacity, overlayFadeInTime))
+        DOTween.Sequence().Append(overlay.DOFade(overlayOpacity, overlayFadeTime))
             .Join(levelFailedText.DOLocalMoveY(initTextY, failedMoveTime).SetEase(Ease.OutBounce))
             .Join(levelFailedMenu.transform.DOLocalMoveY(initMenuY, failedMoveTime))
             .AppendCallback(() => levelFailedMenu.SetActive(true));
@@ -245,19 +249,27 @@ public class PlayController : ISceneController
             .AppendCallback(() => startText.gameObject.SetActive(false));
     }
 
-    public void RestartLevel()
+    public void RestartLevel(bool irisEnabled=true)
     {
         GameController.instance.GetGameData().shouldShowFullLevelIntro = false;
-        DOTween.Sequence().Append(irisController.AnimateIrisOut(exitIrisTime).SetEase(Ease.OutSine))
-            .AppendInterval(exitWaitTime)
+        Sequence seq = DOTween.Sequence();
+        if (irisEnabled)
+            seq.Append(irisController.AnimateIrisOut(exitIrisTime).SetEase(Ease.OutSine));
+        else
+            seq.AppendInterval(exitIrisTime);
+        seq.AppendInterval(exitWaitTime)
             .OnComplete(() => GameController.instance.ChangeState(GameState.PLAY));
     }
 
-    public void QuitLevel()
+    public void QuitLevel(bool irisEnabled=true)
     {
         GameController.instance.GetGameData().shouldIrisInLevelSelect = true;
-        DOTween.Sequence().Append(irisController.AnimateIrisOut(exitIrisTime).SetEase(Ease.OutSine))
-            .AppendInterval(exitWaitTime)
+        Sequence seq = DOTween.Sequence();
+        if (irisEnabled)
+            seq.Append(irisController.AnimateIrisOut(exitIrisTime).SetEase(Ease.OutSine));
+        else
+            seq.AppendInterval(exitIrisTime);
+        seq.AppendInterval(exitWaitTime)
             .OnComplete(() => GameController.instance.ChangeState(GameState.LEVEL_SELECT));
     }
 }

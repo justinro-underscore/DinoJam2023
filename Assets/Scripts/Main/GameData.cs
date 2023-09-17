@@ -13,6 +13,8 @@ public class GameData
     public bool shouldIrisInLevelSelect;
     public bool shouldShowFullLevelIntro;
 
+    public bool resumingGame;
+
     public void Init()
     {
         lastUnlockedLevelIndex = 0;
@@ -24,5 +26,7 @@ public class GameData
 
         shouldIrisInLevelSelect = false;
         shouldShowFullLevelIntro = false;
+
+        resumingGame = false;
     }
 }

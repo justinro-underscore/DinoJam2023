@@ -16,6 +16,7 @@ TagManager:
   - HazardSource
   - TarBubble
   - Star
+  - PlayController
   layers:
   - Default
   - TransparentFX
