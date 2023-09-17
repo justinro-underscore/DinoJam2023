@@ -16,7 +16,7 @@ public class LevelSelectUIController : MonoBehaviour
 
     [SerializeField] private Image starTotal;
 
-    [SerializeField] private Image starFilled;
+    [SerializeField] private Sprite starFilled;
     
 
     void Start()
@@ -56,7 +56,7 @@ public class LevelSelectUIController : MonoBehaviour
         {
             if (collectedStars[i])
             {
-                stars[i] = starFilled;
+                stars[i].sprite = starFilled;
             }
         }
     }
