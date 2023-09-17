@@ -5,27 +5,65 @@ using UnityEngine.UI;
 
 public class LevelSelectUIController : MonoBehaviour
 {
-    [SerializeField] GameObject levelMenu;
+    [SerializeField] private GameObject levelMenu;
 
-    [SerializeField] Image levelPreviewImage;
-    [SerializeField] Image levelTitle;
-    [SerializeField] List<Image> levelTime;
-    [SerializeField] Image levelTokens;
+    [SerializeField] private Image levelPreviewImage;
+    [SerializeField] private Image levelTitle;
+    [SerializeField] private List<Image> levelTime;
+    [SerializeField] private Image levelTokens;
 
-    [SerializeField] List<Image> stars;
+    [SerializeField] private List<Image> stars;
 
-    [SerializeField] Image starTotal;
+    [SerializeField] private Image starTotal;
+
+    [SerializeField] private Image starFilled;
     
 
-    // Start is called before the first frame update
     void Start()
     {
-        
+        levelMenu.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SetLevelMenuActive(bool isActive)
     {
-        
+        levelMenu.SetActive(isActive);
     }
+
+    public void SetLevelPreviewImage(Image levelPreviewImage)
+    {
+        this.levelPreviewImage = levelPreviewImage;
+    }
+
+    public void SetLevelTitle(Image levelTitle)
+    {
+        this.levelTitle = levelTitle;
+    }
+
+    public void SetLevelTime(int seconds)
+    {
+        // Convert to images
+        // TODO: work with Justin here
+    }
+
+    public void SetLevelTokens(int tokens)
+    {
+        // TODO: work with Justin here
+    }
+
+    public void SetLevelStars(List<bool> collectedStars)
+    {
+        for (int i = 0; i < stars.Count; i++)
+        {
+            if (collectedStars[i])
+            {
+                stars[i] = starFilled;
+            }
+        }
+    }
+
+    public void SetStarTotal(int total)
+    {
+        // TODO: work with Justin on this
+    }
+
 }
