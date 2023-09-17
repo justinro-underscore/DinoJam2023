@@ -29,6 +29,8 @@ public class PlayController : ISceneController
     [SerializeField] private RectTransform canvasRect;
     [SerializeField] private IrisController irisController;
 
+    [SerializeField] private TimerController timerController;
+
     [SerializeField] private Transform startText;
 
     [SerializeField] private Image overlay;
@@ -66,6 +68,9 @@ public class PlayController : ISceneController
     private int eggLives;
 
     private float initCameraSize;
+    private float initTimerPosY;
+
+    private float levelTime;
 
     protected void Awake()
     {
@@ -90,6 +95,8 @@ public class PlayController : ISceneController
         StartIntroSequence();
 
         eggLives = maxEggLives;
+
+        levelTime = 0;
     }
 
     override protected void SceneUpdate()
@@ -104,6 +111,12 @@ public class PlayController : ISceneController
                 else
                     managedController.ManagedUpdate();
             }
+        }
+
+        if (State == PlayState.RUNNING)
+        {
+            levelTime += Time.deltaTime;
+            timerController.SetTime(Mathf.FloorToInt(levelTime));
         }
 
         if (Input.GetKeyDown(KeyCode.Escape) && State == PlayState.RUNNING && !GameController.instance.IsSceneLoaded(Scenes.Pause))
@@ -202,6 +215,9 @@ public class PlayController : ISceneController
 
     private void StartIntroSequence()
     {
+        initTimerPosY = timerController.transform.localPosition.y;
+        float timerPosY = (canvasRect.sizeDelta.y * 0.5f) + (timerController.transform as RectTransform).sizeDelta.y;
+        timerController.transform.localPosition = new Vector2(timerController.transform.localPosition.x, timerPosY);
         irisController.SetActive(true, 0);
         initCameraSize = playCamera.orthographicSize;
         if (showFullIntro)
@@ -246,6 +262,7 @@ public class PlayController : ISceneController
             .AppendCallback(() => SetPlayState(PlayState.RUNNING))
             .AppendInterval(introTextWaitTime)
             .Append(startText.DOLocalMoveY(-textOffscreenY, introTextMoveTime).SetEase(Ease.InQuad))
+            .Join(timerController.transform.DOLocalMoveY(initTimerPosY, introTextMoveTime).SetEase(Ease.OutQuad))
             .AppendCallback(() => startText.gameObject.SetActive(false));
     }
 
