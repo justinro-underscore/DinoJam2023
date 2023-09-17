@@ -249,8 +249,14 @@ public class PlayController : ISceneController
             .AppendCallback(() => startText.gameObject.SetActive(false));
     }
 
-    public void RestartLevel(bool irisEnabled=true)
+    public void RestartLevel()
     {
+        RestartLevel(true);
+    }
+
+    public void RestartLevel(bool irisEnabled)
+    {
+        GameController.instance.GetGameData().resumingGame = false;
         GameController.instance.GetGameData().shouldShowFullLevelIntro = false;
         Sequence seq = DOTween.Sequence();
         if (irisEnabled)
@@ -261,7 +267,12 @@ public class PlayController : ISceneController
             .OnComplete(() => GameController.instance.ChangeState(GameState.PLAY));
     }
 
-    public void QuitLevel(bool irisEnabled=true)
+    public void QuitLevel()
+    {
+        QuitLevel(true);
+    }
+
+    public void QuitLevel(bool irisEnabled)
     {
         GameController.instance.GetGameData().shouldIrisInLevelSelect = true;
         Sequence seq = DOTween.Sequence();

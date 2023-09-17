@@ -67,7 +67,6 @@ public class PauseController : ISceneController
 
     public void RestartLevel()
     {
-        GameController.instance.GetGameData().resumingGame = false;
         irisController.AnimateIrisOut(exitIrisTime).SetEase(Ease.OutSine);
         playController.RestartLevel(false);
     }
