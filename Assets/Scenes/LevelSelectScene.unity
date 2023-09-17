@@ -352,7 +352,7 @@ GameObject:
   - component: {fileID: 36353775}
   - component: {fileID: 36353776}
   m_Layer: 5
-  m_Name: BestTime
+  m_Name: Time
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -858,7 +858,7 @@ GameObject:
   - component: {fileID: 295057359}
   - component: {fileID: 295057358}
   m_Layer: 5
-  m_Name: StarImage
+  m_Name: TokensStarImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1154,6 +1154,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 540848532}
+  - component: {fileID: 540848533}
   m_Layer: 0
   m_Name: LevelSelectorUIController
   m_TagString: Untagged
@@ -1176,6 +1177,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &540848533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 540848531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3de2fb34792c9140a4ab53a302bc4aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelMenu: {fileID: 18796246}
+  levelPreviewImage: {fileID: 1470256561}
+  levelTitle: {fileID: 104629163}
+  levelTime:
+  - {fileID: 1794230106}
+  - {fileID: 31113197}
+  - {fileID: 1147755742}
+  - {fileID: 541493264}
+  levelTokens: {fileID: 1027365051}
+  stars:
+  - {fileID: 2127226737}
+  - {fileID: 669944853}
+  - {fileID: 295057358}
+  starTotal: {fileID: 1515150505}
 --- !u!1 &541493262
 GameObject:
   m_ObjectHideFlags: 0
@@ -1470,7 +1497,7 @@ GameObject:
   - component: {fileID: 669944854}
   - component: {fileID: 669944853}
   m_Layer: 5
-  m_Name: StarImage
+  m_Name: EggStarImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2804,7 +2831,7 @@ GameObject:
   - component: {fileID: 1470256562}
   - component: {fileID: 1470256561}
   m_Layer: 5
-  m_Name: Image
+  m_Name: LevelPreviewImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3499,7 +3526,7 @@ GameObject:
   - component: {fileID: 2127226738}
   - component: {fileID: 2127226737}
   m_Layer: 5
-  m_Name: StarImage
+  m_Name: TimeStarImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
