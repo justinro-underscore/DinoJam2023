@@ -10,6 +10,8 @@ public class Constants
   
     public const string playerTag = "PlayerTag";
   
+    public const string PLAY_CONTROLLER_TAG = "PlayController";
+
     // Level consts
     public const string starTag = "Star";
     public const int MAX_STAR_RATING = 3;

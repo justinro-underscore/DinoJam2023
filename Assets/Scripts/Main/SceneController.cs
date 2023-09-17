@@ -7,6 +7,7 @@ public static class Scenes {
     public const string Base = "BaseScene";
     public const string MainMenu = "MainMenuScene";
     public const string LevelSelect = "LevelSelectScene";
+    public const string Pause = "PauseScene";
 
     // Levels
     // TODO: temp level name
@@ -18,6 +19,7 @@ public class SceneController : MonoBehaviour {
     private IDictionary<string, GameState> gameSceneStateMapping = new Dictionary<string, GameState>() {
         {Scenes.MainMenu, GameState.MAIN_MENU},
         {Scenes.LevelSelect, GameState.LEVEL_SELECT},
+        {Scenes.Pause, GameState.PAUSE},
         {Scenes.BaseLevel, GameState.PLAY},
         {Scenes.TestLevel, GameState.PLAY}
     };
@@ -50,6 +52,11 @@ public class SceneController : MonoBehaviour {
         else {
             SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
         }
+    }
+
+    public bool IsSceneLoaded(string sceneName) {
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        return scene != null && scene.isLoaded;
     }
 
     public GameState GetCurrSceneGameState()

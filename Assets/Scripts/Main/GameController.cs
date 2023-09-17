@@ -5,7 +5,8 @@ public enum GameState {
     UNKNOWN,
     MAIN_MENU,
     LEVEL_SELECT,
-    PLAY
+    PLAY,
+    PAUSE
 }
 
 public class GameController : MonoBehaviour {
@@ -89,8 +90,33 @@ public class GameController : MonoBehaviour {
                     sceneController.UnloadScene(gameData.currentPlaySceneName);
                     nextSceneName = gameData.currentPlaySceneName;
                 }
+                else if (newGameState == GameState.PAUSE)
+                {
+                    nextSceneName = Scenes.Pause;
+                }
                 else if (newGameState == GameState.LEVEL_SELECT)
                 {
+                    sceneController.UnloadScene(gameData.currentPlaySceneName);
+                    nextSceneName = Scenes.LevelSelect;
+                }
+                else
+                {
+                    handled = false;
+                }
+                break;
+            case GameState.PAUSE:
+                if (newGameState == GameState.PLAY)
+                {
+                    if (!gameData.resumingGame)
+                    {
+                        sceneController.UnloadScene(Scenes.Pause);
+                        sceneController.UnloadScene(gameData.currentPlaySceneName);
+                        nextSceneName = gameData.currentPlaySceneName;
+                    }
+                }
+                else if (newGameState == GameState.LEVEL_SELECT)
+                {
+                    sceneController.UnloadScene(Scenes.Pause);
                     sceneController.UnloadScene(gameData.currentPlaySceneName);
                     nextSceneName = Scenes.LevelSelect;
                 }
@@ -115,6 +141,17 @@ public class GameController : MonoBehaviour {
         }
         Debug.Log($"Changing game state to {newGameState}");
         currGameState = newGameState;
+    }
+
+    // DO NOT USE UNLESS YOU KNOW WHAT YOU'RE DOING
+    public void UnloadSceneDangerously(string sceneName)
+    {
+        sceneController.UnloadScene(sceneName);
+    }
+
+    public bool IsSceneLoaded(string sceneName)
+    {
+        return sceneController.IsSceneLoaded(sceneName);
     }
 
     public GameData GetGameData()
