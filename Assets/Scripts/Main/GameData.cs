@@ -23,6 +23,8 @@ public class GameData
 
     public bool resumingGame;
 
+    public int numStars;
+
     public void Init()
     {
         playLevelData = new PlayLevelData();
@@ -38,5 +40,7 @@ public class GameData
         shouldShowFullLevelIntro = false;
 
         resumingGame = false;
+
+        numStars = 0;
     }
 }
