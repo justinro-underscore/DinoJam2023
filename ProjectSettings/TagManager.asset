@@ -10,10 +10,12 @@ TagManager:
   - Nest
   - PlayerTag
   - Waypoint
+  - Path
   - Walls
   - DamageEmitter
   - HazardSource
   - TarBubble
+  - Star
   layers:
   - Default
   - TransparentFX

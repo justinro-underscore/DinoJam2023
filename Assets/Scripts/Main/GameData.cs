@@ -8,6 +8,8 @@ public class GameData
 
     public string currentPlaySceneName;
 
+    public List<LevelData> levelData;
+
     public bool shouldIrisInLevelSelect;
     public bool shouldShowFullLevelIntro;
 
@@ -16,7 +18,8 @@ public class GameData
         lastUnlockedLevelIndex = 0;
         lastPlayedLevelIndex = 0;
 
-        // TODO: temporary until I fix this later lmao
+        levelData = new List<LevelData>();
+
         currentPlaySceneName = "";
 
         shouldIrisInLevelSelect = false;

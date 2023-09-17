@@ -14,13 +14,13 @@ using DG.Tweening;
 *   5. When player presses enter, active level will be loaded by scene contoller
 */
 
-
+// todo: add initialize levels
 public class LevelSelectController : ISceneController
 {
-    // Unlocked sprite for unlocked levels
-    [SerializeField] private Sprite unlockedIconSprite;
-
     // List of level objects
+    // TODO: had we more time and could start over this design of where
+    // levels get loaded is NOT my favourite. Terrible design.
+    // Would rather move this elsewhere and reference level data but oh well
     [SerializeField] private List<Level> levels;
 
     // Player icon transform on map
@@ -39,6 +39,9 @@ public class LevelSelectController : ISceneController
     // Game data
     private GameData gameData;
 
+    // Level data
+    private List<LevelData> levelData;
+
     // We are level select state
     override protected GameState GetGameState() { return GameState.LEVEL_SELECT; }
 
@@ -48,9 +51,17 @@ public class LevelSelectController : ISceneController
     protected void Start()
     {
         // Get game data
-        if (gameData == null)
+        gameData = GameController.instance.GetGameData();
+        levelData = gameData.levelData;
+
+        // Initialize level data objects if they haven't been created yet
+        if (levelData.Count == 0)
         {
-            gameData = GameController.instance.GetGameData();
+            foreach (Level level in levels)
+            {
+                // ew
+                levelData.Add(new LevelData(0, level.IsLevelLocked()));
+            }
         }
 
         // Start at level saved in game data
@@ -144,16 +155,11 @@ public class LevelSelectController : ISceneController
         return unlockedLevel;
     }
 
-    // TOOD: maybe one day we can check if we need to read loaded level objects
     public void LoadLevels()
     {
-        int lastUnlockedLevelIndex = gameData.lastUnlockedLevelIndex;
-        for (int i = 0; i < levels.Count; i++)
+        for (int i = 0; i < levelData.Count; i++)
         {
-            if (i <= lastUnlockedLevelIndex)
-            {
-                levels[i].UnlockLevel(unlockedIconSprite);
-            }
+            levels[i].LoadLevel(levelData[i]);
         }
     }
 }
