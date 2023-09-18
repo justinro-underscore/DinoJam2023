@@ -17,6 +17,11 @@ public class LevelSelectUIController : MonoBehaviour
     [SerializeField] private Image starTotal;
 
     [SerializeField] private Sprite starFilled;
+
+    [SerializeField] private TimerController timerController;
+
+    // TODO: one day make it so we can share these sprites
+    [SerializeField] private List<Sprite> digitSprites;
     
 
     void Start()
@@ -43,13 +48,12 @@ public class LevelSelectUIController : MonoBehaviour
 
     public void SetLevelTime(int seconds)
     {
-        // Convert to images
-        // TODO: work with Justin here
+        timerController.SetTime(seconds);
     }
 
     public void SetLevelTokens(int tokens)
     {
-        // TODO: work with Justin here
+        levelTokens.sprite = digitSprites[Mathf.RoundToInt(Mathf.Clamp(tokens, 0, digitSprites.Count))];
     }
 
     public void SetLevelStars(List<bool> collectedStars)

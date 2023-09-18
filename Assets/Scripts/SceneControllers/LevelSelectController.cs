@@ -164,6 +164,8 @@ public class LevelSelectController : ISceneController
 
         // Move player icon to new selected level icon
         playerTransform.DOMove(selectedLevel.level.GetLevelIconLocation(), playerIconSpeed, false)
+            .SetEase(Ease.Linear)
+            .SetSpeedBased(true)
             .OnComplete(() =>
                 {
                     isMovingIcon = false;
