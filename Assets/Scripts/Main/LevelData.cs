@@ -16,14 +16,18 @@ public class LevelData
     public int starRating;
 
     public bool isLocked;
-    public bool isHomeBase;
+
+    public int timeRequirement;
+    public int tokenRequirement;
 
     public List<bool> starData;
 
-    public LevelData(int starRating, bool isLocked)
+    public LevelData(int starRating, bool isLocked, int tokenRequirement, int timeRequirement)
     {
         this.starRating = Mathf.Clamp(starRating, 0, Constants.MAX_STAR_RATING);
         this.isLocked = isLocked;
+        this.tokenRequirement = tokenRequirement;
+        this.timeRequirement = timeRequirement;
 
         starData = new List<bool>();
         for (int i = 0; i < Constants.MAX_STAR_RATING; i++)

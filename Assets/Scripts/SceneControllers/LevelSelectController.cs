@@ -79,7 +79,7 @@ public class LevelSelectController : ISceneController
                 if (!level.IsHomeBase())
                 {
                     // ew
-                    data = new LevelData(0, level.IsLevelLocked());
+                    data = new LevelData(0, level.IsLevelLocked(), level.GetNumberOfTokens(), level.GetTargetLevelTime());
                     levelData.Add(data);
                 }
 
