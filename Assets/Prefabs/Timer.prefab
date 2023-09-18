@@ -434,6 +434,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerDigitsParent: {fileID: 545129595056409646}
+  timerColon: {fileID: 545129593694178920}
   digitSprites:
   - {fileID: -1880889448, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
   - {fileID: -538092408, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}

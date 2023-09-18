@@ -56,7 +56,7 @@ public class LevelSelectUIController : MonoBehaviour
         levelTokens.sprite = digitSprites[Mathf.RoundToInt(Mathf.Clamp(tokens, 0, digitSprites.Count))];
     }
 
-    public void SetLevelStars(List<bool> collectedStars)
+    public void SetLevelStars(bool[] collectedStars)
     {
         for (int i = 0; i < stars.Count; i++)
         {

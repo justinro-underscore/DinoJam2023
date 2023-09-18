@@ -8,6 +8,7 @@ public class TimerController : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private RectTransform timerDigitsParent;
+    [SerializeField] private Image timerColon;
     [SerializeField] private List<Sprite> digitSprites;
 
     private List<Image> digitImages;
@@ -52,5 +53,14 @@ public class TimerController : MonoBehaviour
     {
         digitNum = Mathf.RoundToInt(Mathf.Clamp(digitNum, 0, 9));
         digitImage.sprite = digitSprites[digitNum];
+    }
+
+    public void SetColor(Color color)
+    {
+        timerColon.color = color;
+        foreach (Image digitImage in digitImages)
+        {
+            digitImage.color = color;
+        }
     }
 }
