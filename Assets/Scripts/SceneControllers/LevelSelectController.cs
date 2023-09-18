@@ -60,9 +60,13 @@ public class LevelSelectController : ISceneController
 
     private GameData gameData;
 
+    private bool enteredLevel;
+
     // Init values
     protected void Start()
     {
+        enteredLevel = false;
+
         // Tuple of level and level data for level select controller to work on
         levelList = new List<LevelInfoTuple>();
 
@@ -92,9 +96,9 @@ public class LevelSelectController : ISceneController
         {
             // Zip level and level data for everything beyond home level
             levelList.Add(new LevelInfoTuple(levels[0], null));
-            for (int i = 1; i < levelData.Count; i++)
+            for (int i = 1; i < levels.Count; i++)
             {
-                levelList.Add(new LevelInfoTuple(levels[i], levelData[i]));
+                levelList.Add(new LevelInfoTuple(levels[i], levelData[i - 1]));
             }
         }
 
@@ -112,6 +116,15 @@ public class LevelSelectController : ISceneController
 
         isMovingIcon = false;
 
+        // Show level menu if not on home base
+        if (!selectedLevel.level.IsHomeBase())
+        {
+            UpdateLevelMenu();
+        }
+
+        // Update star total count
+        levelSelectUIController.SetStarTotal(GetTotalCollectedStars());
+
         if (gameData.shouldIrisInLevelSelect)
         {
             gameData.shouldIrisInLevelSelect = false;
@@ -121,13 +134,24 @@ public class LevelSelectController : ISceneController
 
     override protected void SceneUpdate()
     {
-        // Enter level
-        if (Input.GetKeyDown(KeyCode.Return) && !isMovingIcon)
+        // Abort if we have entered a level
+        if (enteredLevel)
         {
+            return;
+        }
+
+        // Enter level
+        if (Input.GetKeyDown(KeyCode.Return) && !isMovingIcon && !selectedLevel.level.IsHomeBase())
+        {
+            enteredLevel = true;
+
             // Store required data and change state to play
             gameData.lastPlayedLevelDataIndex = selectedLevelDataIndex;
             gameData.currentPlaySceneName = selectedLevel.level.GetSceneName();
             gameData.shouldShowFullLevelIntro = true;
+
+            // Pause player animation
+            playerTransform.GetComponent<Animator>().speed = 0;
 
             DOTween.Sequence().Append(irisController.AnimateIrisOut(irisOutSpeed).SetEase(Ease.Linear))
                 .AppendInterval(0.75f)
@@ -147,7 +171,7 @@ public class LevelSelectController : ISceneController
                 {
                     selectedLevelIndex += 1;
                     selectedLevelDataIndex += 1;
-                    ChangeSelectedLevel();
+                    ChangeSelectedLevel(false);
                 }
             }
         }
@@ -159,12 +183,12 @@ public class LevelSelectController : ISceneController
                 // Don't need to check backwards for locked as we only move forward
                 selectedLevelIndex -= 1;
                 selectedLevelDataIndex -= 1;
-                ChangeSelectedLevel();
+                ChangeSelectedLevel(true);
             }
         }
     }
 
-    private void ChangeSelectedLevel()
+    private void ChangeSelectedLevel(bool backwards)
     {
         // Update selected level
         selectedLevel = levelList[selectedLevelIndex];
@@ -172,23 +196,31 @@ public class LevelSelectController : ISceneController
         // We are moving icon
         isMovingIcon = true;
 
+        // Pause player animation
+        playerTransform.GetComponent<Animator>().speed = 0;
+
         // Disable any active level menu
         levelSelectUIController.SetLevelMenuActive(false);
 
         // Move player icon to new selected level icon
-        playerTransform.DOMove(selectedLevel.level.GetLevelIconLocation(), playerIconSpeed, false)
+        playerTransform.DOPath(selectedLevel.level.GetPathWaypoints(backwards).ToArray(), playerIconSpeed, PathType.CubicBezier, PathMode.TopDown2D)
             .SetEase(Ease.Linear)
             .SetSpeedBased(true)
-            .OnComplete(() =>
-                {
-                    isMovingIcon = false;
+            .OnComplete(finishMovement);
+    }
 
-                    if (!selectedLevel.level.IsHomeBase())
-                    {
-                        UpdateLevelMenu();
-                    }
-                }
-            );
+    private void finishMovement()
+    {
+        isMovingIcon = false;
+
+        // TODO: create generic functions
+        // Resume player animation
+        playerTransform.GetComponent<Animator>().speed = 1;
+
+        if (!selectedLevel.level.IsHomeBase())
+        {
+            UpdateLevelMenu();
+        }
     }
 
     private void UpdateLevelMenu()
