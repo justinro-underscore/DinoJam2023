@@ -2086,6 +2086,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
+      propertyPath: sceneName
+      value: MesezoicMania
+      objectReference: {fileID: 0}
+    - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: levelTitle
       value: 
       objectReference: {fileID: 21300000, guid: 3c02f69128046fe45bf248f7cc1e0c26, type: 3}
@@ -2514,6 +2518,10 @@ PrefabInstance:
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: numTokens
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
+      propertyPath: sceneName
+      value: TriassicTrialScene
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: levelTitle
@@ -3386,6 +3394,10 @@ PrefabInstance:
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: numTokens
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
+      propertyPath: sceneName
+      value: Cretaceous ChaosT
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: levelTitle

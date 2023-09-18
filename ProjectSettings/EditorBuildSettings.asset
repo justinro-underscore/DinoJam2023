@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/LevelSelectScene.unity
     guid: c7bb42042251d05478fa6f156f4a92fb
   - enabled: 1
-    path: Assets/Scenes/LevelS/PlayScene.unity
+    path: Assets/Scenes/Levels/PlayScene.unity
     guid: 80491d4b857ef4349ace23f4cd00fa0d
   - enabled: 1
     path: Assets/Scenes/PauseScene.unity
@@ -24,6 +24,12 @@ EditorBuildSettings:
     path: Assets/Scenes/Levels/JurassicJamScene.unity
     guid: 19716b6d22067fd4e8072ec34f131a82
   - enabled: 1
+    path: Assets/Scenes/Levels/Cretaceous ChaosT.unity
+    guid: babd571060164694dbe9d85e814ee024
+  - enabled: 1
     path: Assets/Scenes/Levels/TriassicTrialScene.unity
     guid: 00d8bca3c9cff2443b2419b782ee113e
+  - enabled: 1
+    path: Assets/Scenes/Levels/MesezoicMania.unity
+    guid: b9bb6e77bfdaae941aba2b622f23076d
   m_configObjects: {}
