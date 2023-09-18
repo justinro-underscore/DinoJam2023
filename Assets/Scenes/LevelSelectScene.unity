@@ -2509,7 +2509,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: numTokens
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: levelTitle
@@ -2525,7 +2525,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: targetLevelTimeSeconds
-      value: 4
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 334955062729923820, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: m_Name

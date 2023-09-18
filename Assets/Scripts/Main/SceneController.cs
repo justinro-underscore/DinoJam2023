@@ -13,6 +13,7 @@ public static class Scenes {
     // TODO: temp level name
     public const string BaseLevel = "PlayScene";
     public const string JurassicJam = "JurassicJamScene";
+    public const string TriassicTrial = "TriassicTrialScene";
 }
 
 public class SceneController : MonoBehaviour {
@@ -21,7 +22,8 @@ public class SceneController : MonoBehaviour {
         {Scenes.LevelSelect, GameState.LEVEL_SELECT},
         {Scenes.Pause, GameState.PAUSE},
         {Scenes.BaseLevel, GameState.PLAY},
-        {Scenes.JurassicJam, GameState.PLAY}
+        {Scenes.JurassicJam, GameState.PLAY},
+        {Scenes.TriassicTrial, GameState.PLAY}
     };
 
     public static SceneController instance = null;
