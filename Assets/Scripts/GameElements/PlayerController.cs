@@ -432,7 +432,7 @@ public class PlayerController : IManagedController
         // TODO: ideally we handle this better with a script we can attach to any game object separate from main logic
         // TODO: something like a damage emitter and damage accumulator script or whatever and that can handle checking and storing
         // TODO: damage on its own
-        if (other.gameObject.CompareTag(Constants.damageEmitterTag))
+        if (other.gameObject.CompareTag(Constants.DAMAGE_EMITTER_TAG))
         {
             // we lose if we touch something that can damage the player
             PlayController.Instance.LoseLevel();
@@ -454,7 +454,7 @@ public class PlayerController : IManagedController
     {
         if (PlayController.Instance.State != PlayState.RUNNING) return;
 
-        if ((collision.gameObject.CompareTag("Walls") || collision.gameObject.CompareTag(Constants.hazardSourceTag)) && gripping && !invulnerable)
+        if ((collision.gameObject.CompareTag("Walls") || collision.gameObject.CompareTag(Constants.HAZARD_SOURCE_TAG)) && gripping && !invulnerable)
         {
             float drainAmount = gripCollisionDrainAmount;
             if (gripVal > gripCollisionSaveAmount)

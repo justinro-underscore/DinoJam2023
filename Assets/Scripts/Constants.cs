@@ -1,14 +1,14 @@
 public class Constants
 {
     // Tags
-    public const string waypointTag = "Waypoint";
-    public const string pathTag = "Path";
+    public const string WAYPOINT_TAG = "Waypoint";
+    public const string PATH_TAG = "Path";
 
-    public const string damageEmitterTag = "DamageEmitter";
-    public const string hazardSourceTag = "HazardSource";
-    public const string tarBubbleTag = "TarBubble";
+    public const string DAMAGE_EMITTER_TAG = "DamageEmitter";
+    public const string HAZARD_SOURCE_TAG = "HazardSource";
+    public const string TAR_BUBBLE_TAG = "TarBubble";
   
-    public const string playerTag = "PlayerTag";
+    public const string PLAYER_TAG = "PlayerTag";
   
     public const string PLAY_CONTROLLER_TAG = "PlayController";
 

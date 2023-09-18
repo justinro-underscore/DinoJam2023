@@ -69,7 +69,7 @@ public class TarBubbleController : IManagedController
 
     protected void OnTriggerEnter2D(Collider2D collider)
     {
-        if (collider.gameObject.CompareTag(Constants.playerTag) && isActive)
+        if (collider.gameObject.CompareTag(Constants.PLAYER_TAG) && isActive)
         {
             PlayerController playerController = collider.gameObject.GetComponent<PlayerController>();
             // Trap player
