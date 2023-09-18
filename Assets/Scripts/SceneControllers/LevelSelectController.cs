@@ -47,7 +47,7 @@ public class LevelSelectController : ISceneController
 
     // Current level player icon is on
     private LevelInfoTuple selectedLevel;
-    private LevelData selectedLevelData;
+    private int selectedLevelDataIndex;
     private int selectedLevelIndex;
 
     // We are level select state
@@ -99,7 +99,8 @@ public class LevelSelectController : ISceneController
         }
 
         // Start at level saved in game data
-        selectedLevelIndex = gameData.lastPlayedLevelIndex;
+        selectedLevelDataIndex = gameData.lastPlayedLevelDataIndex;
+        selectedLevelIndex = selectedLevelDataIndex + 1;
         selectedLevel = levelList[selectedLevelIndex];
         playerTransform.position = selectedLevel.level.GetLevelIconLocation();
 
@@ -124,7 +125,7 @@ public class LevelSelectController : ISceneController
         if (Input.GetKeyDown(KeyCode.Return) && !isMovingIcon)
         {
             // Store required data and change state to play
-            gameData.lastPlayedLevelIndex = selectedLevelIndex;
+            gameData.lastPlayedLevelDataIndex = selectedLevelDataIndex;
             gameData.currentPlaySceneName = selectedLevel.level.GetSceneName();
             gameData.shouldShowFullLevelIntro = true;
 
@@ -145,6 +146,7 @@ public class LevelSelectController : ISceneController
                 if (!levelList[selectedLevelIndex + 1].levelData.isLocked)
                 {
                     selectedLevelIndex += 1;
+                    selectedLevelDataIndex += 1;
                     ChangeSelectedLevel();
                 }
             }
@@ -156,6 +158,7 @@ public class LevelSelectController : ISceneController
             {
                 // Don't need to check backwards for locked as we only move forward
                 selectedLevelIndex -= 1;
+                selectedLevelDataIndex -= 1;
                 ChangeSelectedLevel();
             }
         }

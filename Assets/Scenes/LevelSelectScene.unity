@@ -3410,6 +3410,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
+      propertyPath: numTokens
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: sceneName
       value: PlayScene
       objectReference: {fileID: 0}
@@ -3417,6 +3421,14 @@ PrefabInstance:
       propertyPath: levelTitle
       value: 
       objectReference: {fileID: 21300000, guid: 5afdfbffd8bb07c4384f0023a4f8d31d, type: 3}
+    - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
+      propertyPath: numStarsToPass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
+      propertyPath: targetLevelTimeSeconds
+      value: 122
+      objectReference: {fileID: 0}
     - target: {fileID: 334955062729923820, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: m_Name
       value: Level_001

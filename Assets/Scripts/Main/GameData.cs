@@ -11,8 +11,7 @@ public class GameData
     }
     public PlayLevelData playLevelData;
 
-    public int lastUnlockedLevelIndex;
-    public int lastPlayedLevelIndex;
+    public int lastPlayedLevelDataIndex;
 
     public string currentPlaySceneName;
 
@@ -27,8 +26,7 @@ public class GameData
     {
         playLevelData = new PlayLevelData();
 
-        lastUnlockedLevelIndex = 0;
-        lastPlayedLevelIndex = 0;
+        lastPlayedLevelDataIndex = 0;
 
         levelData = new List<LevelData>();
 
