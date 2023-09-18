@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/LevelSelectScene.unity
     guid: c7bb42042251d05478fa6f156f4a92fb
   - enabled: 1
-    path: Assets/Scenes/PlayScene.unity
+    path: Assets/Scenes/LevelS/PlayScene.unity
     guid: 80491d4b857ef4349ace23f4cd00fa0d
   - enabled: 1
     path: Assets/Scenes/PauseScene.unity
