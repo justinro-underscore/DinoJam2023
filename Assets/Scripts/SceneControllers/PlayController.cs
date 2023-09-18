@@ -131,6 +131,7 @@ public class PlayController : ISceneController
             showFullIntro = debugShowFullIntroOverride;
             gameData.currentPlaySceneName = gameObject.scene.name;
             gameData.levelData.Add(new LevelData(false, 2, 95));
+            gameData.lastPlayedLevelDataIndex = 0;
         }
         else
         {

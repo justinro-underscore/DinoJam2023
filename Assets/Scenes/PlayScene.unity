@@ -2708,6 +2708,8 @@ GameObject:
   - component: {fileID: 694470134}
   - component: {fileID: 694470136}
   - component: {fileID: 694470135}
+  - component: {fileID: 694470138}
+  - component: {fileID: 694470137}
   m_Layer: 10
   m_Name: Player
   m_TagString: PlayerTag
@@ -2897,6 +2899,82 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!60 &694470137
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 694470131}
+  m_Enabled: 0
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: -0.5}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.5, y: 1.5}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.47870255, y: -0.007855654}
+      - {x: 0.15771437, y: 0.119697094}
+      - {x: -0.099167824, y: 0.1255213}
+      - {x: -0.39914083, y: 0.015088201}
+      - {x: -0.64453846, y: -0.19583675}
+      - {x: -1.0295324, y: -0.90818477}
+      - {x: -1.0470734, y: -1.5884686}
+      - {x: -0.5992031, y: -2.06239}
+      - {x: 0.61167336, y: -2.0620785}
+      - {x: 1.0746089, y: -1.476145}
+      - {x: 1.0674472, y: -0.8706108}
+      - {x: 0.75272083, y: -0.249928}
+--- !u!60 &694470138
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 694470131}
+  m_Enabled: 0
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: -0.5}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.5, y: 1.5}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -0.10749674, y: -0.020979881}
+      - {x: -0.49036932, y: -0.27797312}
+      - {x: -0.74124813, y: -0.68094623}
+      - {x: -0.93706036, y: -1.0921912}
+      - {x: -0.9383793, y: -1.4405371}
+      - {x: -0.7190299, y: -1.7762148}
+      - {x: -0.34918642, y: -1.9893364}
+      - {x: 0.32864428, y: -1.9873322}
+      - {x: 0.71532154, y: -1.7795662}
+      - {x: 0.94405365, y: -1.4397385}
+      - {x: 0.9407692, y: -1.1068786}
+      - {x: 0.72493696, y: -0.5719684}
+      - {x: 0.44052887, y: -0.24296254}
+      - {x: 0.12148285, y: -0.020979762}
 --- !u!1 &701776574
 GameObject:
   m_ObjectHideFlags: 0

@@ -140,6 +140,8 @@ public class PlayerController : IManagedController
             Debug.LogError("Drag forces too high!!!");
         }
 
+        eggColliders = new List<PolygonCollider2D>(GetComponents<PolygonCollider2D>());
+
         canInput = true;
         canGrip = true;
 
@@ -374,14 +376,19 @@ public class PlayerController : IManagedController
         rb2d.velocity = Vector2.zero;
         Physics2D.IgnoreLayerCollision(gameObject.layer, Mathf.FloorToInt(Mathf.Log(nestLayer.value, 2)));
 
-        List<PolygonCollider2D> colliders = eggController.GetEggColliders();
-        eggColliders = new List<PolygonCollider2D>();
-        foreach (PolygonCollider2D eggCollider in colliders)
+        // The build doesn't like it when we create colliders :(
+        // List<PolygonCollider2D> colliders = eggController.GetEggColliders();
+        // eggColliders = new List<PolygonCollider2D>();
+        // foreach (PolygonCollider2D eggCollider in colliders)
+        // {
+        //     PolygonCollider2D newCollider = gameObject.AddComponent<PolygonCollider2D>().GetCopyOf(eggCollider);
+        //     newCollider.isTrigger = eggCollider.isTrigger;
+        //     newCollider.offset = new Vector2(0, newCollider.offset.y - 0.5f);
+        //     eggColliders.Add(newCollider);
+        // }
+        foreach (PolygonCollider2D eggCollider in eggColliders)
         {
-            PolygonCollider2D newCollider = gameObject.AddComponent<PolygonCollider2D>().GetCopyOf(eggCollider);
-            newCollider.isTrigger = eggCollider.isTrigger;
-            newCollider.offset = new Vector2(0, newCollider.offset.y - 0.5f);
-            eggColliders.Add(newCollider);
+            eggCollider.enabled = true;
         }
 
         rb2d.AddForce(Vector2.up * eggGrabForceScalar);
@@ -397,9 +404,10 @@ public class PlayerController : IManagedController
             eggController.DropEgg();
             foreach (PolygonCollider2D collider in eggColliders)
             {
-                Destroy(collider);
+                // Destroy(collider);
+                collider.enabled = false;
             }
-            eggColliders = null;
+            // eggColliders = null;
             eggController.SetEggOutlineVisible(false);
             eggController = null;
             staminaMeterController.Exit();
