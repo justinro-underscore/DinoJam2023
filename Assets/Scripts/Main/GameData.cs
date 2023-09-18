@@ -33,7 +33,7 @@ public class GameData
 
         currentPlaySceneName = "";
 
-        shouldIrisInLevelSelect = false;
+        shouldIrisInLevelSelect = true; // True because always iris in from main menu
         shouldShowFullLevelIntro = false;
 
         resumingGame = false;
