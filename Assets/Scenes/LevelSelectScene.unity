@@ -1091,7 +1091,8 @@ MonoBehaviour:
   - {fileID: 2127226737}
   - {fileID: 669944853}
   - {fileID: 295057358}
-  starTotal: {fileID: 1515150505}
+  starTotalTens: {fileID: 1137809160}
+  starTotalOnes: {fileID: 1515150505}
   starFilled: {fileID: 390896165, guid: 4ca89827fb7139c4f9cff7d6909ec2eb, type: 3}
   timerController: {fileID: 545129593774539228}
   digitSprites:

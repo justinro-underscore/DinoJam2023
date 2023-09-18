@@ -14,7 +14,8 @@ public class LevelSelectUIController : MonoBehaviour
 
     [SerializeField] private List<Image> stars;
 
-    [SerializeField] private Image starTotal;
+    [SerializeField] private Image starTotalTens;
+    [SerializeField] private Image starTotalOnes;
 
     [SerializeField] private Sprite starFilled;
 
@@ -69,7 +70,12 @@ public class LevelSelectUIController : MonoBehaviour
 
     public void SetStarTotal(int total)
     {
-        // TODO: work with Justin on this
+        // Support only two digits for now
+        int tens = (total / 10) % 10;
+        int ones = total % 10;
+
+        starTotalTens.sprite = digitSprites[tens];
+        starTotalOnes.sprite = digitSprites[ones];
     }
 
 }

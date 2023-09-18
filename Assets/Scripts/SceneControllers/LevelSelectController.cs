@@ -116,6 +116,15 @@ public class LevelSelectController : ISceneController
 
         isMovingIcon = false;
 
+        // Show level menu if not on home base
+        if (!selectedLevel.level.IsHomeBase())
+        {
+            UpdateLevelMenu();
+        }
+
+        // Update star total count
+        levelSelectUIController.SetStarTotal(GetTotalCollectedStars());
+
         if (gameData.shouldIrisInLevelSelect)
         {
             gameData.shouldIrisInLevelSelect = false;
