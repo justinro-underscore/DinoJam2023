@@ -118,6 +118,7 @@ public class AudioController : MonoBehaviour
     // TODO replace optional params with options struct
     public int PlayOneShotAudio(string key, bool looping = false, float volume = -1f)
     {
+        if (audioClips == null) return -1;
         if (audioClips.ContainsKey(key))
         {
             GameAudioSource audioSource = Instantiate(gameAudioSourcePrefab, transform);
@@ -167,6 +168,7 @@ public class AudioController : MonoBehaviour
 
     public void PlayMusic(string key, float volume = -1f)
     {
+        if (musicClips == null) return;
         if (musicClips.ContainsKey(key))
         {
             musicSource.SetAudioClip(musicClips[key].audioClip);
