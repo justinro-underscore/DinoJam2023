@@ -17,6 +17,19 @@ using DG.Tweening;
 // todo: add initialize levels
 public class LevelSelectController : ISceneController
 {
+    private class LevelInfoTuple
+    {
+        public Level level;
+        public LevelData levelData;
+
+        public LevelInfoTuple(Level level, LevelData levelData)
+        {
+            this.level = level;
+            this.levelData = levelData;
+        }
+    }
+    [SerializeField] private LevelSelectUIController levelSelectUIController;
+
     // List of level objects
     // TODO: had we more time and could start over this design of where
     // levels get loaded is NOT my favourite. Terrible design.
@@ -33,44 +46,66 @@ public class LevelSelectController : ISceneController
     [SerializeField] [Range(0.1f, 1.0f)] private float irisOutSpeed = 0.1f;
 
     // Current level player icon is on
-    private Level selectedLevel;
+    private LevelInfoTuple selectedLevel;
+    private int selectedLevelDataIndex;
     private int selectedLevelIndex;
-
-    // Game data
-    private GameData gameData;
-
-    // Level data
-    private List<LevelData> levelData;
 
     // We are level select state
     override protected GameState GetGameState() { return GameState.LEVEL_SELECT; }
 
     private bool isMovingIcon;
 
+    // Don't look at this ;-;
+    private List<LevelInfoTuple> levelList;
+
+    private GameData gameData;
+
     // Init values
     protected void Start()
     {
-        // Get game data
+        // Tuple of level and level data for level select controller to work on
+        levelList = new List<LevelInfoTuple>();
+
+        // Get game data and level data
         gameData = GameController.instance.GetGameData();
-        levelData = gameData.levelData;
+        List<LevelData> levelData = gameData.levelData;
 
         // Initialize level data objects if they haven't been created yet
+        // ughhh
         if (levelData.Count == 0)
         {
             foreach (Level level in levels)
             {
-                // ew
-                levelData.Add(new LevelData(0, level.IsLevelLocked()));
+                LevelData data = null;
+                if (!level.IsHomeBase())
+                {
+                    // ew
+                    data = new LevelData(0, level.IsLevelLocked(), level.GetNumberOfTokens(), level.GetTargetLevelTime());
+                    levelData.Add(data);
+                }
+
+                // Add tuple of level info to our level list
+                levelList.Add(new LevelInfoTuple(level, data));
+            }
+        }
+        else
+        {
+            // Zip level and level data for everything beyond home level
+            levelList.Add(new LevelInfoTuple(levels[0], null));
+            for (int i = 1; i < levelData.Count; i++)
+            {
+                levelList.Add(new LevelInfoTuple(levels[i], levelData[i]));
             }
         }
 
         // Start at level saved in game data
-        selectedLevelIndex = gameData.lastPlayedLevelIndex;
-        selectedLevel = levels[selectedLevelIndex];
-        playerTransform.position = selectedLevel.GetLevelIconLocation();
+        selectedLevelDataIndex = gameData.lastPlayedLevelDataIndex;
+        selectedLevelIndex = selectedLevelDataIndex + 1;
+        selectedLevel = levelList[selectedLevelIndex];
+        playerTransform.position = selectedLevel.level.GetLevelIconLocation();
 
         // Update game data scene name
-        gameData.currentPlaySceneName = selectedLevel.GetSceneName();
+        gameData.currentPlaySceneName = selectedLevel.level.GetSceneName();
 
         // Initialize levels (unlocked etc.)
         LoadLevels();
@@ -90,8 +125,8 @@ public class LevelSelectController : ISceneController
         if (Input.GetKeyDown(KeyCode.Return) && !isMovingIcon)
         {
             // Store required data and change state to play
-            gameData.lastPlayedLevelIndex = selectedLevelIndex;
-            gameData.currentPlaySceneName = selectedLevel.GetSceneName();
+            gameData.lastPlayedLevelDataIndex = selectedLevelDataIndex;
+            gameData.currentPlaySceneName = selectedLevel.level.GetSceneName();
             gameData.shouldShowFullLevelIntro = true;
 
             DOTween.Sequence().Append(irisController.AnimateIrisOut(irisOutSpeed).SetEase(Ease.Linear))
@@ -108,9 +143,10 @@ public class LevelSelectController : ISceneController
             // If not at end of list, move to next index
             if (selectedLevelIndex != levels.Count - 1)
             {
-                if (!levels[selectedLevelIndex + 1].IsLevelLocked())
+                if (!levelList[selectedLevelIndex + 1].levelData.isLocked)
                 {
                     selectedLevelIndex += 1;
+                    selectedLevelDataIndex += 1;
                     ChangeSelectedLevel();
                 }
             }
@@ -120,11 +156,10 @@ public class LevelSelectController : ISceneController
             // If not at end of list, move to previous index
             if (selectedLevelIndex != 0)
             {
-                if (!levels[selectedLevelIndex - 1].IsLevelLocked())
-                {
-                    selectedLevelIndex -= 1;
-                    ChangeSelectedLevel();
-                }
+                // Don't need to check backwards for locked as we only move forward
+                selectedLevelIndex -= 1;
+                selectedLevelDataIndex -= 1;
+                ChangeSelectedLevel();
             }
         }
     }
@@ -132,34 +167,74 @@ public class LevelSelectController : ISceneController
     private void ChangeSelectedLevel()
     {
         // Update selected level
-        selectedLevel = levels[selectedLevelIndex];
+        selectedLevel = levelList[selectedLevelIndex];
 
         // We are moving icon
         isMovingIcon = true;
 
+        // Disable any active level menu
+        levelSelectUIController.SetLevelMenuActive(false);
+
         // Move player icon to new selected level icon
-        playerTransform.DOMove(selectedLevel.GetLevelIconLocation(), playerIconSpeed, false)
-            .OnComplete(() => isMovingIcon = false);
+        playerTransform.DOMove(selectedLevel.level.GetLevelIconLocation(), playerIconSpeed, false)
+            .SetEase(Ease.Linear)
+            .SetSpeedBased(true)
+            .OnComplete(() =>
+                {
+                    isMovingIcon = false;
+
+                    if (!selectedLevel.level.IsHomeBase())
+                    {
+                        UpdateLevelMenu();
+                    }
+                }
+            );
     }
 
-    // TODO: will need to see how this will work/be called if it can be once player wins a level
-    public bool UnlockNextLevel()
+    private void UpdateLevelMenu()
     {
-        bool unlockedLevel = false;
-        if (selectedLevelIndex != levels.Count - 1)
-        {
-            gameData.lastUnlockedLevelIndex = selectedLevelIndex + 1;
-            unlockedLevel = true;
-        }
+        // Populate level menu with new data
+        // TODO: Debatable whether this should be here or ui controller
+        levelSelectUIController.SetLevelTitle(selectedLevel.level.GetLevelTitle());
+        levelSelectUIController.SetLevelPreviewImage(selectedLevel.level.GetLevelPreview());
+        levelSelectUIController.SetLevelTime(selectedLevel.level.GetTargetLevelTime());
+        levelSelectUIController.SetLevelTokens(selectedLevel.level.GetNumberOfTokens());
+        levelSelectUIController.SetLevelStars(selectedLevel.levelData.starData);
 
-        return unlockedLevel;
+        // Display level menu
+        levelSelectUIController.SetLevelMenuActive(true);
     }
 
     public void LoadLevels()
     {
-        for (int i = 0; i < levelData.Count; i++)
+        int collectedStars = GetTotalCollectedStars();
+
+        // Skip home level
+        for (int i = 1; i < levelList.Count; i++)
         {
-            levels[i].LoadLevel(levelData[i]);
+            // If we are locked check if we can unlock
+            // TODO: move this unlock level check to level data
+            if (levelList[i].levelData.isLocked && levelList[i].level.CanUnlockLevel(collectedStars))
+            {
+                levelList[i].level.UnlockLevel();
+            }
+
+            levelList[i].level.LoadLevel(levelList[i].levelData);
         }
+    }
+
+    public int GetTotalCollectedStars()
+    {
+        // TODO: could do a map but ehh
+        int total = 0;
+        foreach (LevelInfoTuple levelInfo in levelList)
+        {
+            if (!levelInfo.level.IsHomeBase())
+            {
+                total += levelInfo.levelData.GetUnlockedStars();   
+            }
+        }
+
+        return total;
     }
 }

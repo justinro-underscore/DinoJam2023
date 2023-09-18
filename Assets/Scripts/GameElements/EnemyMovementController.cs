@@ -50,14 +50,14 @@ public class EnemyMovementController : IManagedController
         // Find child objects with path tag
         foreach (Transform child in transform)
         {
-            if (child.CompareTag(Constants.pathTag))
+            if (child.CompareTag(Constants.PATH_TAG))
             {
                 // Find sub children with waypoint tag
                 // ie. paths have waypoints
                 List<Vector3> vectorWaypoints = new List<Vector3>();
                 foreach (Transform subChild in child)
                 {
-                    if (subChild.CompareTag(Constants.waypointTag))
+                    if (subChild.CompareTag(Constants.WAYPOINT_TAG))
                     {
                         vectorWaypoints.Add(subChild.position);
                     }

@@ -84,7 +84,11 @@ public class PauseController : ISceneController
         timerController.SetTime(Mathf.FloorToInt(levelData.levelTime));
 
         tokenCountImage.sprite = numberSprites[levelData.tokensCollected];
-        maxTokenCountImage.sprite = numberSprites[9]; // TODO Replace with number of tokens
+
+        // Get tokens from level data
+        GameData gameData = GameController.instance.GetGameData();
+        LevelData currentLevelData = gameData.levelData[gameData.lastPlayedLevelDataIndex];
+        maxTokenCountImage.sprite = numberSprites[currentLevelData.tokenRequirement];
     }
 
     public void ResumeLevel()

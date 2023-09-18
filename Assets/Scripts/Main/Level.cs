@@ -6,10 +6,18 @@ public class Level : MonoBehaviour
 {
     [SerializeField] private string sceneName;
     [SerializeField] private bool isLocked = true;
+    [SerializeField] private bool isHomeBase = false;
 
     // Unlocked sprite for unlocked levels and filled stars
     [SerializeField] private Sprite unlockedIconSprite;
     [SerializeField] private Sprite fullStarSprite;
+
+    // Level menu details
+    [SerializeField] private Sprite levelPreview;
+    [SerializeField] private Sprite levelTitle;
+    [SerializeField] private int numTokens;
+    [SerializeField] private int targetLevelTimeSeconds;
+    [SerializeField] private int numStarsToPass;
 
     private List<GameObject> stars;
 
@@ -31,6 +39,11 @@ public class Level : MonoBehaviour
         return gameObject.GetComponent<SpriteRenderer>().bounds.center;
     }
 
+    public bool CanUnlockLevel(int totalStars)
+    {
+        return (totalStars >= numStarsToPass); 
+    }
+
     public bool IsLevelLocked()
     {
         return isLocked;
@@ -49,8 +62,43 @@ public class Level : MonoBehaviour
         }
     }
 
+    public void UnlockLevel()
+    {
+        isLocked = false;
+    }
+
     public string GetSceneName()
     {
         return sceneName;
+    }
+
+    public Sprite GetLevelTitle()
+    {
+        return levelTitle;
+    }
+
+    public Sprite GetLevelPreview()
+    {
+        return levelPreview;
+    }
+
+    public int GetNumberOfTokens()
+    {
+        return numTokens;
+    }
+
+    public int GetTargetLevelTime()
+    {
+        return targetLevelTimeSeconds;
+    }
+
+    public int GetRequiredStars()
+    {
+        return numStarsToPass;
+    }
+
+    public bool IsHomeBase()
+    {
+        return isHomeBase;
     }
 }
