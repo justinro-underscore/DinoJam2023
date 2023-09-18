@@ -9,10 +9,38 @@ public class TarBubbleSourceController : IManagedController
 
     [SerializeField] private GameObject tarBubblePrefab;
 
+    private float startTime;
+    private float timeCompleted;
+
     override protected void ManagedStart()
     {
-        // Invoke spawn function every spawnInterval seconds
-        InvokeRepeating("SpawnBubble", spawnInterval, spawnInterval);
+        startTime = Time.time;
+        timeCompleted = 0;
+    }
+
+    override public void ManagedUpdate()
+    {
+        float deltaTime = Time.time - startTime;
+
+        if (deltaTime >= spawnInterval)
+        {
+            SpawnBubble();
+            startTime = Time.time;
+        }
+    }
+
+    override public void OnStateChanged(PlayState oldState, PlayState newState)
+    {
+        if (newState == PlayState.PAUSE)
+        {
+            timeCompleted = Time.time - startTime;
+        }
+        
+        if (oldState == PlayState.PAUSE)
+        {
+            startTime = Time.time + timeCompleted;
+            timeCompleted = 0;
+        }
     }
 
     private void SpawnBubble()
