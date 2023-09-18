@@ -10,6 +10,7 @@ public class MainMenuController : ISceneController
 
     protected void Start()
     {
+        AudioController.Instance.PlayMusic(MusicKeys.MenuMusic);
         testImage.DORotate(new Vector3(0, 0, 360), 0.5f, RotateMode.FastBeyond360).SetEase(Ease.InOutSine);
     }
 

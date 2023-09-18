@@ -128,7 +128,16 @@ public class LevelSelectController : ISceneController
         if (gameData.shouldIrisInLevelSelect)
         {
             gameData.shouldIrisInLevelSelect = false;
-            irisController.AnimateIrisIn(irisInSpeed).SetEase(Ease.OutSine);
+            irisController.AnimateIrisIn(irisInSpeed).SetEase(Ease.OutSine)
+                .OnComplete(() => {
+                    if (!AudioController.Instance.IsMusicPlaying())
+                        AudioController.Instance.PlayMusic(MusicKeys.MenuMusic);
+                });
+        }
+        else
+        {
+            if (!AudioController.Instance.IsMusicPlaying())
+                AudioController.Instance.PlayMusic(MusicKeys.MenuMusic);
         }
     }
 
@@ -153,14 +162,11 @@ public class LevelSelectController : ISceneController
             // Pause player animation
             playerTransform.GetComponent<Animator>().speed = 0;
 
+            AudioController.Instance.StopMusic();
+
             DOTween.Sequence().Append(irisController.AnimateIrisOut(irisOutSpeed).SetEase(Ease.Linear))
                 .AppendInterval(0.75f)
                 .OnComplete(() => GameController.instance.ChangeState(GameState.PLAY));
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            // TODO: temporary code - remove later
-            GameController.instance.ChangeState(GameState.MAIN_MENU);
         }
         else if (Input.GetKeyDown(KeyCode.RightArrow) && !isMovingIcon)
         {
@@ -169,6 +175,7 @@ public class LevelSelectController : ISceneController
             {
                 if (!levelList[selectedLevelIndex + 1].levelData.isLocked)
                 {
+                    AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.LevelSelect);
                     selectedLevelIndex += 1;
                     selectedLevelDataIndex += 1;
                     ChangeSelectedLevel(false);
@@ -180,6 +187,7 @@ public class LevelSelectController : ISceneController
             // If not at end of list, move to previous index
             if (selectedLevelIndex != 0)
             {
+                AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.LevelSelect);
                 // Don't need to check backwards for locked as we only move forward
                 selectedLevelIndex -= 1;
                 selectedLevelDataIndex -= 1;

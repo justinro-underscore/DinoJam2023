@@ -119,6 +119,7 @@ public class EggController : IManagedController
 
         if (other.gameObject.CompareTag("Nest"))
         {
+            AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.Nest);
             PlayController.Instance.WinLevel();
         }
     }
@@ -132,6 +133,7 @@ public class EggController : IManagedController
             // Only crack the egg if the velocity is past the crack threshold
             if (lastVelMagnitude > crackThreshold)
             {
+                AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.BodyInCar);
                 PlayController.Instance.TakeEggDamage();
                 invulnerable = true;
                 invulnerabilityTime = invulnerabilityInitTime;

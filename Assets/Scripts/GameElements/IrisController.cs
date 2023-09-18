@@ -30,9 +30,16 @@ public class IrisController : MonoBehaviour
         return AnimateIris(IrisMaxSize, 0, time);
     }
 
-    public Tweener AnimateIris(int startSize, int endSize, float time)
+    public Tweener AnimateIris(int startSize, int endSize, float time, bool playAudio=true)
     {
         gameObject.SetActive(true);
+        if (playAudio)
+        {
+            if (Mathf.Abs(endSize - startSize) + 1 >= IrisMaxSize)
+                AudioController.Instance.PlayOneShotAudio(endSize < startSize ? SoundEffectKeys.TromboneDown : SoundEffectKeys.TromboneUp);
+            else
+                AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.TromboneUpSmall);
+        }
         return DOTween.To(x => SetIrisSize((int)x), startSize, endSize, time)
             .OnComplete(() => { if (endSize >= IrisMaxSize) gameObject.SetActive(false); });
     }

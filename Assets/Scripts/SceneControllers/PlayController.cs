@@ -209,6 +209,7 @@ public class PlayController : ISceneController
 
     public void CollectToken()
     {
+        AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.Token);
         gameData.playLevelData.tokensCollected++;
     }
 
@@ -219,15 +220,24 @@ public class PlayController : ISceneController
         if (gameData.playLevelData.eggHealth >= Constants.NUM_EGG_LIVES)
         {
             eggController.BreakEgg();
-            LoseLevel();
+            LoseLevel(true);
+        }
+        else
+        {
+            AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.EggCrack);
         }
     }
 
-    public void LoseLevel()
+    public void LoseLevel(bool fromEgg)
     {
         // You can't lose the level if you've already won it or if you've already lost
         if (State == PlayState.WIN || State == PlayState.LOSE) return;
         SetPlayState(PlayState.LOSE);
+
+        if (fromEgg)
+            AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.EggBreak);
+        else
+            AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.LevelLose);
 
         overlay.color = Color.clear;
         overlay.gameObject.SetActive(true);
@@ -239,7 +249,8 @@ public class PlayController : ISceneController
         levelFailedMenu.transform.localPosition = new Vector2(0, menuOffscreenY);
         levelFailedMenu.SetActive(false);
         levelFailedUIParent.SetActive(true);
-        DOTween.Sequence().Append(overlay.DOFade(overlayOpacity, overlayFadeTime))
+        DOTween.Sequence().AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
+            .Append(overlay.DOFade(overlayOpacity, overlayFadeTime))
             .Join(levelFailedText.DOLocalMoveY(initTextY, failedMoveTime).SetEase(Ease.OutBounce))
             .Join(levelFailedMenu.transform.DOLocalMoveY(initMenuY, failedMoveTime))
             .AppendCallback(() => levelFailedMenu.SetActive(true));
@@ -287,9 +298,10 @@ public class PlayController : ISceneController
     public void FinishIntroSequence()
     {
         DOTween.Sequence().AppendInterval(introPlayerEndPauseTime)
+            .AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.TromboneUp))
             .Append(playCamera.DOOrthoSize(initCameraSize, introCameraTime).SetEase(Ease.InOutQuad))
             .Join(playCamera.transform.DOMove(new Vector3(0, 0, playCamera.transform.position.z), introCameraTime).SetEase(Ease.InOutQuad))
-            .Join(irisController.AnimateIris(introIrisStartSize, irisController.IrisMaxSize, introCameraTime * 0.5f).SetEase(Ease.OutSine))
+            .Join(irisController.AnimateIris(introIrisStartSize, irisController.IrisMaxSize, introCameraTime * 0.5f, false).SetEase(Ease.OutSine))
             .AppendInterval(introEndTime)
             .AppendCallback(() => StartGame());
     }
@@ -301,9 +313,13 @@ public class PlayController : ISceneController
         startText.gameObject.SetActive(true);
         SetPlayState(PlayState.RUNNING);
 
-        DOTween.Sequence().Append(startText.DOLocalMoveY(1, introTextMoveTime).SetEase(Ease.OutQuad))
+        AudioController.Instance.PlayMusic(MusicKeys.ForestGameMusic);
+
+        DOTween.Sequence().AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
+            .Append(startText.DOLocalMoveY(1, introTextMoveTime).SetEase(Ease.OutQuad))
             .AppendCallback(() => SetPlayState(PlayState.RUNNING))
             .AppendInterval(introTextWaitTime)
+            .AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
             .Append(startText.DOLocalMoveY(-textOffscreenY, introTextMoveTime).SetEase(Ease.InQuad))
             .Join(timerController.transform.DOLocalMoveY(initTimerPosY, introTextMoveTime).SetEase(Ease.OutQuad))
             .AppendCallback(() => startText.gameObject.SetActive(false));
@@ -318,6 +334,7 @@ public class PlayController : ISceneController
     {
         GameController.instance.GetGameData().resumingGame = false;
         GameController.instance.GetGameData().shouldShowFullLevelIntro = false;
+        AudioController.Instance.StopMusic();
         Sequence seq = DOTween.Sequence();
         if (irisEnabled)
             seq.Append(irisController.AnimateIrisOut(exitIrisTime).SetEase(Ease.OutSine));
@@ -335,6 +352,7 @@ public class PlayController : ISceneController
     public void QuitLevel(bool irisEnabled)
     {
         GameController.instance.GetGameData().shouldIrisInLevelSelect = true;
+        AudioController.Instance.StopMusic();
         Sequence seq = DOTween.Sequence();
         if (irisEnabled)
             seq.Append(irisController.AnimateIrisOut(exitIrisTime).SetEase(Ease.OutSine));
@@ -350,6 +368,8 @@ public class PlayController : ISceneController
         if (State == PlayState.LOSE || State == PlayState.WIN) return;
         SetPlayState(PlayState.WIN);
 
+        AudioController.Instance.StopMusic();
+
         overlay.color = Color.clear;
         overlay.gameObject.SetActive(true);
         float initTextY = levelClearedText.localPosition.y;
@@ -362,8 +382,10 @@ public class PlayController : ISceneController
         levelClearedUIParent.SetActive(true);
         DOTween.Sequence().Append(overlay.DOFade(overlayOpacity, clearedOverlayFadeTime))
             .AppendInterval(clearedStartWaitTime)
+            .AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
             .Append(levelClearedText.DOLocalMoveY(initTextY, clearedMoveTime).SetEase(Ease.OutBounce))
             .AppendInterval(clearedStarsWaitTime)
+            .AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
             .Append(starsDataParent.DOLocalMoveY(initStarsDataY, clearedMoveTime * 0.5f))
             .AppendCallback(() => AwardStars());
     }
@@ -392,8 +414,16 @@ public class PlayController : ISceneController
         clearedContinueMenu.transform.localPosition = new Vector2(0, menuOffscreenY);
         clearedContinueMenu.gameObject.SetActive(true);
         clearedContinueMenu.SetActive(false);
-        seq.Append(clearedContinueMenu.transform.DOLocalMoveY(initMenuY, clearedElementMoveTime))
+        seq.AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
+            .Append(clearedContinueMenu.transform.DOLocalMoveY(initMenuY, clearedElementMoveTime))
             .AppendCallback(() => clearedContinueMenu.SetActive(true));
+
+        GameData gameData = GameController.instance.GetGameData();
+        LevelData currentLevelData = gameData.levelData[gameData.lastPlayedLevelDataIndex];
+        if (currentLevelData.GetUnlockedStars() >= Constants.MAX_STAR_RATING)
+        {
+            AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.DinoRoar);
+        }
     }
 
     private void AwardStar(int starOrderIdx, LevelData.StarTypes starType, Sequence seq)
@@ -423,11 +453,23 @@ public class PlayController : ISceneController
                 float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - clearedTimerParent.sizeDelta.y;
                 clearedTimerParent.localPosition = new Vector2(clearedTimerParent.localPosition.x, elemOffscreenY);
                 clearedTimerParent.gameObject.SetActive(true);
-                seq.Append(clearedTimerParent.DOLocalMoveY(initElemY, clearedElementMoveTime))
+                int lastSoundVal = 0;
+                seq.AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
+                    .Append(clearedTimerParent.DOLocalMoveY(initElemY, clearedElementMoveTime))
                     .AppendInterval(clearedElemStartWaitTime)
-                    .Append(DOTween.To(x => clearedTimer.SetTime(Mathf.FloorToInt(x)), 0, playLevelData.levelTime, clearedTimerCountTime).SetEase(Ease.Linear))
+                    .Append(DOTween.To(x => {
+                        clearedTimer.SetTime(Mathf.FloorToInt(x));
+                        if (Mathf.FloorToInt(x) != lastSoundVal)
+                        {
+                            AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.CountingNumber);
+                            lastSoundVal = Mathf.FloorToInt(x);
+                        }
+                    }, 0, playLevelData.levelTime, clearedTimerCountTime).SetEase(Ease.Linear))
                     .AppendInterval(clearedTimerWaitTime)
-                    .AppendCallback(() => clearedGoalTimer.SetColor(awardStar ? Color.green : Color.red))
+                    .AppendCallback(() => {
+                        clearedGoalTimer.SetColor(awardStar ? Color.green : Color.red);
+                        AudioController.Instance.PlayOneShotAudio(awardStar ? SoundEffectKeys.Token : SoundEffectKeys.FailedStar);
+                    })
                     .AppendInterval(awardStar ? clearedTimerAwardWaitTime : clearedTimerNoAwardWaitTime);
                 break;
             }
@@ -439,7 +481,8 @@ public class PlayController : ISceneController
                 float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - (clearedEggImage.transform as RectTransform).sizeDelta.y;
                 clearedEggImage.transform.localPosition = new Vector2(clearedEggImage.transform.localPosition.x, elemOffscreenY);
                 clearedEggImage.gameObject.SetActive(true);
-                seq.Append(clearedEggImage.transform.DOLocalMoveY(initElemY, clearedElementMoveTime))
+                seq.AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
+                    .Append(clearedEggImage.transform.DOLocalMoveY(initElemY, clearedElementMoveTime))
                     .AppendInterval(clearedElemStartWaitTime);
                 if (awardStar)
                 {
@@ -451,7 +494,10 @@ public class PlayController : ISceneController
                 {
                     seq.Append(clearedEggImage.transform.DOShakePosition(clearedEggcrackShakeTime, clearedEggcrackShakeStrength, clearedEggcrackShakeVibrato))
                         .Join(DOTween.Sequence().AppendInterval(clearedEggcrackShakeTime * 0.5f)
-                            .AppendCallback(() => clearedEggImage.sprite = eggCrackSprites[playLevelData.eggHealth - 1]))
+                            .AppendCallback(() => {
+                                clearedEggImage.sprite = eggCrackSprites[playLevelData.eggHealth - 1];
+                                AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.EggCrack);
+                            }))
                         .AppendInterval(clearedEggWaitTime);
                 }
                 break;
@@ -466,11 +512,20 @@ public class PlayController : ISceneController
                 float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - clearedTokenParent.sizeDelta.y;
                 clearedTokenParent.localPosition = new Vector2(clearedTokenParent.localPosition.x, elemOffscreenY);
                 clearedTokenParent.gameObject.SetActive(true);
-                seq.Append(clearedTokenParent.DOLocalMoveY(initElemY, clearedElementMoveTime))
+                seq.AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
+                    .Append(clearedTokenParent.DOLocalMoveY(initElemY, clearedElementMoveTime))
                     .AppendInterval(clearedElemStartWaitTime);
                 if (playLevelData.tokensCollected > 0)
                 {
-                    seq.Append(DOTween.To(x => clearedCollectedTokensImage.sprite = numberSprites[Mathf.FloorToInt(x)], 0, playLevelData.tokensCollected, clearedTokensCountTime).SetEase(Ease.Linear))
+                    int lastSoundVal = 0;
+                    seq.Append(DOTween.To(x => {
+                            clearedCollectedTokensImage.sprite = numberSprites[Mathf.FloorToInt(x)];
+                            if (Mathf.FloorToInt(x) != lastSoundVal)
+                            {
+                                AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.CountingNumber);
+                                lastSoundVal = Mathf.FloorToInt(x);
+                            }
+                        }, 0, playLevelData.tokensCollected, clearedTokensCountTime).SetEase(Ease.Linear))
                         .AppendInterval(clearedTokensWaitTime);
                 }
                 seq.AppendCallback(() => {
@@ -478,6 +533,7 @@ public class PlayController : ISceneController
                     clearedCollectedTokensImage.color = color;
                     clearedTokensSlashImage.color = color;
                     clearedTotalTokensImage.color = color;
+                    AudioController.Instance.PlayOneShotAudio(awardStar ? SoundEffectKeys.Token : SoundEffectKeys.FailedStar);
                 })
                     .AppendInterval(clearedTokensAwardWaitTime);
                 break;
@@ -491,8 +547,12 @@ public class PlayController : ISceneController
             currentLevelData.AwardStar(starType);
 
             Image starImage = starImages[idx];
-            seq.Append(starImage.transform.DOScale(starFillScale, starFillInTime))
-                .AppendCallback(() => starImage.sprite = starFilledSprite)
+            seq.Join(starImage.transform.DOScale(starFillScale, starFillInTime))
+                .AppendCallback(() => {
+                    AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.DinoFootprint);
+                    starImage.sprite = starFilledSprite;
+                })
+                .Join(playCamera.DOShakePosition(starFillInTime))
                 .Append(starImage.transform.DOScale(1, starFillOutTime))
                 .AppendInterval(clearedElemEndWaitTime);
         }
@@ -502,21 +562,24 @@ public class PlayController : ISceneController
             case LevelData.StarTypes.PERFECT_TIME:
             {
                 float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - clearedTimerParent.sizeDelta.y;
-                seq.Append(clearedTimerParent.DOLocalMoveY(elemOffscreenY, clearedElementMoveTime))
+                seq.AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
+                    .Append(clearedTimerParent.DOLocalMoveY(elemOffscreenY, clearedElementMoveTime))
                     .AppendCallback(() => clearedTimerParent.gameObject.SetActive(false));
                 break;
             }
             case LevelData.StarTypes.PERFECT_EGG:
             {
                 float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - (clearedEggImage.transform as RectTransform).sizeDelta.y;
-                seq.Append(clearedEggImage.transform.DOLocalMoveY(elemOffscreenY, clearedElementMoveTime))
+                seq.AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
+                    .Append(clearedEggImage.transform.DOLocalMoveY(elemOffscreenY, clearedElementMoveTime))
                     .AppendCallback(() => clearedEggImage.gameObject.SetActive(false));
                 break;
             }
             case LevelData.StarTypes.ALL_TOKENS:
             {
                 float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - clearedTokenParent.sizeDelta.y;
-                seq.Append(clearedTokenParent.DOLocalMoveY(elemOffscreenY, clearedElementMoveTime))
+                seq.AppendCallback(() => AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.StoneMove))
+                    .Append(clearedTokenParent.DOLocalMoveY(elemOffscreenY, clearedElementMoveTime))
                     .AppendCallback(() => clearedTokenParent.gameObject.SetActive(false));
                 break;
             }
