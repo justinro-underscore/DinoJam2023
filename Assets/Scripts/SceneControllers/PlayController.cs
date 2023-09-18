@@ -37,7 +37,20 @@ public class PlayController : ISceneController
     [SerializeField] private GameObject levelFailedUIParent;
     [SerializeField] private RectTransform levelFailedText;
     [SerializeField] private SelectableMenuController levelFailedMenu;
-    [SerializeField] private GameObject winnerText;
+
+    [SerializeField] private GameObject levelClearedUIParent;
+    [SerializeField] private RectTransform levelClearedText;
+    [SerializeField] private RectTransform starsDataParent;
+    [SerializeField] private List<Image> starImages;
+    [SerializeField] private RectTransform clearedTimerParent;
+    [SerializeField] private TimerController clearedGoalTimer;
+    [SerializeField] private TimerController clearedTimer;
+    [SerializeField] private Image clearedEggImage;
+    [SerializeField] private RectTransform clearedTokenParent;
+    [SerializeField] private Image clearedCollectedTokensImage;
+    [SerializeField] private Image clearedTokensSlashImage;
+    [SerializeField] private Image clearedTotalTokensImage;
+    [SerializeField] private SelectableMenuController clearedContinueMenu;
 
     [Header("Variables")]
     [SerializeField] private float introCameraSize;
@@ -59,8 +72,43 @@ public class PlayController : ISceneController
     [SerializeField] [Range(0.1f, 1.0f)] private float introTextMoveTime = 0.1f;
     [SerializeField] [Range(0.0f, 2.0f)] private float introTextWaitTime;
 
-    [Header("Win/Lose Variables")]
+    [Header("Lose Variables")]
     [SerializeField] [Range(0.1f, 2.0f)] private float failedMoveTime = 0.1f;
+
+    [Header("Win Variables")]
+    [SerializeField] [Range(0.1f, 1.0f)] private float clearedOverlayFadeTime = 0.1f;
+    [SerializeField] [Range(0.0f, 0.5f)] private float clearedStartWaitTime;
+    [SerializeField] [Range(0.1f, 2.0f)] private float clearedMoveTime = 0.1f;
+    [SerializeField] [Range(0.1f, 2.0f)] private float clearedElemStartWaitTime = 0.1f;
+    [SerializeField] [Range(0.1f, 2.0f)] private float clearedElemEndWaitTime = 0.1f;
+    [SerializeField] [Range(0.1f, 2.0f)] private float clearedStarsWaitTime = 0.1f;
+    [SerializeField] private List<LevelData.StarTypes> starAwardOrder;
+    [SerializeField] private Sprite starFilledSprite;
+    [SerializeField] [Range(1.0f, 1.2f)] private float starFillScale = 1.0f;
+    [SerializeField] [Range(0.01f, 0.5f)] private float starFillInTime = 0.01f;
+    [SerializeField] [Range(0.01f, 0.5f)] private float starFillOutTime = 0.01f;
+    [SerializeField] [Range(0.1f, 1.0f)] private float clearedElementMoveTime = 0.1f;
+
+    [SerializeField] [Range(0.1f, 2.0f)] private float clearedLevelWaitTime = 0.1f;
+
+    [SerializeField] [Range(0.1f, 2.0f)] private float clearedTimerCountTime = 0.1f;
+    [SerializeField] [Range(0.0f, 1.0f)] private float clearedTimerWaitTime;
+    [SerializeField] [Range(0.0f, 1.0f)] private float clearedTimerNoAwardWaitTime;
+    [SerializeField] [Range(0.0f, 2.0f)] private float clearedTimerAwardWaitTime;
+
+    [SerializeField] [Range(1.0f, 1.2f)] private float clearedEggAwardScale = 1.0f;
+    [SerializeField] [Range(0.01f, 0.5f)] private float clearedEggAwardInTime = 0.01f;
+    [SerializeField] [Range(0.01f, 0.5f)] private float clearedEggAwardOutTime = 0.01f;
+    [SerializeField] [Range(0.0f, 1.0f)] private float clearedEggcrackShakeTime;
+    [SerializeField] [Range(0.0f, 10.0f)] private float clearedEggcrackShakeStrength;
+    [SerializeField] [Range(0, 40)] private int clearedEggcrackShakeVibrato;
+    [SerializeField] private List<Sprite> eggCrackSprites;
+    [SerializeField] [Range(0.1f, 2.0f)] private float clearedEggWaitTime = 0.1f;
+
+    [SerializeField] List<Sprite> numberSprites;
+    [SerializeField] [Range(0.1f, 2.0f)] private float clearedTokensCountTime = 0.1f;
+    [SerializeField] [Range(0.0f, 1.0f)] private float clearedTokensWaitTime;
+    [SerializeField] [Range(0.0f, 1.0f)] private float clearedTokensAwardWaitTime;
 
     private GameData gameData;
 
@@ -82,6 +130,7 @@ public class PlayController : ISceneController
         {
             showFullIntro = debugShowFullIntroOverride;
             gameData.currentPlaySceneName = gameObject.scene.name;
+            gameData.levelData.Add(new LevelData(false, 2, 95));
         }
         else
         {
@@ -173,15 +222,6 @@ public class PlayController : ISceneController
         }
     }
 
-    public void WinLevel()
-    {
-        // You can't win the level if you've already lost or if you've already won
-        if (State == PlayState.LOSE || State == PlayState.WIN) return;
-        SetPlayState(PlayState.WIN);
-        overlay.gameObject.SetActive(true);
-        winnerText.SetActive(true);
-    }
-
     public void LoseLevel()
     {
         // You can't lose the level if you've already won it or if you've already lost
@@ -191,7 +231,7 @@ public class PlayController : ISceneController
         overlay.color = Color.clear;
         overlay.gameObject.SetActive(true);
         float initTextY = levelFailedText.localPosition.y;
-        float textOffscreenY = (canvasRect.sizeDelta.y * 0.5f) + (startText.transform as RectTransform).sizeDelta.y;
+        float textOffscreenY = (canvasRect.sizeDelta.y * 0.5f) + (levelFailedText.transform as RectTransform).sizeDelta.y;
         levelFailedText.localPosition = new Vector2(0, textOffscreenY);
         float initMenuY = levelFailedMenu.transform.localPosition.y;
         float menuOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - (levelFailedMenu.transform as RectTransform).sizeDelta.y;
@@ -301,5 +341,186 @@ public class PlayController : ISceneController
             seq.AppendInterval(exitIrisTime);
         seq.AppendInterval(exitWaitTime)
             .OnComplete(() => GameController.instance.ChangeState(GameState.LEVEL_SELECT));
+    }
+
+    public void WinLevel()
+    {
+        // You can't win the level if you've already lost or if you've already won
+        if (State == PlayState.LOSE || State == PlayState.WIN) return;
+        SetPlayState(PlayState.WIN);
+
+        overlay.color = Color.clear;
+        overlay.gameObject.SetActive(true);
+        float initTextY = levelClearedText.localPosition.y;
+        float textOffscreenY = (canvasRect.sizeDelta.y * 0.5f) + (levelClearedText.transform as RectTransform).sizeDelta.y;
+        levelClearedText.localPosition = new Vector2(0, textOffscreenY);
+        SetClearedStars();
+        float initStarsDataY = starsDataParent.localPosition.y;
+        float starsOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - starsDataParent.sizeDelta.y;
+        starsDataParent.localPosition = new Vector2(0, starsOffscreenY);
+        levelClearedUIParent.SetActive(true);
+        DOTween.Sequence().Append(overlay.DOFade(overlayOpacity, clearedOverlayFadeTime))
+            .AppendInterval(clearedStartWaitTime)
+            .Append(levelClearedText.DOLocalMoveY(initTextY, clearedMoveTime).SetEase(Ease.OutBounce))
+            .AppendInterval(clearedStarsWaitTime)
+            .Append(starsDataParent.DOLocalMoveY(initStarsDataY, clearedMoveTime * 0.5f))
+            .AppendCallback(() => AwardStars());
+    }
+
+    private void SetClearedStars()
+    {
+        GameData gameData = GameController.instance.GetGameData();
+        LevelData currentLevelData = gameData.levelData[gameData.lastPlayedLevelDataIndex];
+        for (int i = 0; i < starAwardOrder.Count; i++)
+        {
+            if (currentLevelData.IsStarUnlocked(starAwardOrder[i]))
+                starImages[i].sprite = starFilledSprite;
+        }
+    }
+
+    private void AwardStars()
+    {
+        Sequence seq = DOTween.Sequence();
+        for (int i = 0; i < starAwardOrder.Count; i++)
+        {
+            AwardStar(i, starAwardOrder[i], seq);
+        }
+
+        float initMenuY = clearedContinueMenu.transform.localPosition.y;
+        float menuOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - (clearedContinueMenu.transform as RectTransform).sizeDelta.y;
+        clearedContinueMenu.transform.localPosition = new Vector2(0, menuOffscreenY);
+        clearedContinueMenu.gameObject.SetActive(true);
+        clearedContinueMenu.SetActive(false);
+        seq.Append(clearedContinueMenu.transform.DOLocalMoveY(initMenuY, clearedElementMoveTime))
+            .AppendCallback(() => clearedContinueMenu.SetActive(true));
+    }
+
+    private void AwardStar(int starOrderIdx, LevelData.StarTypes starType, Sequence seq)
+    {
+        int idx = starOrderIdx;
+        GameData gameData = GameController.instance.GetGameData();
+        LevelData currentLevelData = gameData.levelData[gameData.lastPlayedLevelDataIndex];
+        GameData.PlayLevelData playLevelData = gameData.playLevelData;
+
+        bool awardStar = false;
+        switch (starType)
+        {
+            case LevelData.StarTypes.LEVEL_COMPLETE:
+            {
+                awardStar = true;
+
+                seq.AppendInterval(clearedLevelWaitTime);
+                break;
+            }
+            case LevelData.StarTypes.PERFECT_TIME:
+            {
+                awardStar = Mathf.FloorToInt(playLevelData.levelTime) <= currentLevelData.timeRequirement;
+
+                clearedGoalTimer.SetTime(currentLevelData.timeRequirement);
+
+                float initElemY = clearedTimerParent.localPosition.y;
+                float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - clearedTimerParent.sizeDelta.y;
+                clearedTimerParent.localPosition = new Vector2(clearedTimerParent.localPosition.x, elemOffscreenY);
+                clearedTimerParent.gameObject.SetActive(true);
+                seq.Append(clearedTimerParent.DOLocalMoveY(initElemY, clearedElementMoveTime))
+                    .AppendInterval(clearedElemStartWaitTime)
+                    .Append(DOTween.To(x => clearedTimer.SetTime(Mathf.FloorToInt(x)), 0, playLevelData.levelTime, clearedTimerCountTime).SetEase(Ease.Linear))
+                    .AppendInterval(clearedTimerWaitTime)
+                    .AppendCallback(() => clearedGoalTimer.SetColor(awardStar ? Color.green : Color.red))
+                    .AppendInterval(awardStar ? clearedTimerAwardWaitTime : clearedTimerNoAwardWaitTime);
+                break;
+            }
+            case LevelData.StarTypes.PERFECT_EGG:
+            {
+                awardStar = playLevelData.eggHealth == 0;
+
+                float initElemY = clearedEggImage.transform.localPosition.y;
+                float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - (clearedEggImage.transform as RectTransform).sizeDelta.y;
+                clearedEggImage.transform.localPosition = new Vector2(clearedEggImage.transform.localPosition.x, elemOffscreenY);
+                clearedEggImage.gameObject.SetActive(true);
+                seq.Append(clearedEggImage.transform.DOLocalMoveY(initElemY, clearedElementMoveTime))
+                    .AppendInterval(clearedElemStartWaitTime);
+                if (awardStar)
+                {
+                    seq.Append(clearedEggImage.transform.DOScale(clearedEggAwardScale, clearedEggAwardInTime))
+                        .Append(clearedEggImage.transform.DOScale(1, clearedEggAwardOutTime))
+                        .AppendInterval(clearedEggWaitTime);
+                }
+                else
+                {
+                    seq.Append(clearedEggImage.transform.DOShakePosition(clearedEggcrackShakeTime, clearedEggcrackShakeStrength, clearedEggcrackShakeVibrato))
+                        .Join(DOTween.Sequence().AppendInterval(clearedEggcrackShakeTime * 0.5f)
+                            .AppendCallback(() => clearedEggImage.sprite = eggCrackSprites[playLevelData.eggHealth - 1]))
+                        .AppendInterval(clearedEggWaitTime);
+                }
+                break;
+            }
+            case LevelData.StarTypes.ALL_TOKENS:
+            {
+                awardStar = playLevelData.tokensCollected >= currentLevelData.tokenRequirement;
+
+                clearedTotalTokensImage.sprite = numberSprites[currentLevelData.tokenRequirement];
+
+                float initElemY = clearedTokenParent.localPosition.y;
+                float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - clearedTokenParent.sizeDelta.y;
+                clearedTokenParent.localPosition = new Vector2(clearedTokenParent.localPosition.x, elemOffscreenY);
+                clearedTokenParent.gameObject.SetActive(true);
+                seq.Append(clearedTokenParent.DOLocalMoveY(initElemY, clearedElementMoveTime))
+                    .AppendInterval(clearedElemStartWaitTime);
+                if (playLevelData.tokensCollected > 0)
+                {
+                    seq.Append(DOTween.To(x => clearedCollectedTokensImage.sprite = numberSprites[Mathf.FloorToInt(x)], 0, playLevelData.tokensCollected, clearedTokensCountTime).SetEase(Ease.Linear))
+                        .AppendInterval(clearedTokensWaitTime);
+                }
+                seq.AppendCallback(() => {
+                    Color color = awardStar ? Color.green : Color.red;
+                    clearedCollectedTokensImage.color = color;
+                    clearedTokensSlashImage.color = color;
+                    clearedTotalTokensImage.color = color;
+                })
+                    .AppendInterval(clearedTokensAwardWaitTime);
+                break;
+            }
+            default:
+                break;
+        }
+
+        if (awardStar)
+        {
+            currentLevelData.AwardStar(starType);
+
+            Image starImage = starImages[idx];
+            seq.Append(starImage.transform.DOScale(starFillScale, starFillInTime))
+                .AppendCallback(() => starImage.sprite = starFilledSprite)
+                .Append(starImage.transform.DOScale(1, starFillOutTime))
+                .AppendInterval(clearedElemEndWaitTime);
+        }
+
+        switch (starType)
+        {
+            case LevelData.StarTypes.PERFECT_TIME:
+            {
+                float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - clearedTimerParent.sizeDelta.y;
+                seq.Append(clearedTimerParent.DOLocalMoveY(elemOffscreenY, clearedElementMoveTime))
+                    .AppendCallback(() => clearedTimerParent.gameObject.SetActive(false));
+                break;
+            }
+            case LevelData.StarTypes.PERFECT_EGG:
+            {
+                float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - (clearedEggImage.transform as RectTransform).sizeDelta.y;
+                seq.Append(clearedEggImage.transform.DOLocalMoveY(elemOffscreenY, clearedElementMoveTime))
+                    .AppendCallback(() => clearedEggImage.gameObject.SetActive(false));
+                break;
+            }
+            case LevelData.StarTypes.ALL_TOKENS:
+            {
+                float elemOffscreenY = -(canvasRect.sizeDelta.y * 0.5f) - clearedTokenParent.sizeDelta.y;
+                seq.Append(clearedTokenParent.DOLocalMoveY(elemOffscreenY, clearedElementMoveTime))
+                    .AppendCallback(() => clearedTokenParent.gameObject.SetActive(false));
+                break;
+            }
+            default:
+                break;
+        }
     }
 }

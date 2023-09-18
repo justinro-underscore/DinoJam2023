@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-
 using UnityEngine;
 
 public class LevelData
@@ -20,26 +17,27 @@ public class LevelData
     public int timeRequirement;
     public int tokenRequirement;
 
-    public List<bool> starData;
+    public bool[] starData;
 
-    public LevelData(int starRating, bool isLocked, int tokenRequirement, int timeRequirement)
+    public LevelData(bool isLocked, int tokenRequirement, int timeRequirement)
     {
-        this.starRating = Mathf.Clamp(starRating, 0, Constants.MAX_STAR_RATING);
+        this.starRating = 0;
         this.isLocked = isLocked;
         this.tokenRequirement = tokenRequirement;
         this.timeRequirement = timeRequirement;
 
-        starData = new List<bool>();
-        for (int i = 0; i < Constants.MAX_STAR_RATING; i++)
-        {
-            starData.Add(i < starRating);
-        }
+        starData = new bool[Constants.MAX_STAR_RATING];
     }
 
-    public void UnlockStar(StarTypes starType)
+    public void AwardStar(StarTypes starType)
     {
         // oh god...
         starData[(int) starType] = true;
+    }
+
+    public bool IsStarUnlocked(StarTypes starType)
+    {
+        return starData[(int) starType];
     }
 
     public int GetUnlockedStars()
@@ -47,10 +45,7 @@ public class LevelData
         int total = 0;
         for (int i = 0; i < Constants.MAX_STAR_RATING; i++)
         {
-            if (starData[i])
-            {
-                total += 1;
-            }
+            if (starData[i]) total += 1;
         }
 
         return total;
