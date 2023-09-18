@@ -71,6 +71,7 @@ public class LevelSelectController : ISceneController
         List<LevelData> levelData = gameData.levelData;
 
         // Initialize level data objects if they haven't been created yet
+        // ughhh
         if (levelData.Count == 0)
         {
             foreach (Level level in levels)
@@ -85,6 +86,15 @@ public class LevelSelectController : ISceneController
 
                 // Add tuple of level info to our level list
                 levelList.Add(new LevelInfoTuple(level, data));
+            }
+        }
+        else
+        {
+            // Zip level and level data for everything beyond home level
+            levelList.Add(new LevelInfoTuple(levels[0], null));
+            for (int i = 1; i < levelData.Count; i++)
+            {
+                levelList.Add(new LevelInfoTuple(levels[i], levelData[i]));
             }
         }
 
