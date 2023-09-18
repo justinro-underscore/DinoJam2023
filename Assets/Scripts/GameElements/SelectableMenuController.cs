@@ -55,6 +55,7 @@ public class SelectableMenuController : MonoBehaviour
     {
         if (!init && active)
         {
+            if (menuOptions.Count == 1) init = true;
             foreach (RectTransform menuOption in menuOptions)
             {
                 if (menuOption.localPosition.y != 0) init = true;
@@ -105,7 +106,7 @@ public class SelectableMenuController : MonoBehaviour
             seq.Append(menuOptionImage.DOColor(i % 2 == 0 ? Color.gray : Color.white, selectedBlinkTime));
         }
         seq.AppendCallback(() => {
-            BaseEventData eventData = new BaseEventData(EventSystem.current) { selectedObject = gameObject };
+            BaseEventData eventData = new BaseEventData(EventSystem.current) {  };
             menuOptionEvents[currSelectedOption].Invoke(eventData);
         });
         selected = true;
