@@ -26,7 +26,8 @@ public class GameData
     {
         playLevelData = new PlayLevelData();
 
-        lastPlayedLevelDataIndex = 0;
+        // -1 because levels in level controller has one more entry for home base
+        lastPlayedLevelDataIndex = -1;
 
         levelData = new List<LevelData>();
 

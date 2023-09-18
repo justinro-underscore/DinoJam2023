@@ -60,9 +60,13 @@ public class LevelSelectController : ISceneController
 
     private GameData gameData;
 
+    private bool enteredLevel;
+
     // Init values
     protected void Start()
     {
+        enteredLevel = false;
+
         // Tuple of level and level data for level select controller to work on
         levelList = new List<LevelInfoTuple>();
 
@@ -121,9 +125,17 @@ public class LevelSelectController : ISceneController
 
     override protected void SceneUpdate()
     {
-        // Enter level
-        if (Input.GetKeyDown(KeyCode.Return) && !isMovingIcon)
+        // Abort if we have entered a level
+        if (enteredLevel)
         {
+            return;
+        }
+
+        // Enter level
+        if (Input.GetKeyDown(KeyCode.Return) && !isMovingIcon && !selectedLevel.level.IsHomeBase())
+        {
+            enteredLevel = true;
+
             // Store required data and change state to play
             gameData.lastPlayedLevelDataIndex = selectedLevelDataIndex;
             gameData.currentPlaySceneName = selectedLevel.level.GetSceneName();
