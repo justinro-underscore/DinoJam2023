@@ -30,6 +30,9 @@ public class TarBubbleController : IManagedController
 
     [SerializeField] private bool isActive = true;
 
+    private float startTTLTime;
+    private float timeLeftToLive;
+
     override protected void ManagedStart()
     {
         // Init values
@@ -42,6 +45,8 @@ public class TarBubbleController : IManagedController
         transform.DOScale(Vector3.one, scaleDuration);
 
         // Call die function after ttl has expirded
+        startTTLTime = Time.time;
+        timeLeftToLive = 0;
         Invoke("Die", timeToLive);
     }
 
@@ -66,6 +71,32 @@ public class TarBubbleController : IManagedController
         Vector3 offset = new Vector3(pathAmplitude * Mathf.Cos(radians), 0.0f, 0.0f);
         transform.position = currentPosition + offset;
     }
+
+    override public void OnStateChanged(PlayState oldState, PlayState newState)
+    {
+        if (newState == PlayState.PAUSE)
+        {
+            float deltaTime = Time.time - startTTLTime;
+
+            // This check is kinda superfluous (however you spell that lmao)
+            // Since we would have died otherwise and this function wouldn't be called
+            // but oh well
+            if (deltaTime < timeToLive)
+            {
+                // Stop the invoke!
+                CancelInvoke("Die");
+
+                timeLeftToLive = timeToLive - deltaTime;
+            }
+        }
+        
+        if (oldState == PlayState.PAUSE)
+        {
+            Invoke("Die", timeLeftToLive);
+            timeLeftToLive = 0;
+        }
+    }
+
 
     protected void OnTriggerEnter2D(Collider2D collider)
     {
