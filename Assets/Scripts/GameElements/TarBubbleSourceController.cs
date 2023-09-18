@@ -48,7 +48,7 @@ public class TarBubbleSourceController : IManagedController
         // Spawn if we are active
         if (isActive)
         {
-            GameObject temp = Instantiate(tarBubblePrefab, gameObject.transform.position, Quaternion.identity, gameObject.transform.parent);
+            GameObject temp = Instantiate(tarBubblePrefab, gameObject.transform.position + new Vector3(0, 2, 0), Quaternion.identity, gameObject.transform.parent);
             temp.GetComponent<TarBubbleController>().SetActive(true);
         }
     }

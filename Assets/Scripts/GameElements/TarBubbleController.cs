@@ -33,6 +33,9 @@ public class TarBubbleController : IManagedController
     private float startTTLTime;
     private float timeLeftToLive;
 
+    private bool startCurve;
+    private Animator animator;
+
     override protected void ManagedStart()
     {
         // Init values
@@ -48,12 +51,20 @@ public class TarBubbleController : IManagedController
         startTTLTime = Time.time;
         timeLeftToLive = 0;
         Invoke("Die", timeToLive);
+
+        startCurve = false;
+        animator = GetComponent<Animator>();
+
+        if (!isActive)
+        {
+            animator.speed = 0;
+        }
     }
 
     // Ty to https://forum.unity.com/threads/moving-along-a-sine-curve.178281/
     override public void ManagedUpdate()
     {
-        if (!isActive)
+        if (!isActive || !startCurve)
         {
             return;
         }
@@ -110,8 +121,8 @@ public class TarBubbleController : IManagedController
             // Cancel the invoke death
             CancelInvoke("Die");
 
-            // Then die
-            Die();
+            // Invoke pop animation
+            animator.SetTrigger("pop");
         }
     }
 
@@ -137,6 +148,11 @@ public class TarBubbleController : IManagedController
     public bool IsActive()
     {
         return isActive;
+    }
+
+    public void StartCurve()
+    {
+        startCurve = true;
     }
 
 }

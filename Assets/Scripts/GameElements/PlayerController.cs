@@ -103,6 +103,11 @@ public class PlayerController : IManagedController
     [SerializeField] [Range(1.0f, 2.0f)] private float gripAmplifyingFactor = 0.75f;
     [SerializeField] [Range(0.0f, 1.0f)] private float wingDampeningFactor = 0.5f;
 
+    [SerializeField] private GameObject leftTarWing;
+    [SerializeField] private GameObject rightTarWing;
+    [SerializeField] private GameObject leftOuterTarWing;
+    [SerializeField] private GameObject rightOuterTarWing;
+
     override protected void ManagedStart()
     {
         rb2d = GetComponent<Rigidbody2D>();
@@ -514,6 +519,11 @@ public class PlayerController : IManagedController
         lateralWingForce = initLateralWingForce * wingDampeningFactor;
 
         currentPlayerMashValue = 0;
+
+        leftTarWing.SetActive(true);
+        rightTarWing.SetActive(true);
+        leftOuterTarWing.SetActive(true);
+        rightOuterTarWing.SetActive(true);
     }
 
     public void UntrapPlayer()
@@ -524,6 +534,11 @@ public class PlayerController : IManagedController
         innerWingForce = initInnerWingForce;
         outerWingForce = initOuterWingForce;
         lateralWingForce = initLateralWingForce;
+
+        leftTarWing.SetActive(false);
+        rightTarWing.SetActive(false);
+        leftOuterTarWing.SetActive(false);
+        rightOuterTarWing.SetActive(false);
     }
 
     public void RunIntroSequence()
