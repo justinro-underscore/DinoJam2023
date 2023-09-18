@@ -5,9 +5,18 @@ using UnityEngine;
 
 public class LevelData
 {
+    public enum StarTypes
+    {
+        LEVEL_COMPLETE,
+        ALL_TOKENS,
+        PERFECT_EGG,
+        PERFECT_TIME
+    }
+
     public int starRating;
 
     public bool isLocked;
+    public bool isHomeBase;
 
     public List<bool> starData;
 
@@ -19,8 +28,28 @@ public class LevelData
         starData = new List<bool>();
         for (int i = 0; i < Constants.MAX_STAR_RATING; i++)
         {
-            starData.Add(false);
+            starData.Add(i < starRating);
         }
+    }
+
+    public void UnlockStar(StarTypes starType)
+    {
+        // oh god...
+        starData[(int) starType] = true;
+    }
+
+    public int GetUnlockedStars()
+    {
+        int total = 0;
+        for (int i = 0; i < Constants.MAX_STAR_RATING; i++)
+        {
+            if (starData[i])
+            {
+                total += 1;
+            }
+        }
+
+        return total;
     }
 }
 

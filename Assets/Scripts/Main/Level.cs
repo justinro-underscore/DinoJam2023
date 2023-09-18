@@ -6,6 +6,7 @@ public class Level : MonoBehaviour
 {
     [SerializeField] private string sceneName;
     [SerializeField] private bool isLocked = true;
+    [SerializeField] private bool isHomeBase = false;
 
     // Unlocked sprite for unlocked levels and filled stars
     [SerializeField] private Sprite unlockedIconSprite;
@@ -61,6 +62,11 @@ public class Level : MonoBehaviour
         }
     }
 
+    public void UnlockLevel()
+    {
+        isLocked = false;
+    }
+
     public string GetSceneName()
     {
         return sceneName;
@@ -89,5 +95,10 @@ public class Level : MonoBehaviour
     public int GetRequiredStars()
     {
         return numStarsToPass;
+    }
+
+    public bool IsHomeBase()
+    {
+        return isHomeBase;
     }
 }

@@ -29,14 +29,16 @@ public class LevelSelectUIController : MonoBehaviour
         levelMenu.SetActive(isActive);
     }
 
-    public void SetLevelPreviewImage(Image levelPreviewImage)
+    public void SetLevelPreviewImage(Sprite levelPreviewSprite)
     {
-        this.levelPreviewImage = levelPreviewImage;
+        levelPreviewImage.sprite = levelPreviewSprite;
     }
 
-    public void SetLevelTitle(Image levelTitle)
+    public void SetLevelTitle(Sprite levelTitleSprite)
     {
-        this.levelTitle = levelTitle;
+        RectTransform rectTransform = levelTitle.transform as RectTransform;
+        rectTransform.sizeDelta = new Vector2(levelTitleSprite.rect.width, rectTransform.sizeDelta.y);
+        levelTitle.sprite = levelTitleSprite;
     }
 
     public void SetLevelTime(int seconds)
