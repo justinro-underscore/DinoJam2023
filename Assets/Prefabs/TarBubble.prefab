@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6919081268008230032}
   - component: {fileID: -4204525179644576701}
   - component: {fileID: -3923093704729953434}
+  - component: {fileID: -2778586336526896535}
   m_Layer: 0
   m_Name: TarBubble
   m_TagString: TarBubble
@@ -75,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: -822872599
   m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 1f24b26621de4b045a8622b36214338d, type: 3}
+  m_Sprite: {fileID: 1056281796, guid: f1e9e11152127ee41a3b1e77fd2a914e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -106,6 +107,9 @@ MonoBehaviour:
   pathPeriodMin: 1
   scaleDurationMax: 5
   scaleDurationMin: 2
+  sourceTarTile: {fileID: 0}
+  isActive: 1
+  fullBubble: {fileID: 21300000, guid: 8b42c01b6c1b057479d5c035e4b2d1a0, type: 3}
 --- !u!58 &-3923093704729953434
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -122,3 +126,23 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!95 &-2778586336526896535
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2675454270813620183}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: aa169dafb19d4f043b599d0ecb6fe604, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
