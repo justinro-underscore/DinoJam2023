@@ -6,7 +6,8 @@ public class GameData
     public class PlayLevelData
     {
         public float levelTime = 0;
-        // TODO Add egg health and token count
+        public int eggHealth = 0; // 0 means not broken
+        // TODO Add token count
     }
     public PlayLevelData playLevelData;
 

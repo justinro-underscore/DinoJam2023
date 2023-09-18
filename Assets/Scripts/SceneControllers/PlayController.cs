@@ -40,7 +40,6 @@ public class PlayController : ISceneController
     [SerializeField] private GameObject winnerText;
 
     [Header("Variables")]
-    [SerializeField] [Range(1, 5)] private int maxEggLives = 1;
     [SerializeField] private float introCameraSize;
     [SerializeField] [Range(0.1f, 1.0f)] private float exitIrisTime = 0.1f;
     [SerializeField] [Range(0.1f, 2.0f)] private float exitWaitTime = 0.1f;
@@ -67,8 +66,6 @@ public class PlayController : ISceneController
 
     private bool showFullIntro;
 
-    private int eggLives;
-
     private float initCameraSize;
     private float initTimerPosY;
 
@@ -94,8 +91,7 @@ public class PlayController : ISceneController
         State = PlayState.INTRO;
         StartIntroSequence();
 
-        eggLives = maxEggLives;
-
+        gameData.playLevelData.eggHealth = 0;
         gameData.playLevelData.levelTime = 0;
     }
 
@@ -162,9 +158,9 @@ public class PlayController : ISceneController
 
     public void TakeEggDamage()
     {
-        eggLives--;
-        eggController.SetCrack(maxEggLives - eggLives);
-        if (eggLives <= 0)
+        gameData.playLevelData.eggHealth++;
+        eggController.SetCrack(gameData.playLevelData.eggHealth);
+        if (gameData.playLevelData.eggHealth >= Constants.NUM_EGG_LIVES)
         {
             eggController.BreakEgg();
             LoseLevel();

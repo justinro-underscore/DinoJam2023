@@ -3812,13 +3812,12 @@ MonoBehaviour:
   levelFailedText: {fileID: 1893253076}
   levelFailedMenu: {fileID: 1430800901}
   winnerText: {fileID: 1530601672}
-  maxEggLives: 1
   introCameraSize: 5
   exitIrisTime: 0.814
   exitWaitTime: 0.51
   overlayOpacity: 0.3
   overlayFadeTime: 0.2
-  debugShowFullIntroOverride: 1
+  debugShowFullIntroOverride: 0
   introCameraStartOffset: {x: -0.3, y: 0.2, z: 0}
   introIrisStartTime: 0.515
   shortIntroIrisTime: 1.29

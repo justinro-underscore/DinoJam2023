@@ -15,4 +15,5 @@ public class Constants
     // Level consts
     public const string starTag = "Star";
     public const int MAX_STAR_RATING = 3;
+    public const int NUM_EGG_LIVES = 4;
 }
