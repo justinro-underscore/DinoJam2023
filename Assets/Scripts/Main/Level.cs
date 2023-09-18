@@ -17,9 +17,13 @@ public class Level : MonoBehaviour
     [SerializeField] private Sprite levelTitle;
     [SerializeField] private int numTokens;
     [SerializeField] private int targetLevelTimeSeconds;
-    [SerializeField] private int numStarsToPass;
+    [SerializeField] private int numStarsToUnlockLevel;
 
     [SerializeField] private float yOffset;
+
+    [SerializeField] private GameObject compy;
+    [SerializeField] private SpriteRenderer starsDigit;
+    [SerializeField] private List<Sprite> digitSprites;
 
     private List<Vector3> forwardPathWaypoints;
     private List<Vector3> backPathWaypoints;
@@ -49,6 +53,8 @@ public class Level : MonoBehaviour
                 backPathWaypoints.Add(child.position);
             }
         }
+
+        compy.SetActive(false);
     }
 
     public Vector3 GetLevelIconLocation()
@@ -59,7 +65,7 @@ public class Level : MonoBehaviour
 
     public bool CanUnlockLevel(int totalStars)
     {
-        return (totalStars >= numStarsToPass); 
+        return (totalStars >= numStarsToUnlockLevel); 
     }
 
     public bool IsLevelLocked()
@@ -77,6 +83,12 @@ public class Level : MonoBehaviour
         if (!levelData.isLocked)
         {
             gameObject.GetComponent<SpriteRenderer>().sprite = unlockedIconSprite;
+            compy.SetActive(false);
+        }
+        else if (levelData.isLocked && numStarsToUnlockLevel > 0)
+        {
+            compy.SetActive(true);
+            starsDigit.sprite = digitSprites[Mathf.RoundToInt(Mathf.Clamp(numStarsToUnlockLevel, 0, 9))];
         }
     }
 
@@ -112,7 +124,7 @@ public class Level : MonoBehaviour
 
     public int GetRequiredStars()
     {
-        return numStarsToPass;
+        return numStarsToUnlockLevel;
     }
 
     public bool IsHomeBase()
