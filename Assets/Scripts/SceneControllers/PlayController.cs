@@ -44,8 +44,8 @@ public class PlayController : ISceneController
     [SerializeField] private float introCameraSize;
     [SerializeField] [Range(0.1f, 1.0f)] private float exitIrisTime = 0.1f;
     [SerializeField] [Range(0.1f, 2.0f)] private float exitWaitTime = 0.1f;
-    [SerializeField] [Range(0.0f, 1.0f)] private float overlayOpacity; // .3
-    [SerializeField] [Range(0.01f, 0.5f)] private float overlayFadeTime = 0.01f; // 0.2
+    [SerializeField] [Range(0.0f, 1.0f)] private float overlayOpacity;
+    [SerializeField] [Range(0.01f, 0.5f)] private float overlayFadeTime = 0.01f;
 
     [Header("Intro Variables")]
     [SerializeField] private bool debugShowFullIntroOverride;
@@ -63,14 +63,14 @@ public class PlayController : ISceneController
     [Header("Win/Lose Variables")]
     [SerializeField] [Range(0.1f, 2.0f)] private float failedMoveTime = 0.1f;
 
+    private GameData gameData;
+
     private bool showFullIntro;
 
     private int eggLives;
 
     private float initCameraSize;
     private float initTimerPosY;
-
-    private float levelTime;
 
     protected void Awake()
     {
@@ -80,7 +80,7 @@ public class PlayController : ISceneController
             Destroy(gameObject);
 
         // Debug only: if the developer has the level scene already loaded in, set the scene name as the current play scene
-        GameData gameData = GameController.instance.GetGameData();
+        gameData = GameController.instance.GetGameData();
         if (gameData.currentPlaySceneName == "")
         {
             showFullIntro = debugShowFullIntroOverride;
@@ -96,7 +96,7 @@ public class PlayController : ISceneController
 
         eggLives = maxEggLives;
 
-        levelTime = 0;
+        gameData.playLevelData.levelTime = 0;
     }
 
     override protected void SceneUpdate()
@@ -115,8 +115,8 @@ public class PlayController : ISceneController
 
         if (State == PlayState.RUNNING)
         {
-            levelTime += Time.deltaTime;
-            timerController.SetTime(Mathf.FloorToInt(levelTime));
+            gameData.playLevelData.levelTime += Time.deltaTime;
+            timerController.SetTime(Mathf.FloorToInt(gameData.playLevelData.levelTime));
         }
 
         if (Input.GetKeyDown(KeyCode.Escape) && State == PlayState.RUNNING && !GameController.instance.IsSceneLoaded(Scenes.Pause))

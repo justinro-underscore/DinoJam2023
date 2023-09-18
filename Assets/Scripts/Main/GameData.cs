@@ -3,6 +3,13 @@ using System.Collections.Generic;
 
 public class GameData
 {
+    public class PlayLevelData
+    {
+        public float levelTime = 0;
+        // TODO Add egg health and token count
+    }
+    public PlayLevelData playLevelData;
+
     public int lastUnlockedLevelIndex;
     public int lastPlayedLevelIndex;
 
@@ -17,6 +24,8 @@ public class GameData
 
     public void Init()
     {
+        playLevelData = new PlayLevelData();
+
         lastUnlockedLevelIndex = 0;
         lastPlayedLevelIndex = 0;
 

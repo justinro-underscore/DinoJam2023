@@ -12,6 +12,9 @@ public class TimerController : MonoBehaviour
 
     private List<Image> digitImages;
 
+    private bool init;
+    private int pendingTime;
+
     protected void Start()
     {
         if (digitSprites.Count != 10)
@@ -24,10 +27,18 @@ public class TimerController : MonoBehaviour
         }
         if (digitImages.Count != 4)
             Debug.LogError("Invalid number of digit images set!");
+
+        init = true;
+        if (pendingTime > 0) SetTime(pendingTime);
     }
 
     public void SetTime(int time)
     {
+        if (!init)
+        {
+            pendingTime = time;
+            return;
+        }
         if (time > MAX_TIME) time = MAX_TIME;
         int minutes = time / 60;
         int seconds = time % 60;
