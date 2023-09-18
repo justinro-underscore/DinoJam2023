@@ -425,8 +425,12 @@ public class PlayerController : IManagedController
         }
         else if (other.gameObject.CompareTag("Token"))
         {
-            PlayController.Instance.CollectToken();
-            other.GetComponent<TokenController>().CollectToken();
+            TokenController tokenController = other.GetComponent<TokenController>();
+            if (!tokenController.Collected)
+            {
+                PlayController.Instance.CollectToken();
+                tokenController.CollectToken();
+            }
         }
 
         // TODO: ideally we handle this better with a script we can attach to any game object separate from main logic

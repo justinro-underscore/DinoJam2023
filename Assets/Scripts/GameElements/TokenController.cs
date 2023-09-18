@@ -5,13 +5,15 @@ using UnityEngine;
 
 public class TokenController : IManagedController
 {
-    private Animator animator;
-    private float animatorDefaultSpeed;
-
     [Header("Variables")]
     [SerializeField] [Range(0.0f, 1.0f)] private float collectDistance;
     [SerializeField] [Range(0.1f, 3.0f)] private float collectTime = 0.1f;
     [SerializeField] [Range(1.0f, 3.0f)] private float collectAnimatorSpeed = 1.0f;
+    
+    private Animator animator;
+    private float animatorDefaultSpeed;
+
+    public bool Collected { get; private set; }
 
     override protected void ManagedStart()
     {
@@ -26,6 +28,7 @@ public class TokenController : IManagedController
 
     public void CollectToken()
     {
+        Collected = true;
         animatorDefaultSpeed = collectAnimatorSpeed;
         animator.speed = animatorDefaultSpeed;
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
