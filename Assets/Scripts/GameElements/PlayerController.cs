@@ -104,6 +104,8 @@ public class PlayerController : IManagedController
 
     [SerializeField] private GameObject leftTarWing;
     [SerializeField] private GameObject rightTarWing;
+    [SerializeField] private GameObject leftOuterTarWing;
+    [SerializeField] private GameObject rightOuterTarWing;
 
     override protected void ManagedStart()
     {
@@ -499,6 +501,8 @@ public class PlayerController : IManagedController
 
         leftTarWing.SetActive(true);
         rightTarWing.SetActive(true);
+        leftOuterTarWing.SetActive(true);
+        rightOuterTarWing.SetActive(true);
     }
 
     public void UntrapPlayer()
@@ -512,6 +516,8 @@ public class PlayerController : IManagedController
 
         leftTarWing.SetActive(false);
         rightTarWing.SetActive(false);
+        leftOuterTarWing.SetActive(false);
+        rightOuterTarWing.SetActive(false);
     }
 
     public void RunIntroSequence()
