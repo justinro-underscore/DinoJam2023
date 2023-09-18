@@ -14,6 +14,10 @@ public static class Scenes {
     public const string BaseLevel = "PlayScene";
     public const string JurassicJam = "JurassicJamScene";
     public const string TriassicTrial = "TriassicTrialScene";
+
+    public const string Chaos = "MesezoicMania";
+
+    public const string Mania = "Cretaceous ChaosT";
 }
 
 public class SceneController : MonoBehaviour {
@@ -23,7 +27,9 @@ public class SceneController : MonoBehaviour {
         {Scenes.Pause, GameState.PAUSE},
         {Scenes.BaseLevel, GameState.PLAY},
         {Scenes.JurassicJam, GameState.PLAY},
-        {Scenes.TriassicTrial, GameState.PLAY}
+        {Scenes.TriassicTrial, GameState.PLAY},
+        {Scenes.Chaos, GameState.PLAY},
+        {Scenes.Mania, GameState.PLAY}
     };
 
     public static SceneController instance = null;

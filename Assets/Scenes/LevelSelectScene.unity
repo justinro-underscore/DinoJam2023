@@ -2083,19 +2083,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: numTokens
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: levelTitle
       value: 
       objectReference: {fileID: 21300000, guid: 3c02f69128046fe45bf248f7cc1e0c26, type: 3}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
+      propertyPath: levelPreview
+      value: 
+      objectReference: {fileID: 21300000, guid: e1b2a5afef68d5e4daff0b60efc7ac94, type: 3}
+    - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: numStarsToPass
       value: 9
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: targetLevelTimeSeconds
-      value: 754
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 334955062729923820, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: m_Name
@@ -2515,6 +2519,10 @@ PrefabInstance:
       propertyPath: levelTitle
       value: 
       objectReference: {fileID: 21300000, guid: 164317aba348f174aad7e29be83271b3, type: 3}
+    - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
+      propertyPath: levelPreview
+      value: 
+      objectReference: {fileID: 21300000, guid: 0fb5c4f0fcfd9c74cb2c77b64d2d3a2d, type: 3}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: numStarsToPass
       value: 5
@@ -3377,19 +3385,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: numTokens
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: levelTitle
       value: 
       objectReference: {fileID: 21300000, guid: 5b8f90c01ea1f5641b2f0ea62f2a6d1d, type: 3}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
+      propertyPath: levelPreview
+      value: 
+      objectReference: {fileID: 21300000, guid: e5b25bd58d829c94a91e01190181c854, type: 3}
+    - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: numStarsToPass
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: targetLevelTimeSeconds
-      value: 0
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 334955062729923820, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: m_Name
