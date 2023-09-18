@@ -11,6 +11,7 @@ public class PauseController : ISceneController
     [SerializeField] private Image overlay;
     [SerializeField] private SelectableMenuController pauseMenu;
     [SerializeField] private IrisController irisController;
+    [SerializeField] private TimerController timerController;
 
     [Header("Variables")]
     [SerializeField] [Range(0.01f, 0.5f)] private float overlayFadeTime = 0.01f;
@@ -34,14 +35,20 @@ public class PauseController : ISceneController
         float overlayOpacity = overlay.color.a;
         overlay.color = Color.clear;
         overlay.DOFade(overlayOpacity, overlayFadeTime);
+
+        float initTimerY = timerController.transform.localPosition.y;
+        timerController.transform.localPosition = new Vector2(0, (canvas.sizeDelta.y * 0.5f) + (timerController.transform as RectTransform).sizeDelta.y);
         float initPauseMenuY = pauseMenu.transform.localPosition.y;
         pauseMenu.transform.localPosition = new Vector2(0, -canvas.sizeDelta.y * 0.5f);
         pauseMenu.SetActive(false);
-        pauseMenu.transform.DOLocalMoveY(initPauseMenuY, enterMoveTime).SetEase(Ease.OutSine)
+        DOTween.Sequence().Append(pauseMenu.transform.DOLocalMoveY(initPauseMenuY, enterMoveTime).SetEase(Ease.OutSine))
+            .Join(timerController.transform.DOLocalMoveY(initTimerY, enterMoveTime).SetEase(Ease.OutSine))
             .OnComplete(() => {
                 pauseMenu.SetActive(true);
                 ready = true;
             });
+        
+        timerController.SetTime(Mathf.FloorToInt(GameController.instance.GetGameData().playLevelData.levelTime));
 
         ready = false;
     }
@@ -59,9 +66,11 @@ public class PauseController : ISceneController
         GameController.instance.GetGameData().resumingGame = true;
         GameController.instance.ChangeState(GameState.PLAY);
         playController.Resume();
+        float timerMoveY = (canvas.sizeDelta.y * 0.5f) + (timerController.transform as RectTransform).sizeDelta.y;
         float pauseMenuMoveY = -canvas.sizeDelta.y * 0.5f;
         overlay.DOFade(0, overlayFadeTime);
-        pauseMenu.transform.DOLocalMoveY(pauseMenuMoveY, exitMoveTime)
+        DOTween.Sequence().Append(pauseMenu.transform.DOLocalMoveY(pauseMenuMoveY, exitMoveTime))
+            .Join(timerController.transform.DOLocalMoveY(timerMoveY, enterMoveTime))
             .OnComplete(() => GameController.instance.UnloadSceneDangerously(Scenes.Pause));
     }
 

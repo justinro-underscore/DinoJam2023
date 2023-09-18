@@ -29,6 +29,8 @@ public class PlayController : ISceneController
     [SerializeField] private RectTransform canvasRect;
     [SerializeField] private IrisController irisController;
 
+    [SerializeField] private TimerController timerController;
+
     [SerializeField] private Transform startText;
 
     [SerializeField] private Image overlay;
@@ -42,8 +44,8 @@ public class PlayController : ISceneController
     [SerializeField] private float introCameraSize;
     [SerializeField] [Range(0.1f, 1.0f)] private float exitIrisTime = 0.1f;
     [SerializeField] [Range(0.1f, 2.0f)] private float exitWaitTime = 0.1f;
-    [SerializeField] [Range(0.0f, 1.0f)] private float overlayOpacity; // .3
-    [SerializeField] [Range(0.01f, 0.5f)] private float overlayFadeTime = 0.01f; // 0.2
+    [SerializeField] [Range(0.0f, 1.0f)] private float overlayOpacity;
+    [SerializeField] [Range(0.01f, 0.5f)] private float overlayFadeTime = 0.01f;
 
     [Header("Intro Variables")]
     [SerializeField] private bool debugShowFullIntroOverride;
@@ -61,11 +63,14 @@ public class PlayController : ISceneController
     [Header("Win/Lose Variables")]
     [SerializeField] [Range(0.1f, 2.0f)] private float failedMoveTime = 0.1f;
 
+    private GameData gameData;
+
     private bool showFullIntro;
 
     private int eggLives;
 
     private float initCameraSize;
+    private float initTimerPosY;
 
     protected void Awake()
     {
@@ -75,7 +80,7 @@ public class PlayController : ISceneController
             Destroy(gameObject);
 
         // Debug only: if the developer has the level scene already loaded in, set the scene name as the current play scene
-        GameData gameData = GameController.instance.GetGameData();
+        gameData = GameController.instance.GetGameData();
         if (gameData.currentPlaySceneName == "")
         {
             showFullIntro = debugShowFullIntroOverride;
@@ -90,6 +95,8 @@ public class PlayController : ISceneController
         StartIntroSequence();
 
         eggLives = maxEggLives;
+
+        gameData.playLevelData.levelTime = 0;
     }
 
     override protected void SceneUpdate()
@@ -104,6 +111,12 @@ public class PlayController : ISceneController
                 else
                     managedController.ManagedUpdate();
             }
+        }
+
+        if (State == PlayState.RUNNING)
+        {
+            gameData.playLevelData.levelTime += Time.deltaTime;
+            timerController.SetTime(Mathf.FloorToInt(gameData.playLevelData.levelTime));
         }
 
         if (Input.GetKeyDown(KeyCode.Escape) && State == PlayState.RUNNING && !GameController.instance.IsSceneLoaded(Scenes.Pause))
@@ -202,6 +215,9 @@ public class PlayController : ISceneController
 
     private void StartIntroSequence()
     {
+        initTimerPosY = timerController.transform.localPosition.y;
+        float timerPosY = (canvasRect.sizeDelta.y * 0.5f) + (timerController.transform as RectTransform).sizeDelta.y;
+        timerController.transform.localPosition = new Vector2(timerController.transform.localPosition.x, timerPosY);
         irisController.SetActive(true, 0);
         initCameraSize = playCamera.orthographicSize;
         if (showFullIntro)
@@ -246,6 +262,7 @@ public class PlayController : ISceneController
             .AppendCallback(() => SetPlayState(PlayState.RUNNING))
             .AppendInterval(introTextWaitTime)
             .Append(startText.DOLocalMoveY(-textOffscreenY, introTextMoveTime).SetEase(Ease.InQuad))
+            .Join(timerController.transform.DOLocalMoveY(initTimerPosY, introTextMoveTime).SetEase(Ease.OutQuad))
             .AppendCallback(() => startText.gameObject.SetActive(false));
     }
 
