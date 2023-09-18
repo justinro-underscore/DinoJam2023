@@ -5879,6 +5879,7 @@ MonoBehaviour:
   clearedEggImage: {fileID: 1909101836}
   clearedTokenParent: {fileID: 1005209936}
   clearedCollectedTokensImage: {fileID: 2108094859}
+  clearedTokensSlashImage: {fileID: 439692117}
   clearedTotalTokensImage: {fileID: 612064256}
   clearedContinueMenu: {fileID: 701776576}
   introCameraSize: 5
@@ -5899,32 +5900,47 @@ MonoBehaviour:
   introTextWaitTime: 1.12
   failedMoveTime: 1.03
   clearedOverlayFadeTime: 0.264
-  clearedStartWaitTime: 0.1
+  clearedStartWaitTime: 0
   clearedMoveTime: 0.74
-  clearedElemStartWaitTime: 0.1
-  clearedElemEndWaitTime: 0.1
-  clearedStarsWaitTime: 0.95
+  clearedElemStartWaitTime: 0.33
+  clearedElemEndWaitTime: 0.54
+  clearedStarsWaitTime: 0.4
   starAwardOrder: 00000000030000000200000001000000
   starFilledSprite: {fileID: 390896165, guid: 4ca89827fb7139c4f9cff7d6909ec2eb, type: 3}
   starFillScale: 1.2
   starFillInTime: 0.078
   starFillOutTime: 0.145
   clearedElementMoveTime: 0.302
+  clearedLevelWaitTime: 0.52
   clearedTimerCountTime: 1.49
-  clearedTimerWaitTime: 0.156
+  clearedTimerWaitTime: 0.465
   clearedTimerNoAwardWaitTime: 0.25
   clearedTimerAwardWaitTime: 0.91
   clearedEggAwardScale: 1.105
   clearedEggAwardInTime: 0.078
   clearedEggAwardOutTime: 0.141
   clearedEggcrackShakeTime: 0.182
-  clearedEggcrackShakeStrength: 0.125
+  clearedEggcrackShakeStrength: 10
   clearedEggcrackShakeVibrato: 31
   eggCrackSprites:
   - {fileID: -1631986839, guid: c57a1fffdf9bad34f9c04cea2c7bcee7, type: 3}
   - {fileID: -685829960, guid: c57a1fffdf9bad34f9c04cea2c7bcee7, type: 3}
   - {fileID: 926889899, guid: c57a1fffdf9bad34f9c04cea2c7bcee7, type: 3}
   clearedEggWaitTime: 0.43
+  numberSprites:
+  - {fileID: -1880889448, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
+  - {fileID: -538092408, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
+  - {fileID: -982249337, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
+  - {fileID: 927930728, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
+  - {fileID: -972840643, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
+  - {fileID: 670603730, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
+  - {fileID: 1119396517, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
+  - {fileID: -628181753, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
+  - {fileID: -444434293, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
+  - {fileID: -860335573, guid: 9308aa065efd96243af62b6a5509bd10, type: 3}
+  clearedTokensCountTime: 0.43
+  clearedTokensWaitTime: 0.816
+  clearedTokensAwardWaitTime: 0.448
 --- !u!4 &2087297706
 Transform:
   m_ObjectHideFlags: 0
