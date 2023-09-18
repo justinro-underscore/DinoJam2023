@@ -13,9 +13,11 @@ public class PauseController : ISceneController
     [SerializeField] private SelectableMenuController pauseMenu;
     [SerializeField] private IrisController irisController;
     [SerializeField] private RectTransform levelDataElements;
-    [SerializeField] private TimerController timerController;
     [SerializeField] private Image eggImage;
     [SerializeField] private RectTransform eggHearts;
+    [SerializeField] private TimerController timerController;
+    [SerializeField] private Image tokenCountImage;
+    [SerializeField] private Image maxTokenCountImage;
 
     [Header("Variables")]
     [SerializeField] [Range(0.01f, 0.5f)] private float overlayFadeTime = 0.01f;
@@ -24,6 +26,7 @@ public class PauseController : ISceneController
     [SerializeField] [Range(0.1f, 1.0f)] private float exitMoveTime = 0.1f;
     [SerializeField] List<Sprite> eggCrackedSprites;
     [SerializeField] Sprite eggHeartYolkSprite;
+    [SerializeField] List<Sprite> numberSprites;
 
     private PlayController playController;
     private bool ready;
@@ -79,6 +82,9 @@ public class PauseController : ISceneController
         }
 
         timerController.SetTime(Mathf.FloorToInt(levelData.levelTime));
+
+        tokenCountImage.sprite = numberSprites[levelData.tokensCollected];
+        maxTokenCountImage.sprite = numberSprites[9]; // TODO Replace with number of tokens
     }
 
     public void ResumeLevel()

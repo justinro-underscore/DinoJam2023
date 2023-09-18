@@ -17,6 +17,7 @@ TagManager:
   - TarBubble
   - Star
   - PlayController
+  - Token
   layers:
   - Default
   - TransparentFX

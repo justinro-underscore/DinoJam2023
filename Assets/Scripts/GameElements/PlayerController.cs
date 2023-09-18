@@ -423,6 +423,11 @@ public class PlayerController : IManagedController
             // TODO Maybe when in nestshow sprite mask so wings don't clip out of nest?
             PlayController.Instance.WinLevel();
         }
+        else if (other.gameObject.CompareTag("Token"))
+        {
+            PlayController.Instance.CollectToken();
+            other.GetComponent<TokenController>().CollectToken();
+        }
 
         // TODO: ideally we handle this better with a script we can attach to any game object separate from main logic
         // TODO: something like a damage emitter and damage accumulator script or whatever and that can handle checking and storing
