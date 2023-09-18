@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PauseScene.unity
     guid: b3d24d4f9bf37af4bafe0a21f6b2e239
+  - enabled: 1
+    path: Assets/Scenes/Levels/JurassicJamScene.unity
+    guid: 19716b6d22067fd4e8072ec34f131a82
   m_configObjects: {}
