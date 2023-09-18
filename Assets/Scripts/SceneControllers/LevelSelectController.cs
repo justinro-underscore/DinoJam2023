@@ -129,6 +129,9 @@ public class LevelSelectController : ISceneController
             gameData.currentPlaySceneName = selectedLevel.level.GetSceneName();
             gameData.shouldShowFullLevelIntro = true;
 
+            // Pause player animation
+            playerTransform.GetComponent<Animator>().speed = 0;
+
             DOTween.Sequence().Append(irisController.AnimateIrisOut(irisOutSpeed).SetEase(Ease.Linear))
                 .AppendInterval(0.75f)
                 .OnComplete(() => GameController.instance.ChangeState(GameState.PLAY));
@@ -172,6 +175,9 @@ public class LevelSelectController : ISceneController
         // We are moving icon
         isMovingIcon = true;
 
+        // Pause player animation
+        playerTransform.GetComponent<Animator>().speed = 0;
+
         // Disable any active level menu
         levelSelectUIController.SetLevelMenuActive(false);
 
@@ -182,6 +188,10 @@ public class LevelSelectController : ISceneController
             .OnComplete(() =>
                 {
                     isMovingIcon = false;
+
+                    // TODO: create generic functions
+                    // Resume player animation
+                    playerTransform.GetComponent<Animator>().speed = 1;
 
                     if (!selectedLevel.level.IsHomeBase())
                     {
