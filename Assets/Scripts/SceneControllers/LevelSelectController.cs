@@ -171,7 +171,7 @@ public class LevelSelectController : ISceneController
                 {
                     selectedLevelIndex += 1;
                     selectedLevelDataIndex += 1;
-                    ChangeSelectedLevel();
+                    ChangeSelectedLevel(false);
                 }
             }
         }
@@ -183,12 +183,12 @@ public class LevelSelectController : ISceneController
                 // Don't need to check backwards for locked as we only move forward
                 selectedLevelIndex -= 1;
                 selectedLevelDataIndex -= 1;
-                ChangeSelectedLevel();
+                ChangeSelectedLevel(true);
             }
         }
     }
 
-    private void ChangeSelectedLevel()
+    private void ChangeSelectedLevel(bool backwards)
     {
         // Update selected level
         selectedLevel = levelList[selectedLevelIndex];
@@ -203,23 +203,24 @@ public class LevelSelectController : ISceneController
         levelSelectUIController.SetLevelMenuActive(false);
 
         // Move player icon to new selected level icon
-        playerTransform.DOMove(selectedLevel.level.GetLevelIconLocation(), playerIconSpeed, false)
+        playerTransform.DOPath(selectedLevel.level.GetPathWaypoints(backwards).ToArray(), playerIconSpeed, PathType.CubicBezier, PathMode.TopDown2D)
             .SetEase(Ease.Linear)
             .SetSpeedBased(true)
-            .OnComplete(() =>
-                {
-                    isMovingIcon = false;
+            .OnComplete(finishMovement);
+    }
 
-                    // TODO: create generic functions
-                    // Resume player animation
-                    playerTransform.GetComponent<Animator>().speed = 1;
+    private void finishMovement()
+    {
+        isMovingIcon = false;
 
-                    if (!selectedLevel.level.IsHomeBase())
-                    {
-                        UpdateLevelMenu();
-                    }
-                }
-            );
+        // TODO: create generic functions
+        // Resume player animation
+        playerTransform.GetComponent<Animator>().speed = 1;
+
+        if (!selectedLevel.level.IsHomeBase())
+        {
+            UpdateLevelMenu();
+        }
     }
 
     private void UpdateLevelMenu()

@@ -21,17 +21,32 @@ public class Level : MonoBehaviour
 
     [SerializeField] private float yOffset;
 
+    private List<Vector3> forwardPathWaypoints;
+    private List<Vector3> backPathWaypoints;
+
     private List<GameObject> stars;
 
     public void Awake()
     {
         stars = new List<GameObject>();
+        forwardPathWaypoints = new List<Vector3>();
+        backPathWaypoints = new List<Vector3>();
         
         foreach (Transform child in transform)
         {
-            if (child.CompareTag(Constants.starTag))
+            if (child.CompareTag(Constants.STAR_TAG))
             {
                 stars.Add(child.gameObject);
+            }
+
+            if (child.CompareTag(Constants.WAYPOINT_TAG))
+            {
+                forwardPathWaypoints.Add(child.position);
+            }
+
+            if (child.CompareTag(Constants.BACKWARD_WAYPOINT_TAG))
+            {
+                backPathWaypoints.Add(child.position);
             }
         }
     }
@@ -103,5 +118,10 @@ public class Level : MonoBehaviour
     public bool IsHomeBase()
     {
         return isHomeBase;
+    }
+
+    public List<Vector3> GetPathWaypoints(bool backwards)
+    {
+        return backwards ? backPathWaypoints : forwardPathWaypoints;
     }
 }

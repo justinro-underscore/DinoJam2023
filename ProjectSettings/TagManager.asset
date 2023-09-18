@@ -18,6 +18,7 @@ TagManager:
   - Star
   - PlayController
   - Token
+  - WaypointBackwards
   layers:
   - Default
   - TransparentFX
