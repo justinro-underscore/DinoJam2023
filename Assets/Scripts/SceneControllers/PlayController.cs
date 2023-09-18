@@ -254,7 +254,7 @@ public class PlayController : ISceneController
         startText.gameObject.SetActive(true);
         SetPlayState(PlayState.RUNNING);
 
-        DOTween.Sequence().Append(startText.DOLocalMoveY(0, introTextMoveTime).SetEase(Ease.OutQuad))
+        DOTween.Sequence().Append(startText.DOLocalMoveY(1, introTextMoveTime).SetEase(Ease.OutQuad))
             .AppendCallback(() => SetPlayState(PlayState.RUNNING))
             .AppendInterval(introTextWaitTime)
             .Append(startText.DOLocalMoveY(-textOffscreenY, introTextMoveTime).SetEase(Ease.InQuad))
