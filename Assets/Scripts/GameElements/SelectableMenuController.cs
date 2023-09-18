@@ -75,9 +75,9 @@ public class SelectableMenuController : MonoBehaviour
             shiftTime -= indicatorShiftTime;
         }
 
-        if (Input.GetKeyDown(KeyCode.DownArrow))
+        if (Input.GetKeyDown(KeyCode.DownArrow) && numOptions > 1)
             AdjustSelectedOption(1);
-        else if (Input.GetKeyDown(KeyCode.UpArrow))
+        else if (Input.GetKeyDown(KeyCode.UpArrow) && numOptions > 1)
             AdjustSelectedOption(-1);
         else if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
             SelectOption();
@@ -90,11 +90,13 @@ public class SelectableMenuController : MonoBehaviour
         else if (currSelectedOption < 0) currSelectedOption = numOptions - 1;
         shiftTime = 0;
         shifted = false;
+        AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.MenuCursor);
         UpdateIndicatorPosition();
     }
 
     private void SelectOption()
     {
+        AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.MenuClick);
         Sequence seq = DOTween.Sequence();
         if (selectedBlinkAmount % 2 == 1) selectedBlinkAmount++;
         Image menuOptionImage = menuOptions[currSelectedOption].GetComponent<Image>();

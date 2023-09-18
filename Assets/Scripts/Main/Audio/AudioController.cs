@@ -4,10 +4,39 @@ using UnityEngine;
 
 public static class SoundEffectKeys
 {
+    public const string TromboneUp = "TromboneUp";
+    public const string TromboneDown = "TromboneDown";
+    public const string TromboneUpSmall = "TromboneUpSmall";
+    public const string CountingNumber = "Counting number click";
+    public const string DinoRoar = "Dino Roar";
+    public const string EggBreak = "Egg Break";
+    public const string EggCrack = "Egg Crack";
+    public const string EggDrop = "Egg drop";
+    public const string EggGet = "Egg get";
+    public const string BodyInCar = "BodyInCar";
+    public const string FailedStar = "Failed Star";
+    public const string FlapBig1 = "Flap big 1";
+    public const string FlapBig2 = "Flap big 2";
+    public const string FlapSmall1 = "Flap small 1";
+    public const string FlapSmall2 = "Flap small 2";
+    public const string JungleAmbience = "Jungle Ambiance"; // TODO
+    public const string LevelLose = "Level loose";
+    public const string LevelSelect = "Level Select";
+    public const string LevelWin = "Level Win"; // TODO
+    public const string MenuClick = "Menu click";
+    public const string MenuCursor = "Menu cursor";
+    public const string Nest = "Nest";
+    public const string Slurp = "Slurp"; // TODO
+    public const string DinoFootprint = "Star Dino Footprint";
+    public const string StoneMove = "Stone Moving";
+    public const string Token = "Token";
+    public const string WallCollision = "Wall collision";
 }
 
 public static class MusicKeys
 {
+    public const string ForestGameMusic = "forest_with_stank";
+    public const string MenuMusic = "menu_with_bois";
 }
 
 [Serializable]
@@ -120,6 +149,11 @@ public class AudioController : MonoBehaviour
         {
             oneShotAudioSources[audioId].Stop();
         }
+    }
+
+    public bool IsOneShotAudioPlaying(int audioId)
+    {
+        return oneShotAudioSources.ContainsKey(audioId) && oneShotAudioSources[audioId] && oneShotAudioSources[audioId].IsPlaying();
     }
 
     public void StopAllOneShotAudio()

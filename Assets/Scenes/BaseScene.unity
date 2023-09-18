@@ -327,8 +327,95 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameAudioSourcePrefab: {fileID: 8983768675178028037, guid: c36e2f978d810e6458944a8fab55f2f4, type: 3}
   baseVolume: 0.4
-  audioClipsList: []
-  musicClipsList: []
+  audioClipsList:
+  - audioClip: {fileID: 8300000, guid: 8da60ff2bf14a9e46bf33a8db9bd5cb7, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: baed2006628b4dd4b93f66a4e9b8172a, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: fdf3f608adac2574195c03946fbee5d3, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: ffd15f5f892f6d548b439c8230f4477f, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 07b4ea2a4ceb0fb41b629daa1be6c0ec, type: 3}
+    volume: 0.13
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: febb0043f1601994eb219cf538c80746, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 1a11916902c727c4aa307bc00e072588, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 6224405b0414eda419eaaa1dffdfa9ef, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 160fe51da88aef340acecb53a35e61f8, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 0d42c48adc1255046a3d7460e6352086, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: adb8006f3ea5a1e45a9ed9aec8e0def5, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: caac24d5f2792494ab8199399f2078e7, type: 3}
+    volume: 2
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 2f3c6e3c41af73d41900a50d186f0249, type: 3}
+    volume: 2
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 08275f511304d6c4781a63f8725f97f2, type: 3}
+    volume: 2
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: eee680e32442299409b4018a9f3ab126, type: 3}
+    volume: 2
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: d14e87b62532e0b46bb737f9a420d721, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 58c52d768d44c444189f59e0a6d32193, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: b5ff4fe1d35bdb64fbd4e3ecce154b8d, type: 3}
+    volume: 1.9
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 2f87452b313999c4fb8220dbb82f66ab, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 8a6a5825e53ed204cbc1c884e988a765, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 49916c95837e2604bb386d8e4285eb83, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 37179e158c7e6194cb4b39084306709a, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: e8273dd5476fe2a4d893b6ae34ea7697, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: e613de4226f7593498ef1ab7060b3523, type: 3}
+    volume: 0.89
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 19b4746dea6f3ae45950dd478e45b757, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: f9d180e4bddcf524585bc3608809c11a, type: 3}
+    volume: 1
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 259cb6f5c0eca36468696edb156bc862, type: 3}
+    volume: 1
+    audioName: 
+  musicClipsList:
+  - audioClip: {fileID: 8300000, guid: 84d501a03d944544ea01bc5e3f8b705f, type: 3}
+    volume: 0.34
+    audioName: 
+  - audioClip: {fileID: 8300000, guid: 277e640fc327f9144bc834976ac8d0a3, type: 3}
+    volume: 0.34
+    audioName: 
 --- !u!4 &1646508662
 Transform:
   m_ObjectHideFlags: 0

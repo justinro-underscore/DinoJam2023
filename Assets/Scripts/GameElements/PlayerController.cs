@@ -90,6 +90,7 @@ public class PlayerController : IManagedController
     private bool invulnerable;
     private float invulnerabilityTime;
     private bool gripCracked;
+    private int flapAudioId = -1;
 
     private float initGrav;
 
@@ -218,6 +219,12 @@ public class PlayerController : IManagedController
             }
             else if (wingData.lifting && !GetPlayerInputKey(wingData.key, false))
             {
+                if (flapAudioId < 0 || !AudioController.Instance.IsOneShotAudioPlaying(flapAudioId))
+                {
+                    flapAudioId = AudioController.Instance.PlayOneShotAudio(
+                        Random.value > 0.5f ? SoundEffectKeys.FlapBig2 : SoundEffectKeys.FlapSmall2
+                    );
+                }
                 wingData.lifting = false;
             }
         }
@@ -375,6 +382,7 @@ public class PlayerController : IManagedController
         eggController.transform.localPosition = new Vector2(0, -0.5f);
         rb2d.velocity = Vector2.zero;
         Physics2D.IgnoreLayerCollision(gameObject.layer, Mathf.FloorToInt(Mathf.Log(nestLayer.value, 2)));
+        AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.EggGet);
 
         // The build doesn't like it when we create colliders :(
         // List<PolygonCollider2D> colliders = eggController.GetEggColliders();
@@ -401,6 +409,7 @@ public class PlayerController : IManagedController
     {
         if (gripping && eggController)
         {
+            AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.EggDrop);
             eggController.DropEgg();
             foreach (PolygonCollider2D collider in eggColliders)
             {
@@ -447,7 +456,7 @@ public class PlayerController : IManagedController
         if (other.gameObject.CompareTag(Constants.DAMAGE_EMITTER_TAG))
         {
             // we lose if we touch something that can damage the player
-            PlayController.Instance.LoseLevel();
+            PlayController.Instance.LoseLevel(false);
         }
     }
     
@@ -466,16 +475,20 @@ public class PlayerController : IManagedController
     {
         if (PlayController.Instance.State != PlayState.RUNNING) return;
 
-        if ((collision.gameObject.CompareTag("Walls") || collision.gameObject.CompareTag(Constants.HAZARD_SOURCE_TAG)) && gripping && !invulnerable)
+        if ((collision.gameObject.CompareTag("Walls") || collision.gameObject.CompareTag(Constants.HAZARD_SOURCE_TAG)) && !invulnerable)
         {
-            float drainAmount = gripCollisionDrainAmount;
-            if (gripVal > gripCollisionSaveAmount)
+            AudioController.Instance.PlayOneShotAudio(SoundEffectKeys.BodyInCar);
+            if (gripping)
             {
-                drainAmount = Mathf.Min(gripCollisionDrainAmount, gripVal - gripCollisionSaveAmount);
+                float drainAmount = gripCollisionDrainAmount;
+                if (gripVal > gripCollisionSaveAmount)
+                {
+                    drainAmount = Mathf.Min(gripCollisionDrainAmount, gripVal - gripCollisionSaveAmount);
+                }
+                gripVal -= drainAmount;
+                staminaMeterController.SetStaminaPercentage(gripVal);
+                staminaMeterController.OnCollision();
             }
-            gripVal -= drainAmount;
-            staminaMeterController.SetStaminaPercentage(gripVal);
-            staminaMeterController.OnCollision();
             SetInvulnerable();
         }
     }
@@ -528,7 +541,10 @@ public class PlayerController : IManagedController
             var wingAnim = wingData.transform.DORotate(new Vector3(0, 0, wingFlapTo), wingUp ? introWingUpTime : introWingDownTime);
             wingAnim.SetEase(wingData.innerWing ? Ease.InOutQuad : Ease.InOutSine);
             if (i == 0 || i == wingCount)
+            {
+                seq.AppendCallback(() => AudioController.Instance.PlayOneShotAudio(i == 0 ? SoundEffectKeys.FlapBig2 : SoundEffectKeys.FlapSmall2));
                 seq.Append(wingAnim);
+            }
             else
                 seq.Join(wingAnim);
         }
