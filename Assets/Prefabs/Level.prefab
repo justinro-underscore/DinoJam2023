@@ -103,6 +103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: PlayScene
   isLocked: 1
+  isHomeBase: 0
   unlockedIconSprite: {fileID: 21300000, guid: a9fde5ff3b213ef4b8376b4c160eae14, type: 3}
   fullStarSprite: {fileID: 390896165, guid: 4ca89827fb7139c4f9cff7d6909ec2eb, type: 3}
   levelPreview: {fileID: 0}
@@ -110,6 +111,7 @@ MonoBehaviour:
   numTokens: 0
   targetLevelTimeSeconds: 0
   numStarsToPass: 0
+  yOffset: 0.5
 --- !u!1 &606688695237407796
 GameObject:
   m_ObjectHideFlags: 0

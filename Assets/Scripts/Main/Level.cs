@@ -19,6 +19,8 @@ public class Level : MonoBehaviour
     [SerializeField] private int targetLevelTimeSeconds;
     [SerializeField] private int numStarsToPass;
 
+    [SerializeField] private float yOffset;
+
     private List<GameObject> stars;
 
     public void Awake()
@@ -36,7 +38,8 @@ public class Level : MonoBehaviour
 
     public Vector3 GetLevelIconLocation()
     {
-        return gameObject.GetComponent<SpriteRenderer>().bounds.center;
+        // return gameObject.GetComponent<SpriteRenderer>().bounds.center;
+        return transform.position + new Vector3(0, yOffset, 0);
     }
 
     public bool CanUnlockLevel(int totalStars)

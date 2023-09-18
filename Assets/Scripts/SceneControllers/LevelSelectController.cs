@@ -96,9 +96,9 @@ public class LevelSelectController : ISceneController
         {
             // Zip level and level data for everything beyond home level
             levelList.Add(new LevelInfoTuple(levels[0], null));
-            for (int i = 1; i < levelData.Count; i++)
+            for (int i = 1; i < levels.Count; i++)
             {
-                levelList.Add(new LevelInfoTuple(levels[i], levelData[i]));
+                levelList.Add(new LevelInfoTuple(levels[i], levelData[i - 1]));
             }
         }
 
