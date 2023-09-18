@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7206227952718460689}
   - component: {fileID: -5958717245670442498}
-  - component: {fileID: 1275455322068540046}
-  m_Layer: 0
+  - component: {fileID: 4611156727404736090}
+  m_Layer: 9
   m_Name: SpikesCeiling
   m_TagString: DamageEmitter
   m_Icon: {fileID: 0}
@@ -74,10 +74,10 @@ SpriteRenderer:
   m_SortingLayerID: -822872599
   m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 1112b0fe19747ac4eb68535f125fe322, type: 3}
+  m_Sprite: {fileID: 203346686, guid: 7401aeaab4e813542965be2894bb400b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
-  m_FlipY: 0
+  m_FlipY: 1
   m_DrawMode: 0
   m_Size: {x: 0.32, y: 0.32}
   m_AdaptiveModeThreshold: 0.5
@@ -85,8 +85,8 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &1275455322068540046
-BoxCollider2D:
+--- !u!60 &4611156727404736090
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -108,6 +108,23 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.26135698, y: 0.36364302}
+      - {x: 0.10495154, y: 0.366155}
+      - {x: 0.007748382, y: 0.3729301}
+      - {x: -0.18491721, y: 0.35950324}
+      - {x: -0.29854196, y: 0.323344}
+      - {x: -0.34810176, y: 0.052898567}
+      - {x: -0.42251614, y: -0.16165382}
+      - {x: -0.25102258, y: 0.01901535}
+      - {x: -0.10212749, y: 0.16879393}
+      - {x: -0.050365068, y: -0.0888246}
+      - {x: -0.034706257, y: -0.24138382}
+      - {x: 0.13317545, y: 0.0013989508}
+      - {x: 0.1503466, y: 0.23923326}
+      - {x: 0.32122067, y: 0.13322935}
+      - {x: 0.32430226, y: -0.0399258}
+      - {x: 0.42251617, y: -0.11258072}
+      - {x: 0.40960214, y: 0.16167206}
+      - {x: 0.34193656, y: 0.27582797}
