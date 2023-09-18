@@ -93,6 +93,7 @@ public class PlayController : ISceneController
 
         gameData.playLevelData.eggHealth = 0;
         gameData.playLevelData.levelTime = 0;
+        gameData.playLevelData.tokensCollected = 0;
     }
 
     override protected void SceneUpdate()
@@ -154,6 +155,11 @@ public class PlayController : ISceneController
         DOTween.PlayAll();
         SetPlayState(PlayState.RUNNING);
         overlay.DOFade(0, overlayFadeTime).OnComplete(() => overlay.gameObject.SetActive(false));
+    }
+
+    public void CollectToken()
+    {
+        gameData.playLevelData.tokensCollected++;
     }
 
     public void TakeEggDamage()
