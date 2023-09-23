@@ -10994,7 +10994,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 8
-      m_TileSpriteIndex: 11
+      m_TileSpriteIndex: 16
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -11093,8 +11093,8 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 1
-    m_Data: {fileID: -1235405377, guid: 8adf2bc7c681c6d4cb841f160c72ae1a, type: 3}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 0
@@ -11103,8 +11103,8 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 1
     m_Data: {fileID: -685415403, guid: 5e2b3d5062342fe47a87c18322e4460c, type: 3}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 1
+    m_Data: {fileID: -1235405377, guid: 8adf2bc7c681c6d4cb841f160c72ae1a, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: 130066804, guid: 5e2b3d5062342fe47a87c18322e4460c, type: 3}
   - m_RefCount: 2
@@ -13365,7 +13365,7 @@ MonoBehaviour:
   clearedElemStartWaitTime: 0.33
   clearedElemEndWaitTime: 0.54
   clearedStarsWaitTime: 0.4
-  starAwardOrder: 00000000030000000200000001000000
+  starAwardOrder: 00000000010000000200000003000000
   starFilledSprite: {fileID: 390896165, guid: 4ca89827fb7139c4f9cff7d6909ec2eb, type: 3}
   starFillScale: 1.2
   starFillInTime: 0.078

@@ -14257,7 +14257,7 @@ MonoBehaviour:
   clearedElemStartWaitTime: 0.33
   clearedElemEndWaitTime: 0.54
   clearedStarsWaitTime: 0.4
-  starAwardOrder: 00000000030000000200000001000000
+  starAwardOrder: 00000000010000000200000003000000
   starFilledSprite: {fileID: 390896165, guid: 4ca89827fb7139c4f9cff7d6909ec2eb, type: 3}
   starFillScale: 1.2
   starFillInTime: 0.078

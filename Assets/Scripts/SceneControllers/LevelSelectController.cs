@@ -227,6 +227,11 @@ public class LevelSelectController : ISceneController
 
         if (!selectedLevel.level.IsHomeBase())
         {
+            Debug.Log($"{selectedLevel.level.GetLevelTitle()}");
+            foreach (bool starData in selectedLevel.levelData.starData)
+            {
+                Debug.Log(starData);
+            }
             UpdateLevelMenu();
         }
     }
@@ -257,6 +262,7 @@ public class LevelSelectController : ISceneController
             if (levelList[i].levelData.isLocked && levelList[i].level.CanUnlockLevel(collectedStars))
             {
                 levelList[i].level.UnlockLevel();
+                levelList[i].levelData.isLocked = false;
             }
 
             levelList[i].level.LoadLevel(levelList[i].levelData);
