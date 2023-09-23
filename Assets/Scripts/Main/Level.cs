@@ -4,30 +4,37 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
+    [Header("Level Info")]
     [SerializeField] private string sceneName;
     [SerializeField] private bool isLocked = true;
     [SerializeField] private bool isHomeBase = false;
 
     // Unlocked sprite for unlocked levels and filled stars
+    [Header("Level Icon Sprites")]
     [SerializeField] private Sprite unlockedIconSprite;
     [SerializeField] private Sprite fullStarSprite;
 
     // Level menu details
+    [Header("Level Menu Info")]
     [SerializeField] private Sprite levelPreview;
     [SerializeField] private Sprite levelTitle;
     [SerializeField] private int numTokens;
     [SerializeField] private int targetLevelTimeSeconds;
     [SerializeField] private int numStarsToUnlockLevel;
 
+    [Header("Player Icon Offset")]
     [SerializeField] private float yOffset;
 
+    [Header("Level Locked Info")]
     [SerializeField] private GameObject compy;
     [SerializeField] private SpriteRenderer starsDigit;
     [SerializeField] private List<Sprite> digitSprites;
 
+    [Header("Level Icon Paths")]
     private List<Vector3> forwardPathWaypoints;
     private List<Vector3> backPathWaypoints;
 
+    [Header("Level Stars")]
     private List<GameObject> stars;
 
     public void Awake()
