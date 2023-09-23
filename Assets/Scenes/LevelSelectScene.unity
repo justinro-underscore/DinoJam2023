@@ -2080,7 +2080,7 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 951ab24a5124a7a4e8d37ef260d44667, type: 3}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: isLocked
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -2332270946768047686, guid: 55a4e2d522f402740a5ae7c1cd1913d3, type: 3}
       propertyPath: numTokens
