@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public static class Scenes {
     public const string Base = "BaseScene";
     public const string MainMenu = "MainMenuScene";
+    public const string Puppet = "PuppetScene";
     public const string LevelSelect = "LevelSelectScene";
     public const string Pause = "PauseScene";
 
@@ -23,6 +24,7 @@ public static class Scenes {
 public class SceneController : MonoBehaviour {
     private IDictionary<string, GameState> gameSceneStateMapping = new Dictionary<string, GameState>() {
         {Scenes.MainMenu, GameState.MAIN_MENU},
+        {Scenes.Puppet, GameState.PUPPET},
         {Scenes.LevelSelect, GameState.LEVEL_SELECT},
         {Scenes.Pause, GameState.PAUSE},
         {Scenes.BaseLevel, GameState.PLAY},

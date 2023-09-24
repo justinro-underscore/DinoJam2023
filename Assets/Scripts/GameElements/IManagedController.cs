@@ -4,7 +4,7 @@ public abstract class IManagedController : MonoBehaviour
 {
     protected void Start()
     {
-        PlayController.Instance.RegisterManagedController(this);
+        if (PlayController.Instance) PlayController.Instance.RegisterManagedController(this);
         ManagedStart();
     }
 

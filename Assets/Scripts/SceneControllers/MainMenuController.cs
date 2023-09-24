@@ -31,4 +31,12 @@ public class MainMenuController : ISceneController
             .AppendInterval(0.7f)
             .OnComplete(() => GameController.instance.ChangeState(GameState.LEVEL_SELECT));
     }
+
+    public void EnterPuppetMode()
+    {
+        DOTween.Sequence().AppendInterval(0.1f)
+            .Append(irisController.AnimateIrisOut(0.4f).SetEase(Ease.OutSine))
+            .AppendInterval(0.3f)
+            .OnComplete(() => GameController.instance.ChangeState(GameState.PUPPET));
+    }
 }

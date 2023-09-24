@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenuScene.unity
     guid: 4440e40926c809a4bba376dba65da8e9
   - enabled: 1
+    path: Assets/Scenes/PuppetScene.unity
+    guid: 7738beabd14f99b4bb1b7e7c62370f22
+  - enabled: 1
     path: Assets/Scenes/LevelSelectScene.unity
     guid: c7bb42042251d05478fa6f156f4a92fb
   - enabled: 1

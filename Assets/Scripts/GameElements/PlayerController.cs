@@ -64,6 +64,7 @@ public class PlayerController : IManagedController
     [SerializeField] [Range(0.0f, 2.0f)] private float invulnerabilityInitTime;
 
     [Header("Player Settings")]
+    [SerializeField] private bool rotateWhenFlying = true;
     [SerializeField] [Range(5.0f, 15.0f)] private float rotationScalar = 5.0f;
     [SerializeField] [Range(1.0f, 200.0f)] private float eggGrabForceScalar = 1.0f;
     [SerializeField] [Range(0.1f, 8.0f)] private float maxVelocityX = 0.1f;
@@ -177,17 +178,17 @@ public class PlayerController : IManagedController
 
     override public void ManagedUpdate()
     {
-        if (PlayController.Instance.State == PlayState.INTRO) return;
+        if (PlayController.Instance && PlayController.Instance.State == PlayState.INTRO) return;
 
         CheckForWingInput();
         if (canGrip) HandleGrip();
 
-        transform.localEulerAngles = new Vector3(0, 0, rb2d.velocity.x * -rotationScalar);
+        if (rotateWhenFlying) transform.localEulerAngles = new Vector3(0, 0, rb2d.velocity.x * -rotationScalar);
     }
 
     override public void ManagedFixedUpdate()
     {
-        if (PlayController.Instance.State == PlayState.INTRO) return;
+        if (PlayController.Instance && PlayController.Instance.State == PlayState.INTRO) return;
 
         foreach (WingData wingData in wingDatas)
         {

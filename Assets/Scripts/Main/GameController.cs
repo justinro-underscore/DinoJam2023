@@ -4,6 +4,7 @@ using UnityEngine;
 public enum GameState {
     UNKNOWN,
     MAIN_MENU,
+    PUPPET,
     LEVEL_SELECT,
     PLAY,
     PAUSE
@@ -63,9 +64,21 @@ public class GameController : MonoBehaviour {
                     sceneController.UnloadScene(Scenes.MainMenu);
                     nextSceneName = Scenes.LevelSelect;
                 }
+                else if (newGameState == GameState.PUPPET)
+                {
+                    sceneController.UnloadScene(Scenes.MainMenu);
+                    nextSceneName = Scenes.Puppet;
+                }
                 else
                 {
                     handled = false;
+                }
+                break;
+            case GameState.PUPPET:
+                if (newGameState == GameState.MAIN_MENU)
+                {
+                    sceneController.UnloadScene(Scenes.Puppet);
+                    nextSceneName = Scenes.MainMenu;
                 }
                 break;
             case GameState.LEVEL_SELECT:
