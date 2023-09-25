@@ -5,9 +5,9 @@ public class LevelData
     public enum StarTypes
     {
         LEVEL_COMPLETE,
-        ALL_TOKENS,
+        PERFECT_TIME,
         PERFECT_EGG,
-        PERFECT_TIME
+        ALL_TOKENS
     }
 
     public int starRating;

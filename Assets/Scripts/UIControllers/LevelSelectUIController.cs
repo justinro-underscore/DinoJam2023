@@ -18,6 +18,7 @@ public class LevelSelectUIController : MonoBehaviour
     [SerializeField] private Image starTotalOnes;
 
     [SerializeField] private Sprite starFilled;
+    [SerializeField] private Sprite starEmpty;
 
     [SerializeField] private TimerController timerController;
 
@@ -61,10 +62,7 @@ public class LevelSelectUIController : MonoBehaviour
     {
         for (int i = 0; i < stars.Count; i++)
         {
-            if (collectedStars[i])
-            {
-                stars[i].sprite = starFilled;
-            }
+            stars[i].sprite = collectedStars[i] ? starFilled : starEmpty;
         }
     }
 
